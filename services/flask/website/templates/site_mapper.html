@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Site Map{% endblock %}
+{% block content %}
+<div>
+<table class="table table-dark">
+    {% for url in links %}
+        {% if loop.first %}
+            <tr>
+                 <td>
+                    <a class="nav-item nav-link" href="{{ url[0] }}">{{ url[0] }}</a>
+                    &emsp;
+                    {{ url[1] }}
+                 </td>
+        {% elif loop.index % 5 == 0 %}
+                <td>
+                    <a class="nav-item nav-link" href="{{ url[0] }}">{{ url[0] }}</a>
+                    &emsp;
+                    {{ url[1] }}
+                </td>
+            </tr>
+            <tr>
+        {% elif loop.index % 5 != 0 -%}
+            <td>
+                <a class="nav-item nav-link" href="{{ url[0] }}">{{ url[0] }}</a>
+                &emsp;
+                {{ url[1] }}
+            </td>
+        {% endif %}
+    {% endfor %}
+</tr>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+{% block title %}Processing Search{% endblock %} 
+{% block content %}
+    <h1 align="center">Processing Search</h1>
+    <form method="POST">
+    {{ form.hidden_tag() }}
+      <div>
+          <table align="center">
+                <tr>
+                    <td>{{ form.select }}</td>
+                    
+                    <td>{{ form.search }}</td>
+                </tr>   
+        </table>
+      </div>
+      <div>
+        <p style="background-color:white; width: 40%; display: block; margin-left: auto; margin-right: auto; text-align: center;">For Dates, use the format YYYY-MM-DD</p>
+      </div>
+      <div>
+          <p align="center" style="margin-bottom: 0; padding: 0%">
+              {{ form.submit }}
+              {% if pagination %}
+                {{ form.downl(formnovalidate=True) }}
+              {% endif %}
+                {{ form.clear(formnovalidate=True) }}
+          </p>
+      </div>
+    </form>
+    {% if count %}
+    <div align="center" style="padding-top:10px; background-color:white">
+        <p>Search returned {{ count }} results</p>
+    </div>
+    {% endif %} 
+    <div  style="height:800px; overflow:auto">
+        {% if pagination %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Unit #</th>
+                        <th>Product Name</th>
+                        <th>R2 Applicability</th>
+                        <th>Data Sanitization</th>
+                        <th>Next Process</th>
+                        <th>HDD MFG</th>
+                        <th>HDD Serial No</th>
+                        <th>Manufacturer</th>
+                        <th>Serial Number</th>
+                        <th>Asset</th>
+                        <th>New/Used</th>
+                        <th>Year of MFG</th>
+                        <th>Processor</th>
+                        <th>Speed</th>
+                        <th>RAM</th>
+                        <th>HDD Size</th>
+                        <th>Media</th>
+                        <th>COA</th>
+                        <th>Form Factor</th>
+                        <th>Tech Initials</th>
+                        <th>Grade</th>
+                        <th>Date</th>
+                        <th>Ac Adapter Included?</th>
+                        <th>Screen Size</th>
+                        <th>Test Result Codes</th>
+                        <th>Battery Load Test</th>
+                        <th>Org. Bat. Design Cap.</th>
+                        <th>Bat. Cap. at Test</th>
+                        <th>Percent Org. Bat. Cap.</th>
+                        <th>Battery Status</th>
+                        <th>Data Wiped?</th>
+                        <th>Sale Category</th>
+                        <th>ID</th>
+                    </tr>
+                </thead>
+            {% for row in pagination.items %}
+                <tbody>
+                    <tr>
+                        <td class="table_data">{{ row.orderNo }}</td>
+                        <td class="table_data">{{ row.unitNo }}</td>
+                        <td class="table_data">{{ row.productName }}</td>
+                        <td class="table_data">{{ row.r2Applicability }}</td>
+                        <td class="table_data">{{ row.dataSanitizationField }}</td>
+                        <td class="table_data">{{ row.nextProcessField }}</td>
+                        <td class="table_data">{{ row.hddMFG }}</td>
+                        <td class="table_data">{{ row.hddSerialNo }}</td>
+                        <td class="table_data">{{ row.Manufacturer }}</td>
+                        <td class="table_data">{{ row.serialNo }}</td>
+                        <td class="table_data">{{ row.asset }}</td>
+                        <td class="table_data">{{ row.newOrUsed }}</td>
+                        <td class="table_data">{{ row.yearMFG }}</td>
+                        <td class="table_data">{{ row.processor }}</td>
+                        <td class="table_data">{{ row.speed }}</td>
+                        <td class="table_data">{{ row.ram }}</td>
+                        <td class="table_data">{{ row.hddSize }}</td>
+                        <td class="table_data">{{ row.media }}</td>
+                        <td class="table_data">{{ row.coa }}</td>
+                        <td class="table_data">{{ row.formFactor }}</td>
+                        <td class="table_data">{{ row.techInitials }}</td>
+                        <td class="table_data">{{ row.grade }}</td>
+                        <td class="table_data">{{ row.date }}</td>
+                        <td class="table_data">{{ row.acAdapterIncluded }}</td>
+                        <td class="table_data">{{ row.screenSize }}</td>
+                        <td class="table_data">{{ row.testResultCodes }}</td>
+                        <td class="table_data">{{ row.batteryLoadTest }}</td>
+                        <td class="table_data">{{ row.originalDesignCap }}</td>
+                        <td class="table_data">{{ row.batCapAtTest }}</td>
+                        <td class="table_data">{{ row.percentOrgCap }}</td>
+                        <td class="table_data">{{ row.batteryPass }}</td>
+                        <td class="table_data">{{ row.dataWipe }}</td>
+                        <td class="table_data">{{ row.saleCategory }}</td>
+                        <td class="table_data">{{ row.autoId }}</td>
+                </tbody>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+    {% if pagination %}
+        <div>
+            <nav aria-label="Pagination Navigation" style="border-style:ridge;
+    border-color: limegreen; background-color:whitesmoke">
+                {{ macros.pagination_widget(pagination, 'testviews.pandas_paginate') }}
+            </nav>
+
+            <p class="text-center mt-3" style="background-color:whitesmoke">
+                Showing page {{ pagination.page }} of {{ pagination.pages }}
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}

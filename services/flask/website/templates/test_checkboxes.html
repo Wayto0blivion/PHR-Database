@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}HDD Search{% endblock %}
+{% block content %}
+    <h1 align="center">Killdisk Search</h1>
+    <form method=post>
+      <div>
+          <table align="center">
+                <tr>
+                    <td>Start Date</td>
+                    <td>{{ form.startdate }}</td>
+                </tr>
+              <tr>
+                  <td>End Date (Add One Day!)</td>
+                  <td>{{ form.enddate }}</td>
+              </tr>
+              <tr>
+                  <td>Batch Name</td>
+                  <td>{{ form.batch }}</td>
+              </tr>
+              <tr>
+                  <td>{{ form.passOnly.label }}</td>
+                  <td>{{ form.passOnly }}</td>
+                  <td>{{ form.passTest }}</td>
+              </tr>
+        </table>
+      </div>
+      <div>
+          <p align="center" style="margin-bottom: 0; padding:0">
+              {{ form.submit }}
+              {% if results %}
+                {{ form.downl }}
+              {% endif %}
+          </p>
+      </div>
+    </form>
+    {% if count %}
+    <div align="center" style="padding-top:10px; background-color:white">
+        {{ count }}
+    </div>
+    {% endif %}
+    <div  style="height:800px; overflow:auto">
+        {% if results %}
+            <!--{{ results|safe }}-->
+            <!--
+            <p><input type="submit" name="search_form_button" value="Download for Marketing(Incomplete)"></p>
+            -->
+            <table class="table table-dark">
+                <tr style="border-style: ridge; border-color: lime">
+                    <td>Process</td>
+                    <td>Finished</td>
+                    <td>Batch Started</td>
+                    <td>Batch</td>
+                    <td>Success</td>
+                    <td>Status</td>
+                    <td>Method</td>
+                    <td>Progress</td>
+                    <td>Disk Serial</td>
+                    <td>Disk Info</td>
+                    <td>DiskSizeStr</td>
+                    <td>Provider</td>
+                    <td>ProviderVer</td>
+                    <td>Host</td>
+                    <td>Err Msg</td>
+                </tr>
+            {% for row in results %}
+                <tr>
+                    <td>{{ row.Process }}</td>
+                    <td>{{ row.Finished }}</td>
+                    <td>{{ row.BatchStarted }}</td>
+                    <td>{{ row.Batch }}</td>
+                    <td>{{ row.Success }}</td>
+                    <td>{{ row.Status }}</td>
+                    <td>{{ row.Method }}</td>
+                    <td>{{ row.Progress }}</td>
+                    <td>{{ row.DiskSerial }}</td>
+                    <td>{{ row.DiskInfo }}</td>
+                    <td>{{ row.DiskSizeStr }}</td>
+                    <td>{{ row.Provider }}</td>
+                    <td>{{ row.ProviderVer }}</td>
+                    <td>{{ row.Host }}</td>
+                    <td>{{ row.ErrMsg }}</td>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

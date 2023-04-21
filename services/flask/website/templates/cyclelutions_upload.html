@@ -1,0 +1,62 @@
+{% extends "base.html" %} {% block title %}Import{% endblock %} {% block content
+    %}
+    <h1 align="center">Production Data</h1>
+    <table class="table table-dark" id="imports">
+        {% for record in imp %}
+        <tbody>
+        <tr>
+            <td>{{ record.orderNo }}</td>
+            <td>{{ record.productName }}</td>
+            <td>{{ record.Qty }}</td>
+            <td>{{ record.QtyBase }}</td>
+            <td>{{ record.Weight }}</td>
+            <td>{{ record.WeightBase }}</td>
+            <td>{{ record.RTS }}</td>
+            <td>{{ record.TDM }}</td>
+            <td>{{ record.SerialNo }}</td>
+            <td>{{ record.BusID }}</td>
+            <td>{{ record.serialNo }}</td>
+            <td>{{ record.Condition }}</td>
+            <td>{{ record.Manufacturer }}</td>
+            <td>{{ record.Model }}</td>
+            <td>{{ record.Color }}</td>
+            <td>{{ record.ScreenSize }}</td>
+            <td>{{ record.Grade }}</td>
+            <td>{{ record.Media }}</td>
+            <td>{{ record.ReceivingNotes }}</td>
+            <td>{{ record.YearOfMFG }}</td>
+            <td>{{ record.R2Applicability }}</td>
+            <td>{{ record.DataSanitizationField }}</td>
+            <td>{{ record.NextProcessField }}</td>
+            <td>{{ record.DataWipe }}</td>
+            <td>{{ record.newOrUsed }}</td>
+            <td>{{ record.FormFactor }}</td>
+            <td>{{ record.BatteryLoadTest }}</td>
+            <td>{{ record.BatteryStatus }}</td>
+            <td>{{ record.ACAdapterIncluded }}</td>
+            <td>{{ record.DDL1 }}</td>
+            <td>{{ record.DDL2 }}</td>
+            <td>{{ record.DDL3 }}</td>
+            <td>{{ record.DDL4 }}</td>
+            <td>{{ record.DDL5 }}</td>
+            <td>{{ record.DDL6 }}</td>
+            <td>{{ record.Processor }}</td>
+            <td>{{ record.Speed }}</td>
+            <td>{{ record.HDDSize }}</td>
+            <td>{{ record.RAM }}</td>
+            <td>{{ record.coa }}</td>
+            <td>{{ record.TechInitials }}</td>
+            <td>{{ record.AssetTag }}</td>
+            <td>{{ record.HddMFG }}</td>
+            <td>{{ record.HddSerial }}</td>
+            <td>{{ record.UnitNo }}</td>
+            <td>{{ record.Date }}</td>
+            <td>{{ record.PercentOrgCapacity }}</td>
+            <td>{{ record.OrgDesignCapacity }}</td>
+            <td>{{ record.CurrentCapacity }}</td>
+            <td>{{ record.TestResultCodes }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endblock %}

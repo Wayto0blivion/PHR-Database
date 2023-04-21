@@ -1,0 +1,14 @@
+<!--
+For testing. Part of the DATEPCKER calendar set for querying database with date range.
+
+-->
+{% extends "base.html" %}
+{% block title %}TEST_DATE{% endblock %}
+{% block content %}
+<div>
+    <h3> Select a date range</h3> 
+
+    <h4>Start Date: {{session['startdate']}}</h4>
+    <h4>End Date: {{session['enddate']}}</h4>
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+
+
+/* Sets the general options for background image */
+body {
+    background-image: url('Semitruck.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    margin: 0;
+}
+
+/* Styles the input boxes to be lime colored. */
+input {
+    margin:5px;
+    background-color:lime;
+}
+
+textarea {
+    background-color: lime;
+}
+
+/* Generic form options to set sizes. */
+form {
+    margin-top:5%;
+    margin-left:20%;
+    margin-right:20%;
+}
+
+
+/* Sets the header for tables that display search results.
+ Header sticks to the top of the table when scrolling. */
+thead th{
+    text-align: center;
+    position: sticky;
+    top: 0;
+    background-color: white;
+}
+
+/* This class is for tables that display database search results. */
+.data-table{
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* This class is for the td in each row to show borders and background */
+.table_data {
+    border: 1px solid black;
+    background-color: white;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/*  For pagination Navigation */
+.page-nav {
+    border-style: ridge;
+    border-color: limegreen;
+    background-color: whitesmoke;
+}
+
+
+/* This class is for the equipment checklist master div */
+.equip_div_parent {
+    display: flex;
+    flex-direction: row;
+    flex-flow: row wrap;
+    background-color: lightblue;
+    width: 100%;
+    padding: 15px;
+}
+
+.equip_div_child_desc {
+    order: 1;
+    width: 50%;
+    font-weight: bold;
+}
+
+.equip_div_child_serial {
+    order: 2;
+    width: 50%;
+    font-weight: bold;
+}
+
+.equip_div_audit {
+    order: 3;
+    width: 100%;
+}
+
+.equip_div_child_type {
+    order: 4;
+    padding: 15px;
+    width: 100%;
+}
+
+.equip_div_child_left {
+    order: 5;
+    width: 50%;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+
+.equip_div_child_right {
+    order: 6;
+    width: 50%;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+
+.equip_div_status {
+    order: 7;
+    width: 50%;
+    text-align: center;
+}
+
+.equip_div_r2 {
+    order: 8;
+    width: 50%;
+    text-align: center;
+}
+
+.equip_div_salecat {
+    order: 9;
+    width: 100%;
+    text-align: left;
+}
+
+.equip_div_disclosure {
+    order: 10;
+    width: 100%;
+    text-align: center;
+}
+
+.equip_div_pic {
+    order:11;
+    width: 50%;
+    text-align: center;
+}
+
+.equip_div_notes {
+    order: 12;
+    width: 50%;
+    text-align: center;
+}
+

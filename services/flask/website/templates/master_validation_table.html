@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Validation{% endblock %}
+{% block content %}
+    <h1 align="center">Testing Quality Control Database</h1>
+    <form method="post">
+    {{ form.hidden_tag() }}
+        <div>
+            <table style="text-align: center; margin-left: auto; margin-right: auto">
+                <tr>
+                    <td>{{ form.startdate }}</td>
+                    <td>{{ form.enddate }}</td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <p style="text-align: center; margin-bottom: 0; padding: 0%">
+                {{ form.submit }}
+                {% if pagination %}
+                    {{ form.downl(formnovalidate=True) }}
+                {% endif %}
+                {{ form.clear(formnovalidate=True) }}
+            </p>
+        </div>
+    </form>
+    {% if count %}
+        <div style="text-align: center; padding-top: 10px; background-color: white">
+            <p>Search returned {{ count }} results</p>
+        </div>
+    {% endif %}
+    <div style="height:800px; overflow:auto">
+        {% if pagination %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Product Type</th>
+                        <th>Serial #</th>
+                        <th>Cosmetic Condition</th>
+                        <th>Functional Condition</th>
+                        <th>Status Verification</th>
+                        <th>Data Sanitized</th>
+                        <th>Date</th>
+                        <th>Initials</th>
+                        <th>Nonconformity Notes</th>
+                        <th>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in pagination.items %}
+                        <tr>
+                            <td class="table_data">{{ row.ProductType }}</td>
+                        <td class="table_data">{{ row.SerialNumber }}</td>
+                            <td class="table_data">
+                                {% if row.VisualInspection == 1 %}
+                                    Pass
+                                {% else %}
+                                    Fail
+                                {% endif %}
+                            </td>
+                            <td class="table_data">
+                                {% if row.Retest == 1 %}
+                                    Pass
+                                {% else %}
+                                    Fail
+                                {% endif %}
+                            </td>
+                            <td class="table_data">
+                                {% if row.StatusVerification == 1 %}
+                                    Pass
+                                {% else %}
+                                    Fail
+                                {% endif %}
+                            </td>
+                            <td class="table_data">
+                                {% if row.DataSanitizationVerified == 1 %}
+                                    Pass
+                                {% else %}
+                                    Fail
+                                {% endif %}
+                            </td>
+                            <td class="table_data">{{ row.Date }}</td>
+                            <td class="table_data">{{ row.Initials }}</td>
+                            <td class="table_data"><textarea rows="1" cols="50" style="margin-left: auto; margin-right: auto; resize: both;">{{ row.NonconformityNotes }}</textarea></td>
+                            <td class="table_data">{{ row.Department }}</td>
+                            <!-- <td class="table_data">{{ row.autoID }}</td> -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    {% if pagination %}
+        <div>
+            <nav class="page-nav" aria-label="Pagination Navigation">
+                {{ macros.pagination_widget(pagination, 'searchviews.master_validation') }}
+            </nav>
+            <p class="text-center mt-3" style="background-color: whitesmoke">
+                Showing page {{ pagination.page }} of {{ pagination.pages }}
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}

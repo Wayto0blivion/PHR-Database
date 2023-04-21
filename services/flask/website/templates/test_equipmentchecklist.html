@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}Equipment Testing{% endblock %}
+{% block content %}
+    <h1 align="center">Equipment Checklist</h1>
+    <form method="post" enctype="multipart/form-data">
+        <div class="equip_div_parent">
+        {{ form.hidden_tag() }}
+
+            <div class="equip_div_child_desc">
+                <table>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{ form.description(size=50) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Manufacturer</td>
+                        <td>{{ form.manufacturer }}</td>
+                    </tr>
+                    <tr>
+                        <td>Model</td>
+                        <td>{{ form.model }}</td>
+                    </tr>
+                    <tr>
+                        <td>Year Mfg.</td>
+                        <td>{{ form.yearMFG }}</td>
+                    </tr>
+                    <tr>
+                        <td>Country of Mfg.</td>
+                        <td>{{ form.countryMFG }}</td>
+                    </tr>
+                </table>
+            </div>
+
+
+
+
+            <div class="equip_div_child_serial">
+                <table>
+                    <tr>
+                        <td>Serials</td>
+                        <td>{{ form.serialNo(rows='8', cols='50', style='resize: None') }}</td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div class="equip_div_audit">
+            <br />
+                <table>
+                    <tr>
+                        <td>
+                            <h5>{{ form.R2Applicability.label }}</h5> &emsp;
+                            {% for item in form.R2Applicability %}
+                            {{ item }} {{ item.label }}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <h5>{{ form.dataSanitization.label }}</h5> &emsp;
+                            {% for item in form.dataSanitization %}
+                            {{ item }} {{ item.label }}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <h5>{{ form.nextProcess.label }}</h5> &emsp;
+                            {% for item in form.nextProcess %}
+                            {{ item }} {{ item.label }}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+
+
+            <div class="equip_div_child_type">
+                <p style="font-weight: bold ">{{ form.equipmentType.label }}</p>
+                <table>
+                        {% for item in form.equipmentType %}
+                            {% if loop.first %}
+                                <tr>
+                                <td>{{ item }}</td>
+                                <td>{{ item.label }}</td>
+                            {% elif loop.last %}
+                                <td>{{ item }}</td>
+                                <td>{{ item.label }}</td>
+                                </tr>
+                            {% elif loop.index % 4 == 0 %}
+                                <td>{{ item }}</td>
+                                <td>{{ item.label }}</td>
+                                </tr>
+                                <tr>
+                            {% else %}
+                                <td>{{ item }}</td>
+                                <td>{{ item.label }}</td>
+                            {% endif %}
+                        {% endfor %}
+                </table>
+            </div>
+
+
+
+            <div class="equip_div_child_left">
+            <h5>Tests Performed</h5>
+                <table>
+                    <tr>
+                        <td>{{ form.post.label }}</td>
+                    {% for item in form.post %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.chargingBattery.label }}</td>
+                    {% for item in form.chargingBattery %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.batLoadTest.label }}</td>
+                    {% for item in form.batLoadTest %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr><td colspan="7" style="font-size: 10px">Original Capacity{{ form.batOrgCap }}mAh</td></tr>
+                    <tr><td colspan="7" style="font-size: 10px">Capacity at Time of Test{{ form.capAtTest }}mAh</td></tr>
+                    <tr><td colspan="7" style="font-size: 10px">Percentage of Original Capacity{{ form.percentOfOrg }}%</td></tr>
+                    <tr>
+                        <td>{{ form.keyMouse.label }}</td>
+                    {% for item in form.keyMouse %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.speaker.label }}</td>
+                    {% for item in form.speaker %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.hinges.label }}</td>
+                    {% for item in form.hinges %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.display.label }}</td>
+                    {% for item in form.display %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.screenTest.label }}</td>
+                    {% for item in form.screenTest %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                </table>
+            </div>
+
+
+
+
+            <div class="equip_div_child_right">
+            <h5></h5>
+                <table>
+                    <tr>
+                        <td>{{ form.dataWipe.label }}</td>
+                    {% for item in form.dataWipe %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.crtTest.label }}</td>
+                    {% for item in form.crtTest %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.internalTest.label }}</td>
+                    {% for item in form.internalTest %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.portTest.label }}</td>
+                    {% for item in form.portTest %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.poeTest.label }}</td>
+                    {% for item in form.poeTest %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.knobFunction.label }}</td>
+                    {% for item in form.knobFunction %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.digitizer.label }}</td>
+                    {% for item in form.digitizer %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.homeScreen.label }}</td>
+                    {% for item in form.homeScreen %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.testPage.label }}</td>
+                    {% for item in form.testPage %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>{{ form.otherTest.label }}</td>
+                    {% for item in form.otherTest %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    {% endfor %}
+                    </tr>
+                </table>
+                <p>{{ form.otherTestText(rows='5', cols='50', style='resize: None') }}</p>
+            </div>
+
+            <div class="equip_div_status">
+                <h5>{{ form.newOrUsed.label }}</h5>
+                <table style="margin: 0 auto;">
+                    <tr>
+                        {% for item in form.newOrUsed %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                        {% endfor %}
+                    </tr>
+                </table>
+            </div>
+
+
+            <div class="equip_div_r2">
+                <h5>{{ form.R2Status.label }}</h5>
+                <table style= "margin: 0 auto;">
+                    <tr>
+                        {% for item in form.R2Status %}
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                        {% endfor %}
+                    </tr>
+                </table>
+            </div>
+
+            <div class="equip_div_salecat">
+                <h5 style="text-align: center">{{ form.saleCategory.label }}</h5>
+                <table style="margin: 0 auto">
+                    {% for item in form.saleCategory %}
+                    <tr>
+                        <td>{{ item }}</td>
+                        <td>{{ item.label }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+
+            <div class = "equip_div_disclosure">
+                <br>
+                <table style="margin: 0 auto;">
+                    <tr><td><h5>Disclosure to Buyer</h5></td></tr>
+                    <tr><td><p>List any of the secondary functions that are not working properly. Also describe any cosmetic defects and missing components.</p></td></tr>
+                    <tr><td>{{ form.disclosure(rows='3', cols='100', style='resize: None') }}</td></tr>
+                </table>
+            </div>
+
+            <div class="equip_div_pic">
+                <table>
+                    <tr>
+                        <td><h6>Pictures (.ZIP File)</h6></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{ form.zip }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Qty. {{ form.quantity(size=1) }}</td>
+                    </tr>
+                    <tr><br></tr>
+                    <tr><td>{{ form.submit }}</td></tr>
+                </table>
+            </div>
+
+            <div class="equip_div_notes">
+                <h6>Tech Notes</h6>
+                {{ form.techNotes(rows='8', cols='50', style='resize: None') }}
+            </div>
+
+        </div>
+    </form>
+{% endblock %}
+
+
+
+
+

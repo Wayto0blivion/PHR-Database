@@ -1,0 +1,22 @@
+<!--
+For testing database connection for db_killdisk server.
+Shows simple information stored in hidden test table.
+-->
+
+{% extends "base.html" %}
+{% block title %}Flask_db_killdisk_Test{% endblock %}
+{% block content %}
+<div>
+    <table class="table table-dark">
+    {% for row in test %}
+        <tr>
+            <td>{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.location }}</td>
+            <td>{{ row.date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

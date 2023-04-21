@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block title %}Import to Pandas{% endblock %} {% block content
+    %}
+    <div class="container-md" align="center" style="padding-top:10px">
+        <h1 align="center">Import to Database</h1>
+        <div align="center">
+            <form action="" method=post enctype=multipart/form-data style="padding-top:100px">
+                <input class="form-control form-control-lg" align="center" type=file name="file">
+                <table>
+                    <tr>
+                        <td>{{ form.old_sheet_import }}</td>
+                        <td>{{ form.new_sheet_import }}</td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+        {% if shape %}
+        <div align="center" style="padding-top:10px; background-color:white">
+            {{ shape }}
+        </div>
+        {% endif %}
+        <div class="table"  style="height:600px; overflow:auto">
+            {{ table|safe }}
+        </div>
+    {% endblock %}
+
+
+

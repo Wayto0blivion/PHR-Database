@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./services/flask
+    command: gunicorn --bind 0.0.0.0:5000 -w 4 --log-level=debug flask_site:app
+#    command: flask --app flask_site run --host 0.0.0.0
+    expose:
+      - 5000
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+
+  db:
+    build: ./services/db
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    env_file:
+      - ./.env.db
+
+  nginx:
+    build: ./services/nginx
+    ports:
+      - '80:80'
+    depends_on:
+      - web
+
+volumes:
+  mysql_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/dustin/mysql_data

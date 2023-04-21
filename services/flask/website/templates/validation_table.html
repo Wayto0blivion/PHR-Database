@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Validation{% endblock %}
+{% block content %}
+    <h1 align="center">Data Sanitization QC Database</h1>
+    <form method="post">
+    {{ form.hidden_tag() }}
+        <div>
+            <table style="text-align: center; margin-left: auto; margin-right: auto">
+                <tr>
+                    <td>{{ form.startdate }}</td>
+                    <td>{{ form.enddate }}</td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <p style="text-align: center; margin-bottom: 0; padding: 0">
+                {{ form.submit }}
+                {% if pagination %}
+                    {{ form.downl(formnovalidate=True) }}
+                {% endif %}
+                {{ form.clear(formnovalidate=True) }}
+            </p>
+        </div>
+    </form>
+    {% if count %}
+        <div style="text-align: center; padding-top: 10px; background-color: white">
+            <p>Search returned {{ count }} results</p>
+        </div>
+    {% endif %}
+    <div style="height:800px; overflow:auto">
+        {% if pagination %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Disk Info</th>
+                        <th>Disk Serial</th>
+                        <th>Sanitized (Pass/Fail)</th>
+                        <th>Date</th>
+                        <th>Verification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in pagination.items %}
+                        <tr>
+                            <td class="table_data">{{ row.DiskInfo }}</td>
+                            <td class="table_data">{{ row.DiskSerial }}</td>
+                            <td class="table_data">
+                                {% if row.Sanitized == 1 %}
+                                    Pass
+                                {% else %}
+                                    Fail
+                                {% endif %}
+                            <td class="table_data">{{ row.Date }}</td>
+                            <td class="table_data">{{ row.Verification }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    {% if pagination %}
+        <div>
+            <nav class="page-nav" aria-label="Pagination Navigation">
+                {{ macros.pagination_widget(pagination, 'searchviews.hdd_validation') }}
+            </nav>
+            <p class="text-center mt-3" style="background-color: whitesmoke">
+                Showing page {{ pagination.page }} of {{ pagination.pages }}
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}
