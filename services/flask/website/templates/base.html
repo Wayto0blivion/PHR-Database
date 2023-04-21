@@ -23,40 +23,51 @@
     <title>{% block title %}Home{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href={{url_for('static', filename='favicon.png')}}>
   </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbar"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar">
-        <div class="navbar-nav">
-          {% if user.is_authenticated %}
-          <a class="nav-item nav-link" id="home" href="/home">Home</a>
-          <a class="nav-item nav-link" id="production" href="/search/pandas_search">Production</a>
-          <a class="nav-item nav-link" id="killdisk" href="/search/hdd_search">Killdisk</a>
-          <a class="nav-item nav-link" id="import" href="/pandas_import">Import</a>
-          <!-- <a class="nav-item nav-link" id="excel_templates" href="/templates">Templates</a> -->
-          <a class="nav-item nav-link" id="kd_validation_log" href="/search/hdd_validation_table">Killdisk Validation Log</a>
-          <a class="nav-item nav-link" id="production_validation_log" href="/search/master_validation">Production Validation Log</a>
-          <!-- <a class="nav-item nav-link" id="validation_entry" href="/validation_entry">Validation Entry</a> -->
-          <!--<a class="nav-item nav-link" id="cycleport" href="/custom_export">CyclePort</a>-->
-          <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
-          {% else %}
-          <a class="nav-item nav-link" id="login" href="/login">Login</a>
-          <!--<a class="nav-item nav-link" id="excel_templates" href="/templates">Templates</a>-->
-          <!--<a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>-->
-          {% endif %}
-        </div>
-      </div>
-    </nav>
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
 
 
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+</style>
+<body>
+
+<div class="navbar">
+    {% if user.is_authenticated %}
+    <a class="nav-item nav-link" id="home" href="/">Home</a>
+    <a class="nav-item nav-link" id="import" href="/pandas_import">Import</a>
+    <div class="dropdown">
+        <button class="dropbtn">Killdisk
+            <i class="fa fa-caret-down"></i>
+        </button>
+    <div class="dropdown-content">
+        <a class="nav-item nav-link" id="killdisk" href="/search/hdd_search">Killdisk</a>
+        <a class="nav-item nav-link" id="kd_validation_log" href="/search/hdd_validation_table">Killdisk Validation Log</a>
+    </div>
+    </div>
+    <div class="dropdown">
+        <button class="dropbtn">Production
+            <i class="fa fa-caret-down"></i>
+        </button>
+    <div class="dropdown-content">
+        <a class="nav-item nav-link" id="production" href="/search/pandas_search">Production</a>
+        <a class="nav-item nav-link" id="production_validation_log" href="/search/master_validation">Production Validation Log</a>
+    </div>
+    </div>
+
+    <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+    {% else %}
+    <a class="nav-item nav-link" id="login" href="/login">Login</a>
+    {% endif %}
+    <!--<a class="nav-item nav-link" id="excel_templates" href="/templates">Templates</a>-->
+    <!--<a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>-->
+       </div>
+    </div>
+</div>
+</body>
+</html>
+
+{% with messages = get_flashed_messages(with_categories=true) %} {% if
     messages %} {% for category, message in messages %} {% if category ==
     'error' %}
     <div class="alert alert-danger alter-dismissable fade show" role="alert">
@@ -68,9 +79,7 @@
     {% else %}
     <div class="alert alert-success alter-dismissable fade show" role="alert">
       {{ message }}
-      <button type="button" class="close" data-dismiss="alert">
         <span aria-hidden="true">&times;</span>
-      </button>
     </div>
     {% endif %} {% endfor %} {% endif %} {% endwith %}
 
@@ -95,7 +104,5 @@
       type="text/javascript"
       src="{{ url_for('static', filename='index.js') }}"
     ></script>
-  </body>
-</html>
 
 
