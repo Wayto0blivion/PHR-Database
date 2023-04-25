@@ -400,23 +400,28 @@ def validation_view():
 
 
 @views.route('/validation_entry', methods=['GET', 'POST'])
+@login_required
 def validation_addition():
-    '''
+    """
     For adding a record to the validation log.
-    Date is filled automatically on the date entered.
-    Requires make, model, serialNo    
-    '''
+    Requires make, model, serialNo.
+    Date and Sanitization checkbox are required for form to submit.
+    """
     entryform = ValidationEntryForm()
 
     if request.method == 'POST':
         form = request.form
         disk_info_field = form['disk_info']
+        sanitization_field = form['sanitization']
+        date_field = form['valid_date']
         serial_field = form['serial']
         initials_field = form['initials']
 
+        # This can be replaced by the DataRequired() validator in the form itself, but hasn't been yet.
         if not [x for x in (disk_info_field, serial_field, initials_field) if x is None]:
             try:
-                record = VALIDATION(DiskInfo=disk_info_field, DiskSerial=serial_field, Date=date.today(), Verification=initials_field)
+                record = VALIDATION(DiskInfo=disk_info_field, DiskSerial=serial_field, Sanitized=int(sanitization_field),
+                                    Date=date_field, Verification=initials_field)
                 db.session.add(record)
                 db.session.commit()
                 print('\n\nUploaded!\n\n')
@@ -427,13 +432,16 @@ def validation_addition():
                 # record = VALIDATION.add(Make=make_field, Model=model_field, DiskSerial=serial_field, Date=date.today(), Verification=initials_field)
                 # print(record)
                 db.session.rollback()
+                flash('Something is wrong with your data!', category='error')
                 print('\n\nSomething is wrong with your data!\n\n')
 
             except exc.IntegrityError:
                 db.session.rollback()
+                flash('Error! This could be duplicate information!', category='error')
                 print('\n\nError! This could be duplicate information!\n\n')
 
         else:
+            flash('Something went wrong!', category='error')
             print('\n\nBad IF Statement!\n\n')
 
     return render_template('validate_new.html', form=entryform, user=current_user)
