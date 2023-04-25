@@ -6,7 +6,6 @@ from wtforms.validators import DataRequired, Optional
 from wtforms.widgets import TextArea, FileInput
 
 
-
 class ProductionSearchForm(FlaskForm):
     choices = [('orderNo', 'Order Number'),
                ('productName', 'Product Name'),
@@ -59,10 +58,19 @@ class DateForm(FlaskForm):
     clear = SubmitField('Clear', validators=[Optional()])
 
 
+# For inputting HDD validations.
 class ValidationEntryForm(FlaskForm):
+    # This is a combination of Make and Model
     disk_info = StringField('')
+    # Serial # of drive being verified.
     serial = StringField('')
+    # Checkbox for whether drive has been successfully sanitized. Required for form submission.
+    sanitization = BooleanField(render_kw={'value': 1}, validators=[DataRequired()])
+    # Date field for when drive was verified. Required for form submission.
+    valid_date = DateField('Validation Date', format='%Y-%m-%d', validators=[DataRequired()])
+    # Initials of person verifying drive.
     initials = StringField('')
+    # Submit button to submit form.
     submit = SubmitField('Add Record')
 
 # class MasterValidationForm(FlaskForm):
