@@ -5,7 +5,7 @@
     <h1 align="center">Drive Validation</h1>
     <form method=post>
       <div>
-          <table align="center" style="background-color:white"> 
+          <table align="center" style="background-color:white">
                 <tr>
                     <td>Disk Info: </td>
                     <td>{{ form.disk_info }}</td>
@@ -13,6 +13,14 @@
                 <tr>
                     <td>Serial: </td>
                     <td>{{ form.serial }}</td>
+                </tr>
+                <tr>
+                    <td>Sanitized: </td>
+                    <td>{{ form.sanitization }}</td>
+                </tr>
+                <tr>
+                    <td>Date: </td>
+                    <td>{{ form.valid_date }}</td>
                 </tr>
                 <tr>
                     <td>Initials: </td>
