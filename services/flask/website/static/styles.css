@@ -8,7 +8,7 @@
   height: 100vh;
   margin: 0 auto;
   position: relative;
-  background: (transparent));
+  background: transparent;
 }
 
 .container .form-1 {
@@ -122,8 +122,12 @@ span {
     margin: 0;
 }
 
+.import-button {
+    background: linear-gradient(to right, #64ad1f, #96ea47, #96ea47, #64ad1f);
+}
+
 .navbar a:hover, .dropdown:hover .dropbtn {
-    background: linear-gradient(to right, #8dee37, #5EB00CFF, #75d324, #5EB00CFF);
+    background: linear-gradient(to right, #64ad1f, #96ea47, #96ea47, #64ad1f);
 }
 
 .dropdown-content {
