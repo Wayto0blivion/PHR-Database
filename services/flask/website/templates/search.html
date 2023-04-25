@@ -29,14 +29,14 @@
       </div>
     </form>
     {% if count %}
-    <div align="center" style="padding-top:10px; background-color:white">
+    <div align="center" style="padding-top:10px; background-color:#ffffff">
         <p>Search returned {{ count }} results</p>
     </div>
     {% endif %} 
     <div  style="height:800px; overflow:auto">
         {% if pagination %}
-            <table class="data-table">
-                <thead>
+            <table class="table table-hover">
+                <thead class="thead-dark">
                     <tr>
                         <th>Order #</th>
                         <th>Unit #</th>
@@ -47,8 +47,11 @@
                         <th>HDD MFG</th>
                         <th>HDD Serial No</th>
                         <th>Manufacturer</th>
+                        <th>Model</th>
                         <th>Serial Number</th>
                         <th>Asset</th>
+                        <th>Customer Name</th>
+                        <th>Sales Rep</th>
                         <th>New/Used</th>
                         <th>Year of MFG</th>
                         <th>Processor</th>
@@ -59,8 +62,9 @@
                         <th>COA</th>
                         <th>Form Factor</th>
                         <th>Tech Initials</th>
-                        <th>Grade</th>
                         <th>Date</th>
+                        <th>Cosmetic Grade</th>
+                        <th>Functional Grade</th>
                         <th>Ac Adapter Included?</th>
                         <th>Screen Size</th>
                         <th>Test Result Codes</th>
@@ -70,47 +74,76 @@
                         <th>Percent Org. Bat. Cap.</th>
                         <th>Battery Status</th>
                         <th>Data Wiped?</th>
-                        <th>Sale Category</th>
-                        <th>ID</th>
+                        <th>Disposition</th>
+                        <th>Power Supply</th>
+                        <th>Motherboard</th>
+                        <th>HDD</th>
+                        <th>Memory</th>
+                        <th>USB Ports</th>
+                        <th>Peripheral Port</th>
+                        <th>Card Reader</th>
+                        <th>Optical Drive</th>
+                        <th>Screen</th>
+                        <th>Screen Hinge</th>
+                        <th>Trackpad</th>
+                        <th>Keyboard</th>
+                        <th>Screen Backlights</th>
                     </tr>
-                </thead>
+                </thead-dark>
             {% for row in pagination.items %}
                 <tbody>
                     <tr>
-                        <td class="table_data">{{ row.orderNo }}</td>
-                        <td class="table_data">{{ row.unitNo }}</td>
-                        <td class="table_data">{{ row.productName }}</td>
-                        <td class="table_data">{{ row.r2Applicability }}</td>
-                        <td class="table_data">{{ row.dataSanitizationField }}</td>
-                        <td class="table_data">{{ row.nextProcessField }}</td>
-                        <td class="table_data">{{ row.hddMFG }}</td>
-                        <td class="table_data">{{ row.hddSerialNo }}</td>
-                        <td class="table_data">{{ row.Manufacturer }}</td>
-                        <td class="table_data">{{ row.serialNo }}</td>
-                        <td class="table_data">{{ row.asset }}</td>
-                        <td class="table_data">{{ row.newOrUsed }}</td>
-                        <td class="table_data">{{ row.yearMFG }}</td>
-                        <td class="table_data">{{ row.processor }}</td>
-                        <td class="table_data">{{ row.speed }}</td>
-                        <td class="table_data">{{ row.ram }}</td>
-                        <td class="table_data">{{ row.hddSize }}</td>
-                        <td class="table_data">{{ row.media }}</td>
-                        <td class="table_data">{{ row.coa }}</td>
-                        <td class="table_data">{{ row.formFactor }}</td>
-                        <td class="table_data">{{ row.techInitials }}</td>
-                        <td class="table_data">{{ row.grade }}</td>
-                        <td class="table_data">{{ row.date }}</td>
-                        <td class="table_data">{{ row.acAdapterIncluded }}</td>
-                        <td class="table_data">{{ row.screenSize }}</td>
-                        <td class="table_data">{{ row.testResultCodes }}</td>
-                        <td class="table_data">{{ row.batteryLoadTest }}</td>
-                        <td class="table_data">{{ row.originalDesignCap }}</td>
-                        <td class="table_data">{{ row.batCapAtTest }}</td>
-                        <td class="table_data">{{ row.percentOrgCap }}</td>
-                        <td class="table_data">{{ row.batteryPass }}</td>
-                        <td class="table_data">{{ row.dataWipe }}</td>
-                        <td class="table_data">{{ row.saleCategory }}</td>
-                        <td class="table_data">{{ row.autoId }}</td>
+                        <th scope="row:>{{ row.orderNo }}</th>
+                        <td>{{ row.unitNo }}</td>
+                        <td>{{ row.productName }}</td>
+                        <td>{{ row.r2Applicability }}</td>
+                        <td>{{ row.dataSanitizationField }}</td>
+                        <td>{{ row.nextProcessField }}</td>
+                        <td>{{ row.hddMFG }}</td>
+                        <td>{{ row.hddSerialNo }}</td>
+                        <td>{{ row.Manufacturer }}</td>
+                        <td>{{ row.Model }}</td>
+                        <td>{{ row.serialNo }}</td>
+                        <td>{{ row.asset }}</td>
+                        <td>{{ row.customerName }}</td>
+                        <td>{{ row.salesRep }}</td>
+                        <td>{{ row.newOrUsed }}</td>
+                        <td>{{ row.yearMFG }}</td>
+                        <td>{{ row.processor }}</td>
+                        <td>{{ row.speed }}</td>
+                        <td>{{ row.ram }}</td>
+                        <td>{{ row.hddSize }}</td>
+                        <td>{{ row.media }}</td>
+                        <td>{{ row.coa }}</td>
+                        <td>{{ row.formFactor }}</td>
+                        <td>{{ row.techInitials }}</td>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.cosmetic_grade }}</td>
+                        <td>{{ row.functional_grade }}</td>
+                        <td>{{ row.acAdapterIncluded }}</td>
+                        <td>{{ row.screenSize }}</td>
+                        <td>{{ row.testResultCodes }}</td>
+                        <td>{{ row.batteryLoadTest }}</td>
+                        <td>{{ row.originalDesignCap }}</td>
+                        <td>{{ row.batCapAtTest }}</td>
+                        <td>{{ row.percentOrgCap }}</td>
+                        <td>{{ row.batteryPass }}</td>
+                        <td>{{ row.dataWipe }}</td>
+                        <td>{{ row.disposition }}</td>
+                        <td>{{ row.powerSupply }}</td>
+                        <td>{{ row.motherboard }}</td>
+                        <td>{{ row.hardDrive }}</td>
+                        <td>{{ row.memory }}</td>
+                        <td>{{ row.usbPorts }}</td>
+                        <td>{{ row.peripheralPort }}</td>
+                        <td>{{ row.cardReader }}</td>
+                        <td>{{ row.opticalDrive }}</td>
+                        <td>{{ row.screen }}</td>
+                        <td>{{ row.screenHinge }}</td>
+                        <td>{{ row.trackpad }}</td>
+                        <td>{{ row.keyboard }}</td>
+                        <td>{{ row.screenBacklights }}</td>
+                    </tr>
                 </tbody>
                 {% endfor %}
             </table>
