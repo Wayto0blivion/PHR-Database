@@ -161,6 +161,7 @@ body {
     background-image: url('Semitruck.jpg');
     background-repeat: no-repeat;
     background-size: cover;
+    background-color: black;
     background-position: center center;
     margin: 0;
 }
@@ -168,11 +169,11 @@ body {
 /* Styles the input boxes to be lime colored. */
 input {
     margin:5px;
-    background-color:lime;
+    background-color: #daeec9;
 }
 
 textarea {
-    background-color: lime;
+    background-color: #daeec9;
 }
 
 /* Generic form options to set sizes. */
@@ -313,4 +314,15 @@ thead th{
      min-width: 50%;
      overflow: hidden;
      padding: 15px 60px;
+}
+
+
+.card
+{
+    background-color: rgb(100, 173, 31, 0.9);
+}
+
+.card-text
+{
+    text-align: center
 }

@@ -2,36 +2,34 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% block title %}Validation{% endblock %} 
 {% block content %}
-    <h1 align="center">Drive Validation</h1>
     <form method=post>
-      <div>
-          <table align="center" style="background-color:white">
-                <tr>
-                    <td>Disk Info: </td>
-                    <td>{{ form.disk_info }}</td>
-                </tr>
-                <tr>
-                    <td>Serial: </td>
-                    <td>{{ form.serial }}</td>
-                </tr>
-                <tr>
-                    <td>Sanitized: </td>
-                    <td>{{ form.sanitization }}</td>
-                </tr>
-                <tr>
-                    <td>Date: </td>
-                    <td>{{ form.valid_date }}</td>
-                </tr>
-                <tr>
-                    <td>Initials: </td>
-                    <td>{{ form.initials }}</td>
-                </tr>    
-        </table>
-      </div>
-      <div>
-          <p align="center">
-              {{ form.submit }}
-          </p>
-      </div>
+    <div class="col d-flex justify-content-center">
+      <div class="card" style="width: 18rem;">
+  <div class="card-header">
+      <div class="card-text"><h4>Drive Validation</h4></div>
+       <tr>
+           <td>Disk Info: </td>
+           <td>{{ form.disk_info }}</td>
+       </tr>
+       <tr>
+           <td>Serial: </td>
+           <td>{{ form.serial }}</td>
+       </tr>
+       <tr>
+           <td>Sanitized: </td>
+           <td>{{ form.sanitization }}</td>
+       </tr>
+       <tr>
+           <p><td>Date: </td></p>
+           <td>{{ form.valid_date }}</td>
+       </tr>
+       <tr>
+           <p><td>Initials: </td></p>
+           <td>{{ form.initials }}</td>
+       </tr>
+      {{ form.submit }}
+  </div>
+</div>
+    </div>
     </form>
 {% endblock %}
