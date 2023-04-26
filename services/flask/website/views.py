@@ -13,6 +13,8 @@ from datetime import datetime
 import numpy as np
 import os
 from datetime import date
+import website.helper_functions as hf
+
 
 views = Blueprint('views', __name__)
 
@@ -21,6 +23,8 @@ views = Blueprint('views', __name__)
 
 
 @views.route('/site-map', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Admin')
 def site_map():
     """
     For generating a site map of all available views.
@@ -53,6 +57,7 @@ def has_no_empty_params(rule):
 @login_required
 def home():
     session.clear()
+    # print(current_user.email)
 
     if request.method == 'POST':
         note = request.form.get('note')
@@ -70,6 +75,7 @@ def home():
 
 # Testing. For removing custom notes
 @views.route('/delete-note', methods=['POST'])
+@login_required
 def delete_note():
     note = json.loads(request.data)
     noteId = note['noteId']
@@ -83,10 +89,10 @@ def delete_note():
 
 
 # For viewing the table layout required for CycleLutions. No limit function
-@views.route('/cyclelutions_upload')
-def cycleLutionsImport():
-    imp = db.session.execute('SELECT `Order Number` AS OrderNo, `Product Name` AS ProductName, 1 AS Qty, "Units" AS QtyBase, 0 AS Weight, "lbs" AS WeightBase, "N" AS RTS, "N" AS TDM, `Serial Number` AS SerialNo, NULL AS BusID, `Sale Category` AS "Condition", `Manufacturer` AS Manufacturer, `Model` AS Model, NULL AS Color, `Screen Size` AS ScreenSize, `Physical Condition/ Grade` AS Grade, `Media` AS Media, NULL AS ReceivingNotes, `Year Manufactured` AS YearOfMFG, `R2 Applicability` AS R2Applicability, `Data Sanitization Field` AS DataSanitizationField, `Next Process Field` AS NextProcessField, `DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)` AS DataWipe, `New/Used` AS newOrUsed, `Form Factor` AS FormFactor, `Battery Load Test` AS BatteryLoadTest, `Battery Pass/Fail` AS BatteryStatus, `AC Adapter Included` AS ACAdapterIncluded, NULL AS DDL1, NULL AS DDL2, NULL AS DDL3, NULL AS DDL4, NULL AS DDL5, NULL AS DDL6, `Processor` AS Processor, `Speed` AS Speed, `HDD (GB)` AS HDDSize, `RAM (GB)` AS RAM, `COA` AS coa, `Tech Initials` AS TechInitials, `Asset` AS AssetTag, `HDD MFG` AS HddMFG, `HDD Serial #` AS HddSerial, `Unit #` AS UnitNo, `Date` AS "Date", `Percent of Original Capacity` AS PercentOrgCapacity, `Original Design Battery Capacity` AS OrgDesignCapacity, `Battery Capacity @ Time of Test` AS CurrentCapacity, `Test Result Codes` AS TestResultCodes FROM Production')
-    return render_template('cyclelutions_upload.html', user=current_user, imp=imp)
+# @views.route('/cyclelutions_upload')
+# def cycleLutionsImport():
+#     imp = db.session.execute('SELECT `Order Number` AS OrderNo, `Product Name` AS ProductName, 1 AS Qty, "Units" AS QtyBase, 0 AS Weight, "lbs" AS WeightBase, "N" AS RTS, "N" AS TDM, `Serial Number` AS SerialNo, NULL AS BusID, `Sale Category` AS "Condition", `Manufacturer` AS Manufacturer, `Model` AS Model, NULL AS Color, `Screen Size` AS ScreenSize, `Physical Condition/ Grade` AS Grade, `Media` AS Media, NULL AS ReceivingNotes, `Year Manufactured` AS YearOfMFG, `R2 Applicability` AS R2Applicability, `Data Sanitization Field` AS DataSanitizationField, `Next Process Field` AS NextProcessField, `DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)` AS DataWipe, `New/Used` AS newOrUsed, `Form Factor` AS FormFactor, `Battery Load Test` AS BatteryLoadTest, `Battery Pass/Fail` AS BatteryStatus, `AC Adapter Included` AS ACAdapterIncluded, NULL AS DDL1, NULL AS DDL2, NULL AS DDL3, NULL AS DDL4, NULL AS DDL5, NULL AS DDL6, `Processor` AS Processor, `Speed` AS Speed, `HDD (GB)` AS HDDSize, `RAM (GB)` AS RAM, `COA` AS coa, `Tech Initials` AS TechInitials, `Asset` AS AssetTag, `HDD MFG` AS HddMFG, `HDD Serial #` AS HddSerial, `Unit #` AS UnitNo, `Date` AS "Date", `Percent of Original Capacity` AS PercentOrgCapacity, `Original Design Battery Capacity` AS OrgDesignCapacity, `Battery Capacity @ Time of Test` AS CurrentCapacity, `Test Result Codes` AS TestResultCodes FROM Production')
+#     return render_template('cyclelutions_upload.html', user=current_user, imp=imp)
 
 
 # Testing. Pulls tables from Category and Post
@@ -104,20 +110,20 @@ def cycle_handson():
 
 
 # for exporting in CycleLutions format
-@views.route('/custom_export', methods=['GET'])
-def docustomexport():
-    query_sets = db.session.execute('SELECT `Order Number` AS OrderNo, `Product Name` AS ProductName, 1 AS Qty, "Units" AS QtyBase, 0 AS Weight, "lbs" AS WeightBase, "N" AS RTS, "N" AS TDM, `Serial Number` AS SerialNo, NULL AS BusID, `Sale Category` AS "Condition", `Manufacturer` AS Manufacturer, `Model` AS Model, NULL AS Color, `Screen Size` AS ScreenSize, `Physical Condition/ Grade` AS Grade, `Media` AS Media, NULL AS ReceivingNotes, `Year Manufactured` AS YearOfMFG, `R2 Applicability` AS R2Applicability, `Data Sanitization Field` AS DataSanitizationField, `Next Process Field` AS NextProcessField, `DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)` AS DataWipe, `New/Used` AS newOrUsed, `Form Factor` AS FormFactor, `Battery Load Test` AS BatteryLoadTest, `Battery Pass/Fail` AS BatteryStatus, `AC Adapter Included` AS ACAdapterIncluded, NULL AS DDL1, NULL AS DDL2, NULL AS DDL3, NULL AS DDL4, NULL AS DDL5, NULL AS DDL6, `Processor` AS Processor, `Speed` AS Speed, `HDD (GB)` AS HDDSize, `RAM (GB)` AS RAM, `COA` AS coa, `Tech Initials` AS TechInitials, `Asset` AS AssetTag, `HDD MFG` AS HddMFG, `HDD Serial #` AS HddSerial, `Unit #` AS UnitNo, `Date` AS "Date", `Percent of Original Capacity` AS PercentOrgCapacity, `Original Design Battery Capacity` AS OrgDesignCapacity, `Battery Capacity @ Time of Test` AS CurrentCapacity, `Test Result Codes` AS TestResultCodes FROM Production')
-    column_names = ['OrderNo', 'ProductName', 'Qty', 'QtyBase', 'Weight', 'WeightBase', 'RTS', 'TDM', 'SerialNo', 'BusID', 'Condition', 'Manufacturer', 'Model', 'Color', 'ScreenSize', 'Grade', 'Media', 'ReceivingNotes', 'YearOfMFG', 'R2Applicability', 'DataSanitizationField', 'NextProcessField', 'DataWipe', 'newOrUsed', 'FormFactor', 'BatteryLoadTest', 'BatteryStatus', 'ACAdapterIncluded', 'DDL1', 'DDL2', 'DDL3', 'DDL4', 'DDL5', 'DDL6', 'Processor', 'Speed', 'HDDSize', 'RAM', 'coa', 'TechInitials', 'AssetTag', 'HddMFG', 'HddSerial', 'UnitNo', 'Date', 'PercentOrgCapacity', 'OrgDesignCapacity', 'CurrentCapacity', 'TestResultCodes']
-    return excel.make_response_from_query_sets(query_sets, column_names, "csv")
+# @views.route('/custom_export', methods=['GET'])
+# def docustomexport():
+#     query_sets = db.session.execute('SELECT `Order Number` AS OrderNo, `Product Name` AS ProductName, 1 AS Qty, "Units" AS QtyBase, 0 AS Weight, "lbs" AS WeightBase, "N" AS RTS, "N" AS TDM, `Serial Number` AS SerialNo, NULL AS BusID, `Sale Category` AS "Condition", `Manufacturer` AS Manufacturer, `Model` AS Model, NULL AS Color, `Screen Size` AS ScreenSize, `Physical Condition/ Grade` AS Grade, `Media` AS Media, NULL AS ReceivingNotes, `Year Manufactured` AS YearOfMFG, `R2 Applicability` AS R2Applicability, `Data Sanitization Field` AS DataSanitizationField, `Next Process Field` AS NextProcessField, `DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)` AS DataWipe, `New/Used` AS newOrUsed, `Form Factor` AS FormFactor, `Battery Load Test` AS BatteryLoadTest, `Battery Pass/Fail` AS BatteryStatus, `AC Adapter Included` AS ACAdapterIncluded, NULL AS DDL1, NULL AS DDL2, NULL AS DDL3, NULL AS DDL4, NULL AS DDL5, NULL AS DDL6, `Processor` AS Processor, `Speed` AS Speed, `HDD (GB)` AS HDDSize, `RAM (GB)` AS RAM, `COA` AS coa, `Tech Initials` AS TechInitials, `Asset` AS AssetTag, `HDD MFG` AS HddMFG, `HDD Serial #` AS HddSerial, `Unit #` AS UnitNo, `Date` AS "Date", `Percent of Original Capacity` AS PercentOrgCapacity, `Original Design Battery Capacity` AS OrgDesignCapacity, `Battery Capacity @ Time of Test` AS CurrentCapacity, `Test Result Codes` AS TestResultCodes FROM Production')
+#     column_names = ['OrderNo', 'ProductName', 'Qty', 'QtyBase', 'Weight', 'WeightBase', 'RTS', 'TDM', 'SerialNo', 'BusID', 'Condition', 'Manufacturer', 'Model', 'Color', 'ScreenSize', 'Grade', 'Media', 'ReceivingNotes', 'YearOfMFG', 'R2Applicability', 'DataSanitizationField', 'NextProcessField', 'DataWipe', 'newOrUsed', 'FormFactor', 'BatteryLoadTest', 'BatteryStatus', 'ACAdapterIncluded', 'DDL1', 'DDL2', 'DDL3', 'DDL4', 'DDL5', 'DDL6', 'Processor', 'Speed', 'HDDSize', 'RAM', 'coa', 'TechInitials', 'AssetTag', 'HddMFG', 'HddSerial', 'UnitNo', 'Date', 'PercentOrgCapacity', 'OrgDesignCapacity', 'CurrentCapacity', 'TestResultCodes']
+#     return excel.make_response_from_query_sets(query_sets, column_names, "csv")
 
 
 # Exports marketing for Brett.
 # N/A For HDD information.
-@views.route('/marketing_export', methods=['GET'])
-def doMarketingExport():
-    query_sets = db.session.execute('SELECT `Unit #` AS "Unit #",`Product Name` AS "Product Name", "NA" AS "HDD MFG", "NA" AS "HDD Serial #", `Manufacturer` AS "Manufacturer", `Model` AS "Model", `Serial Number` AS "Serial #", `Asset` AS "Asset", `Year Manufactured` AS "Year Manufactured", `Processor` AS Processor, `Speed` AS Speed, `RAM (GB)` AS RAM, `Media` AS Media, `COA` AS COA, `Form Factor` AS "Form Factor", "N/A" AS "HDD (GB)", `Test Result Codes` AS "TEST RESULT CODES (SEE TRANSLATIONS)", `Sale Category` AS "Sale Category" FROM Production')
-    column_names = ["Unit #", 'Product Name', "HDD MFG", "HDD Serial #", 'Manufacturer', 'Model', 'Serial #', "Asset", 'Year Manufactured', 'Processor', 'Speed', 'RAM', 'Media', 'COA', 'Form Factor', 'HDD (GB)', "TEST RESULT CODES (SEE TRANSLATIONS)", 'Sale Category']
-    return excel.make_response_from_query_sets(query_sets, column_names, "csv")
+# @views.route('/marketing_export', methods=['GET'])
+# def doMarketingExport():
+#     query_sets = db.session.execute('SELECT `Unit #` AS "Unit #",`Product Name` AS "Product Name", "NA" AS "HDD MFG", "NA" AS "HDD Serial #", `Manufacturer` AS "Manufacturer", `Model` AS "Model", `Serial Number` AS "Serial #", `Asset` AS "Asset", `Year Manufactured` AS "Year Manufactured", `Processor` AS Processor, `Speed` AS Speed, `RAM (GB)` AS RAM, `Media` AS Media, `COA` AS COA, `Form Factor` AS "Form Factor", "N/A" AS "HDD (GB)", `Test Result Codes` AS "TEST RESULT CODES (SEE TRANSLATIONS)", `Sale Category` AS "Sale Category" FROM Production')
+#     column_names = ["Unit #", 'Product Name', "HDD MFG", "HDD Serial #", 'Manufacturer', 'Model', 'Serial #', "Asset", 'Year Manufactured', 'Processor', 'Speed', 'RAM', 'Media', 'COA', 'Form Factor', 'HDD (GB)', "TEST RESULT CODES (SEE TRANSLATIONS)", 'Sale Category']
+#     return excel.make_response_from_query_sets(query_sets, column_names, "csv")
 
 
 # # For adding sheet id to Production table, and removing sheetName if import fails
@@ -206,6 +212,7 @@ def doMarketingExport():
 # For adding sheet id to Production table, and removing sheetName if import fails
 @views.route('/pandas_import', methods=['GET', 'POST'])
 @login_required
+@hf.user_permissions('Processing')
 def safeimport():
 
     form = ImportForm()
@@ -345,62 +352,69 @@ def safeimport():
     return render_template('import_pandas.html', form=form, shape=shape, table=table, user=current_user)
 # -----------------------------------------------------------------------------------------------
 
+# Searches Production database
+# Moved to searchview
+# @views.route('/search', methods=['GET', 'POST'])
+# @login_required
+# @hf.user_permissions('Processing')
+# def search():
+#     prodForm = ProductionSearchForm()
+#     if request.method == 'POST':
+#         form = request.form
+#         search_term = form['search']
+#         select_term = form['select']
+#         #formats string so that it can be passed to filter
+#         #print(select_term)
+#         search_format = {select_term: search_term}
+#         results = Production.query.filter_by(**search_format).all()
+#         #print(str(results))
+#         return render_template('search.html', form=prodForm, results=results, user=current_user)
+#     else:
+#         return render_template('search.html', form=prodForm, user=current_user)
 
-@views.route('/search', methods=['GET', 'POST'])
-def search():
-    prodForm = ProductionSearchForm()
-    if request.method == 'POST':
-        form = request.form
-        search_term = form['search']
-        select_term = form['select']
-        #formats string so that it can be passed to filter
-        #print(select_term)
-        search_format = {select_term: search_term}
-        results = Production.query.filter_by(**search_format).all()
-        #print(str(results))
-        return render_template('search.html', form=prodForm, results=results, user=current_user)
-    else:
-        return render_template('search.html', form=prodForm, user=current_user)
+# No longer used, templates are not hosted through the database.
+# @views.route('/templates', methods = ['GET', 'POST'])
+# def download_templates():
+#     template_form = TemplateDownloadForm()
+#     if request.method == 'POST':
+#         app = Flask(__name__)
+#         form = request.form
+#         #lt_button = form.laptop_template_download.data
+#         #dt_button = form.desktop_template_download.data
+#         #pro_button = form.processing_template_download.data
+#         #lcd_button = form.lcd_template_download.data
+#
+#         if template_form.laptop.data:
+#             file_path = os.path.join(app.root_path, 'excel_templates', '8.9.15-F Equipment Testing and Inventory Workbook – 1.0.xlsx')
+#             return send_file(file_path)
+#             # print(str(file_path))
+#             # print('LT check')
+#         elif template_form.desktop_template_download.data:
+#             file_path = os.path.join(app.root_path, 'excel_templates', '8.9.15-F Equipment Testing and Inventory Workbook – 1.0_Desktops.xlsx')
+#             return send_file(file_path)
+#         elif template_form.processing_template_download.data:
+#             file_path = os.path.join(app.root_path, 'excel_templates', '8.9.15-F Equipment Testing and Inventory Workbook – 1.0_Processing.xlsx')
+#             return send_file(file_path)
+#         elif template_form.lcd_template_download.data:
+#             file_path = os.path.join(app.root_path, 'excel_templates', '8.9.15-F Equipment Testing and Inventory Workbook – 1.0_LCDS.xlsx')
+#             return send_file(file_path)
+#
+#     return render_template('excel_templates.html', form=template_form, user=current_user)
 
 
-@views.route('/templates', methods = ['GET', 'POST'])
-def download_templates():
-    template_form = TemplateDownloadForm()
-    if request.method == 'POST':
-        app = Flask(__name__)
-        form = request.form
-        #lt_button = form.laptop_template_download.data
-        #dt_button = form.desktop_template_download.data
-        #pro_button = form.processing_template_download.data
-        #lcd_button = form.lcd_template_download.data
-
-        if template_form.laptop.data:
-            file_path = os.path.join(app.root_path, 'excel_templates', '8.9.15-F Equipment Testing and Inventory Workbook – 1.0.xlsx')
-            return send_file(file_path)
-            # print(str(file_path))
-            # print('LT check')
-        elif template_form.desktop_template_download.data:
-            file_path = os.path.join(app.root_path, 'excel_templates', '8.9.15-F Equipment Testing and Inventory Workbook – 1.0_Desktops.xlsx')
-            return send_file(file_path)
-        elif template_form.processing_template_download.data:
-            file_path = os.path.join(app.root_path, 'excel_templates', '8.9.15-F Equipment Testing and Inventory Workbook – 1.0_Processing.xlsx')
-            return send_file(file_path)
-        elif template_form.lcd_template_download.data:
-            file_path = os.path.join(app.root_path, 'excel_templates', '8.9.15-F Equipment Testing and Inventory Workbook – 1.0_LCDS.xlsx')
-            return send_file(file_path)
-
-    return render_template('excel_templates.html', form=template_form, user=current_user)
-
-
-@views.route('/validation_table', methods=['GET'])
-def validation_view():
-    records = VALIDATION.query.order_by(VALIDATION.Date.desc())
-
-    return render_template('validation_table.html', form=records, user=current_user)
+# For viewing the HDD validation logs
+# @views.route('/validation_table', methods=['GET'])
+# @login_required
+# @hf.user_permissions('Validation')
+# def validation_view():
+#     records = VALIDATION.query.order_by(VALIDATION.Date.desc())
+#
+#     return render_template('validation_table.html', form=records, user=current_user)
 
 
 @views.route('/validation_entry', methods=['GET', 'POST'])
 @login_required
+@hf.user_permissions('Validation')
 def validation_addition():
     """
     For adding a record to the validation log.
@@ -449,6 +463,8 @@ def validation_addition():
 # ------------------------------------------------------------------------------------------------------
 
 @views.route('validation_mass_import', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Validation')
 def validation_import():
     """
         For uploading validations to the new Validation log for all departments.
