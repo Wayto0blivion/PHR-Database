@@ -6,9 +6,12 @@ Im not sure the above is true? Download verification search works fine.
 """
 
 import flask_excel as excel
-from flask import make_response
+from flask import make_response, render_template, redirect, url_for
 from . import db, sqlEngine, hddEngine, validEngine
 import pandas
+from functools import wraps
+from .models import User
+from flask_login import current_user
 
 
 def download_search(search, bind):
@@ -30,6 +33,32 @@ def download_search(search, bind):
         resp.headers["Content-Disposition"] = f"attachment; filename={ bind }_Export.csv"
         resp.headers["Content-Type"] = "text/csv"
         return resp
+
+
+
+
+
+def user_permissions(permission):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            permission_level = permission
+            if permission_level == 'PC Tech' and current_user.pc_status:
+                # print('Current PC Tech Status', current_user.pc_status)
+                return f(*args, **kwargs)
+            elif permission_level == 'Processing' and current_user.processing_status:
+                # print('Current PC Tech Status', current_user.pc_status)
+                return f(*args, **kwargs)
+            elif permission_level == 'HDD' and current_user.hdd_status:
+                return f(*args, **kwargs)
+            elif permission_level == 'Validation' and current_user.validation_status:
+                return f(*args, **kwargs)
+            elif permission_level == 'Admin' and current_user.admin_status:
+                return f(*args, **kwargs)
+            else:
+                return redirect(url_for('views.home'))
+        return decorated_function
+    return decorator
 
 
 

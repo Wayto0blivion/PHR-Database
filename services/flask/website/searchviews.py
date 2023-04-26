@@ -11,73 +11,74 @@ searchviews = Blueprint('searchviews', __name__)
 ROWS_PER_PAGE = 50
 
 
-@searchviews.route('/search_test', methods=['GET', 'POST'])
-def searchtest():
-    """
-    Gives search results for partial searches.
-    Currently, only checks for partial searches on "orderNo" column
-
-    use getattr to get the attribute of Production (like orderNo) to call the results from select_field
-    """
-    form = ProductionSearchForm(request.form)
-    if request.method == 'POST':
-        select_field  = form.select.data
-        #print(select_field)
-        search_string = form.search.data
-        #print(search_string,select_field)
-        if search_string == '':
-            results = db.session.query(Production).limit(5000)
-        else:
-            kwargs = {str(select_field):str(search_string)}
-            results = Production.query.filter(Production.orderNo.like(**kwargs)).all()
-
-        if not results:
-            flash('No results found!', category='error')
-            print('if not: ' + form)
-            return redirect(url_for('.searchtest', form=form))
-        else:
-            return render_template('search.html', form=form, result=results, user=current_user)
-        
-        
-
-    else:    
-    #    return redirect(url_for('.searchtest', form=form, user=current_user))
-        return render_template('search.html', form=form, user=current_user)
+# @searchviews.route('/search_test', methods=['GET', 'POST'])
+# def searchtest():
+#     """
+#     Gives search results for partial searches.
+#     Currently, only checks for partial searches on "orderNo" column
+#
+#     use getattr to get the attribute of Production (like orderNo) to call the results from select_field
+#     """
+#     form = ProductionSearchForm(request.form)
+#     if request.method == 'POST':
+#         select_field  = form.select.data
+#         #print(select_field)
+#         search_string = form.search.data
+#         #print(search_string,select_field)
+#         if search_string == '':
+#             results = db.session.query(Production).limit(5000)
+#         else:
+#             kwargs = {str(select_field):str(search_string)}
+#             results = Production.query.filter(Production.orderNo.like(**kwargs)).all()
+#
+#         if not results:
+#             flash('No results found!', category='error')
+#             print('if not: ' + form)
+#             return redirect(url_for('.searchtest', form=form))
+#         else:
+#             return render_template('search.html', form=form, result=results, user=current_user)
+#
+#
+#
+#     else:
+#     #    return redirect(url_for('.searchtest', form=form, user=current_user))
+#         return render_template('search.html', form=form, user=current_user)
 
 
 
 #Testing. For basic search methods. Paired with below
-@searchviews.route('/search', methods=['GET', 'POST'])
-def search_func():
-    '''
-    
-    '''
-    search = ProductionSearchForm(request.form)
-    if request.method == 'POST':
-        return search_results(search)
+# @searchviews.route('/search', methods=['GET', 'POST'])
+# def search_func():
+#     '''
+#
+#     '''
+#     search = ProductionSearchForm(request.form)
+#     if request.method == 'POST':
+#         return search_results(search)
+#
+#     return render_template('search.html', form=search, user=current_user)
 
-    return render_template('search.html', form=search, user=current_user)
-
-@searchviews.route('/searchresults')
-def search_results(search):
-    results = []
-    search_string = search.data['search']
-    print("search_string: " + search_string)
-
-    if search.data['search'] == '':
-        qry = db.session.query(Production)
-        results = qry.limit(5000)
-    
-    if not results:
-        flash('No results found', category='error')
-        return redirect(url_for('.search_func', form=search, user=current_user))
-    else:
-        #display results
-        return render_template('search.html', form=search, result=results, user=current_user)
+# @searchviews.route('/searchresults')
+# def search_results(search):
+#     results = []
+#     search_string = search.data['search']
+#     print("search_string: " + search_string)
+#
+#     if search.data['search'] == '':
+#         qry = db.session.query(Production)
+#         results = qry.limit(5000)
+#
+#     if not results:
+#         flash('No results found', category='error')
+#         return redirect(url_for('.search_func', form=search, user=current_user))
+#     else:
+#         #display results
+#         return render_template('search.html', form=search, result=results, user=current_user)
 
 
 @searchviews.route('/hdd_search', methods=['GET', 'POST'])
 @login_required
+@hf.user_permissions('PC Tech')
 def hdd_search():
     """
     For paginating and displaying search results from the DISKS table.
@@ -231,6 +232,7 @@ def pandasSearch():
 
 @searchviews.route('/pandas_search', methods=['GET', 'POST'])
 @login_required
+@hf.user_permissions('Processing')
 def pandasSearch():
     form = ProductionSearchForm()
     page = request.args.get('page', 1, type=int)
@@ -270,6 +272,8 @@ def pandasSearch():
 
 
 @searchviews.route('master_validation', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Validation')
 def master_validation():
     """
     For searching and displaying results from the Master Verification Log.
@@ -307,6 +311,8 @@ def master_validation():
 # ----------------------------------------------------------------------------------------------------------------------
 
 @searchviews.route('hdd_validation_table', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Validation')
 def hdd_validation():
     """
     For searching and displaying results from the Master Verification Log.
