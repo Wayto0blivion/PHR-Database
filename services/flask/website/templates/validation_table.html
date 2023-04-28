@@ -10,18 +10,18 @@
         <div>
             <table style="text-align: center; margin-left: auto; margin-right: auto">
                 <tr>
-                    <td>{{ form.startdate }}</td>
+                    <td>{{ form.startdate }} </td>
                     <td>{{ form.enddate }}</td>
                 </tr>
             </table>
         </div>
         <div>
             <p style="text-align: center; margin-bottom: 0; padding: 0">
-                {{ form.submit }}
+                {{ form.submit (class="import-button") }}
                 {% if pagination %}
-                    {{ form.downl(formnovalidate=True) }}
+                    {{ form.downl(formnovalidate=True, class="import-button") }}
                 {% endif %}
-                {{ form.clear(formnovalidate=True) }}
+                {{ form.clear(formnovalidate=True, class="import-button") }}
             </p>
         </div>
     </form>
