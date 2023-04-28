@@ -316,6 +316,8 @@ thead th{
 .card
 {
     background-color: rgb(100, 173, 31, 0.9);
+    border: solid 2px #1e1e1e;
+    border-radius: 6px;
 }
 
 .card-text

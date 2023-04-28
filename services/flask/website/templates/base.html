@@ -91,6 +91,18 @@ body {
       </li>
     </ul>
       {% endif %}
+      {% if user.admin_status %}
+    <ul class="navbar-nav ml-md-auto">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Admin
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="/admin">Admin Dashboard
+          </a>
+        </div>
+      </li>
+    </ul>
+      {% endif %}
   <div class="collapse navbar-collapse" id="navbar-list-4">
     <ul class="navbar-nav ml-md-auto">
         <li class="nav-item dropdown">
