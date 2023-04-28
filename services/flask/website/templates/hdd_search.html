@@ -5,6 +5,7 @@
 {% block title %}HDD Search{% endblock %} 
 {% block content %}
     <h1 align="center">Killdisk Search</h1>
+    <div align="center">
     <form method="post">
     {{ form.hidden_tag() }}
       <div>
@@ -16,16 +17,18 @@
                 </tr>     
          </table>
       </div>
+
       <div>
           <p align="center" style="margin-bottom: 0; padding:0%">
-              {{ form.submit }}
+              {{ form.submit (class="import-button")}}
               {% if pagination %}
-                {{ form.downl(formnovalidate=True) }}
+                {{ form.downl(formnovalidate=True, class="import-button") }}
               {% endif %}
-                {{ form.clear(formnovalidate=True) }}
+                {{ form.clear(formnovalidate=True, class="import-button") }}
           </p>
       </div>
     </form>
+    </div>
     {% if count %}
     <div align="center" style="padding-top:10px; background-color:white">
        <p>

@@ -122,10 +122,6 @@ span {
     margin: 0;
 }
 
-.import-button {
-    background: linear-gradient(to right, #64ad1f, #96ea47, #96ea47, #64ad1f);
-}
-
 .navbar a:hover, .dropdown:hover .dropbtn {
     background: linear-gradient(to right, #64ad1f, #96ea47, #96ea47, #64ad1f);
 }
@@ -320,9 +316,24 @@ thead th{
 .card
 {
     background-color: rgb(100, 173, 31, 0.9);
+    border: solid 2px #1e1e1e;
+    border-radius: 6px;
 }
 
 .card-text
 {
     text-align: center
+}
+
+.import-button {
+  margin: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 1rem;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: bolder;
+  color: #fff;
+  background: linear-gradient(to right, #8dee37, #5EB00CFF, #75d324, #5EB00CFF);
 }

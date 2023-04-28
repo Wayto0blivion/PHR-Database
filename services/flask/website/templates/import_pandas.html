@@ -7,8 +7,8 @@
                 <input class="form-control form-control-lg" align="center" type=file name="file">
                 <table>
                     <tr>
-                        <td>{{ form.old_sheet_import }}</td>
-                        <td>{{ form.new_sheet_import }}</td>
+                        {{ form.old_sheet_import (class="import-button") }}
+                        {{ form.new_sheet_import (class="import-button") }}
                     </tr>
                 </table>
             </form>

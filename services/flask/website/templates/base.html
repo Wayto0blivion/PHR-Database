@@ -37,31 +37,72 @@ body {
   <a class="navbar-brand" href="/">
     <img src="https://i.ibb.co/SR70Kcz/phr-logo.png" width="40" height="40" alt="logo">Home
   </a>
-  <a class="nav-item nav-link" id="import" href="/pandas_import" style="color: white">Import</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list-4" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbar-list-4">
+      {% if user.pc_status %}
     <ul class="navbar-nav">
         <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="/search/hdd_search" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Killdisk
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">PC Tech
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="/pandas_import">Import</a>
           <a class="dropdown-item" href="/search/hdd_search">Killdisk</a>
-          <a class="dropdown-item" href="/search/hdd_validation_table">Killdisk Validation Log</a>
         </div>
       </li>
     </ul>
+      {% endif %}
+      {% if user.processing_status %}
     <ul class="navbar-nav">
         <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="/search/hdd_search" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Production
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Processing
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="/pandas_import">Import</a>
           <a class="dropdown-item" href="/search/pandas_search">Production</a>
+        </div>
+      </li>
+    </ul>
+      {% endif %}
+      {% if user.validation_status %}
+    <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Validation
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="/validation_entry">Drive Validation Entry
+          </a>
+          <a class="dropdown-item" href="/search/hdd_validation_table">Killdisk Validation Log</a>
           <a class="dropdown-item" href="/search/master_validation">Production Validation Log</a>
         </div>
       </li>
     </ul>
+      {% endif %}
+      {% if user.admin_status %}
+    <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Mass Validation Import
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="/validation_mass_import">Import
+          </a>
+        </div>
+      </li>
+    </ul>
+      {% endif %}
+      {% if user.admin_status %}
+    <ul class="navbar-nav ml-md-auto">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Admin
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="/admin">Admin Dashboard
+          </a>
+        </div>
+      </li>
+    </ul>
+      {% endif %}
   <div class="collapse navbar-collapse" id="navbar-list-4">
     <ul class="navbar-nav ml-md-auto">
         <li class="nav-item dropdown">
