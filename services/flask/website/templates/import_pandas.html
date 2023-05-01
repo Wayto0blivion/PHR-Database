@@ -4,11 +4,13 @@
         <h1 align="center">Import to Database</h1>
         <div align="center">
             <form action="" method=post enctype=multipart/form-data style="padding-top:100px">
-                <input class="form-control form-control-lg" align="center" type=file name="file">
                 <table>
                     <tr>
-                        {{ form.old_sheet_import (class="import-button") }}
-                        {{ form.new_sheet_import (class="import-button") }}
+                        {{ form.csrf_token }}
+                        <td>{{ form.file }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ form.new_sheet_import (class="import-button") }}</td>
                     </tr>
                 </table>
             </form>
