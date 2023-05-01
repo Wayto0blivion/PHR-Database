@@ -20,6 +20,9 @@ hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.
 
 app = Flask(__name__)
 
+# set optional bootswatch theme
+app.config['FLASK_ADMIN_SWATCH'] = 'slate'
+
 
 def create_app():
     app.config['SECRET_KEY'] = 'Secret!'
