@@ -36,7 +36,7 @@ def create_app():
     # initialize the flask_excel package with the current app
     excel.init_excel(app)
 
-    admin = Admin(name="Pandas")
+    # admin = Admin(name="Pandas")
 
     # If the below encoder is used, date objects can no longer be serialized.
     # app.json_encoder = JSONEncoder
@@ -46,20 +46,21 @@ def create_app():
     db.init_app(app)
 
     # Setting up admin panel for Flask
-    from .models import Production, imported_sheets
+    from .models import Production, imported_sheets, User
     admin = Admin(name="Pandas")
     admin.init_app(app)
     admin.add_view(ModelView(Production, db.session))
     admin.add_view(ModelView(imported_sheets, db.session))
+    admin.add_view(ModelView(User, db.session))
 
-
+    # Import views from python view files.
     from .views import views
     from .auth import auth
     from .testviews import testviews
     from .searchviews import searchviews
 
     app.register_blueprint(views, url_prefix='/')
-    app.register_blueprint(auth, url_prefix='')
+    app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(testviews, url_prefix='/test')
     app.register_blueprint(searchviews, url_prefix='/search')
 
