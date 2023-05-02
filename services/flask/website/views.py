@@ -14,6 +14,7 @@ import numpy as np
 import os
 from datetime import date
 import website.helper_functions as hf
+from werkzeug.utils import secure_filename
 
 
 views = Blueprint('views', __name__)
@@ -222,132 +223,131 @@ def safeimport():
     shape = ''
     table = ''
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
+        file = form.file.data
+        sheetName = secure_filename(file.filename)
 
-        sheetName = request.files['file'].filename
+        if form.new_sheet_import.data:
 
-        with sqlEngine.connect() as dbConnection:
-            if form.new_sheet_import.data:
+            try:
+                # df = pandas.read_excel(request.files.get('file'),
+                #            names=['Order Number', 'Unit #', 'Product Name', 'R2 Applicability',
+                #                   'Data Sanitization Field', 'Next Process Field', 'HDD MFG', 'HDD Serial #',
+                #                   'Manufacturer', 'Model', 'Serial Number', 'Asset', 'New/Used',
+                #                   'Year Manufactured', 'Processor', 'Speed', 'RAM (GB)', 'HDD (GB)', 'Media', 'COA',
+                #                   'Form Factor', 'Tech Initials', 'Date', 'Cosmetic Condition / Grade',
+                #                   'Functional Condition / Grade', 'AC Adapter Included', 'Screen Size',
+                #                   'Test Result Codes', 'Battery Load Test', 'Original Design Battery Capacity',
+                #                   'Battery Capacity @ Time of Test', 'Percent of Original Capacity',
+                #                   'Battery Pass/Fail', 'DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)',
+                #                   'Sale Category'], index_col=None)
 
-                try:
-                    # df = pandas.read_excel(request.files.get('file'),
-                    #            names=['Order Number', 'Unit #', 'Product Name', 'R2 Applicability',
-                    #                   'Data Sanitization Field', 'Next Process Field', 'HDD MFG', 'HDD Serial #',
-                    #                   'Manufacturer', 'Model', 'Serial Number', 'Asset', 'New/Used',
-                    #                   'Year Manufactured', 'Processor', 'Speed', 'RAM (GB)', 'HDD (GB)', 'Media', 'COA',
-                    #                   'Form Factor', 'Tech Initials', 'Date', 'Cosmetic Condition / Grade',
-                    #                   'Functional Condition / Grade', 'AC Adapter Included', 'Screen Size',
-                    #                   'Test Result Codes', 'Battery Load Test', 'Original Design Battery Capacity',
-                    #                   'Battery Capacity @ Time of Test', 'Percent of Original Capacity',
-                    #                   'Battery Pass/Fail', 'DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)',
-                    #                   'Sale Category'], index_col=None)
+                df = pandas.read_excel(file,
+                                       names=['Order Number', 'Unit #', 'Product Name', 'R2 Applicability',
+                                              'Data Sanitization Field', 'Next Process Field', 'HDD MFG',
+                                              'HDD Serial #',
+                                              'Manufacturer', 'Model', 'Serial Number', 'Asset', 'Customer Name',
+                                              'Sales Rep', 'New/Used',
+                                              'Year Manufactured', 'Processor', 'Speed', 'RAM (GB)', 'HDD (GB)',
+                                              'Media', 'COA',
+                                              'Form Factor', 'Tech Initials', 'Date', 'Cosmetic Condition / Grade',
+                                              'Functional Condition / Grade', 'AC Adapter Included', 'Screen Size',
+                                              'Test Result Codes', 'Battery Load Test',
+                                              'Original Design Battery Capacity',
+                                              'Battery Capacity @ Time of Test', 'Percent of Original Capacity',
+                                              'Battery Pass/Fail',
+                                              'DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)',
+                                              'Disposition', 'Power Supply', 'Motherboard/CPU', 'Hard Drive',
+                                              'Memory', 'USB Ports', 'Peripheral Port', 'Card Reader',
+                                              'Optical Drive', 'Screen', 'Screen Hinge', 'Trackpad', 'Keyboard',
+                                              'Screen/Backlights'], index_col=None)
 
-                    df = pandas.read_excel(request.files.get('file'),
-                                           names=['Order Number', 'Unit #', 'Product Name', 'R2 Applicability',
-                                                  'Data Sanitization Field', 'Next Process Field', 'HDD MFG',
-                                                  'HDD Serial #',
-                                                  'Manufacturer', 'Model', 'Serial Number', 'Asset', 'Customer Name',
-                                                  'Sales Rep', 'New/Used',
-                                                  'Year Manufactured', 'Processor', 'Speed', 'RAM (GB)', 'HDD (GB)',
-                                                  'Media', 'COA',
-                                                  'Form Factor', 'Tech Initials', 'Date', 'Cosmetic Condition / Grade',
-                                                  'Functional Condition / Grade', 'AC Adapter Included', 'Screen Size',
-                                                  'Test Result Codes', 'Battery Load Test',
-                                                  'Original Design Battery Capacity',
-                                                  'Battery Capacity @ Time of Test', 'Percent of Original Capacity',
-                                                  'Battery Pass/Fail',
-                                                  'DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)',
-                                                  'Disposition', 'Power Supply', 'Motherboard/CPU', 'Hard Drive',
-                                                  'Memory', 'USB Ports', 'Peripheral Port', 'Card Reader',
-                                                  'Optical Drive', 'Screen', 'Screen Hinge', 'Trackpad', 'Keyboard',
-                                                  'Screen/Backlights'], index_col=None)
+                newSheetRow = imported_sheets(sheetName=sheetName, importTime=datetime.now(), user_id=current_user.id)
+                db.session.add(newSheetRow)
+                db.session.commit()
 
-                    newSheetRow = imported_sheets(sheetName=sheetName, importTime=datetime.now(), user_id=current_user.id)
-                    db.session.add(newSheetRow)
-                    db.session.commit()
+                sheet = imported_sheets.query.filter_by(sheetName=sheetName).first()
+                sheet_name_id = sheet.sheetID
 
-                    sheet = imported_sheets.query.filter_by(sheetName=sheetName).first()
-                    sheet_name_id = sheet.sheetID
+                df.loc[:, ['sheet_id']] = sheet_name_id
 
-                    df.loc[:, ['sheet_id']] = sheet_name_id
+                frame = df.to_sql("Production", sqlEngine, if_exists='append', index=False)
 
-                    frame = df.to_sql("Production", dbConnection, if_exists='append', index=False)
+            except ValueError as vx:
+                sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
+                db.session.delete(sheet_name_query)
+                db.session.commit()
+                shape = vx
+            except Exception as ex:
+                sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
+                db.session.delete(sheet_name_query)
+                db.session.commit()
+                shape = ex
+            else:
+                shape = f'{sheetName} has imported successfully with {frame} rows'
+                table = df.replace(np.nan, 'N/A').to_html(classes='table table-light')
 
-                except ValueError as vx:
-                    sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
-                    db.session.delete(sheet_name_query)
-                    db.session.commit()
-                    shape = vx
-                except Exception as ex:
-                    sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
-                    db.session.delete(sheet_name_query)
-                    db.session.commit()
-                    shape = ex
-                else:
-                    shape = f'{sheetName} has imported successfully with {frame} rows'
-                    table = df.replace(np.nan, 'N/A').to_html(classes='table table-light')
+            # if form.old_sheet_import.data:
+            #     try:
+            #         old_column_one = "PHYSICAL CONDITION/ GRADE "
+            #         old_column_two = "PHYSICAL CONDITION / GRADE "
+            #         new_cosmetic_column = "Cosmetic Condition / Grade"
+            #         new_functional_column = "Functional Condition / Grade"
+            #         physical_index = None
+            #
+            #         df = pandas.read_excel(request.files.get('file'),
+            #                                names=['Order Number', 'Unit #', 'Product Name', 'R2 Applicability',
+            #                                       'Data Sanitization Field', 'Next Process Field', 'HDD MFG',
+            #                                       'HDD Serial #',
+            #                                       'Manufacturer', 'Model', 'Serial Number', 'Asset', 'New/Used',
+            #                                       'Year Manufactured', 'Processor', 'Speed', 'RAM (GB)', 'HDD (GB)',
+            #                                       'Media', 'COA',
+            #                                       'Form Factor', 'Tech Initials', 'Date', 'PHYSICAL CONDITION/ GRADE ',
+            #                                       'AC Adapter Included', 'Screen Size',
+            #                                       'Test Result Codes', 'Battery Load Test',
+            #                                       'Original Design Battery Capacity',
+            #                                       'Battery Capacity @ Time of Test', 'Percent of Original Capacity',
+            #                                       'Battery Pass/Fail',
+            #                                       'DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)',
+            #                                       'Sale Category'], index_col=None)
+            #         newSheetRow = imported_sheets(sheetName=sheetName, importTime=datetime.now(),
+            #                                       user_id=current_user.id)
+            #         db.session.add(newSheetRow)
+            #         db.session.commit()
+            #
+            #         sheet = imported_sheets.query.filter_by(sheetName=sheetName).first()
+            #         sheet_name_id = sheet.sheetID
+            #
+            #         column_names = list(df.columns.values)
+            #
+            #         if old_column_one in column_names:
+            #             physical_index = column_names.index(old_column_one)
+            #             # print(physical_index)
+            #             df.rename(columns={old_column_one: new_cosmetic_column}, inplace=True)
+            #             df.insert(physical_index + 1, new_functional_column, value='')
+            #         elif old_column_two in column_names:
+            #             physical_index = column_names.index(old_column_two)
+            #             # print(physical_index)
+            #             df.rename(columns={old_column_two: new_cosmetic_column}, inplace=True)
+            #             df.insert(physical_index + 1, new_functional_column, value='')
+            #
+            #         df.loc[:, ['sheet_id']] = sheet_name_id
+            #
+            #         frame = df.to_sql("Production", dbConnection, if_exists='append', index=False)
 
-            if form.old_sheet_import.data:
-                try:
-                    old_column_one = "PHYSICAL CONDITION/ GRADE "
-                    old_column_two = "PHYSICAL CONDITION / GRADE "
-                    new_cosmetic_column = "Cosmetic Condition / Grade"
-                    new_functional_column = "Functional Condition / Grade"
-                    physical_index = None
-
-                    df = pandas.read_excel(request.files.get('file'),
-                                           names=['Order Number', 'Unit #', 'Product Name', 'R2 Applicability',
-                                                  'Data Sanitization Field', 'Next Process Field', 'HDD MFG',
-                                                  'HDD Serial #',
-                                                  'Manufacturer', 'Model', 'Serial Number', 'Asset', 'New/Used',
-                                                  'Year Manufactured', 'Processor', 'Speed', 'RAM (GB)', 'HDD (GB)',
-                                                  'Media', 'COA',
-                                                  'Form Factor', 'Tech Initials', 'Date', 'PHYSICAL CONDITION/ GRADE ',
-                                                  'AC Adapter Included', 'Screen Size',
-                                                  'Test Result Codes', 'Battery Load Test',
-                                                  'Original Design Battery Capacity',
-                                                  'Battery Capacity @ Time of Test', 'Percent of Original Capacity',
-                                                  'Battery Pass/Fail',
-                                                  'DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)',
-                                                  'Sale Category'], index_col=None)
-                    newSheetRow = imported_sheets(sheetName=sheetName, importTime=datetime.now(),
-                                                  user_id=current_user.id)
-                    db.session.add(newSheetRow)
-                    db.session.commit()
-
-                    sheet = imported_sheets.query.filter_by(sheetName=sheetName).first()
-                    sheet_name_id = sheet.sheetID
-
-                    column_names = list(df.columns.values)
-
-                    if old_column_one in column_names:
-                        physical_index = column_names.index(old_column_one)
-                        # print(physical_index)
-                        df.rename(columns={old_column_one: new_cosmetic_column}, inplace=True)
-                        df.insert(physical_index + 1, new_functional_column, value='')
-                    elif old_column_two in column_names:
-                        physical_index = column_names.index(old_column_two)
-                        # print(physical_index)
-                        df.rename(columns={old_column_two: new_cosmetic_column}, inplace=True)
-                        df.insert(physical_index + 1, new_functional_column, value='')
-
-                    df.loc[:, ['sheet_id']] = sheet_name_id
-
-                    frame = df.to_sql("Production", dbConnection, if_exists='append', index=False)
-
-                except ValueError as vx:
-                    sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
-                    db.session.delete(sheet_name_query)
-                    db.session.commit()
-                    shape = vx
-                except Exception as ex:
-                    sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
-                    db.session.delete(sheet_name_query)
-                    db.session.commit()
-                    shape = ex
-                else:
-                    shape = f'{sheetName} has imported successfully with {frame} rows'
-                    table = df.replace(np.nan, 'N/A').to_html(classes='table table-light')
+                # except ValueError as vx:
+                #     sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
+                #     db.session.delete(sheet_name_query)
+                #     db.session.commit()
+                #     shape = vx
+                # except Exception as ex:
+                #     sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
+                #     db.session.delete(sheet_name_query)
+                #     db.session.commit()
+                #     shape = ex
+            # else:
+            #     shape = f'{sheetName} has imported successfully with {frame} rows'
+            #     table = df.replace(np.nan, 'N/A').to_html(classes='table table-light')
 
     return render_template('import_pandas.html', form=form, shape=shape, table=table, user=current_user)
 # -----------------------------------------------------------------------------------------------

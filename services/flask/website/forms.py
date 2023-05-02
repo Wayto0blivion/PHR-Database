@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileAllowed, FileRequired, FileAllowed
-from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, TextAreaField, FileField
+from flask_wtf.file import FileAllowed, FileRequired, FileField
+from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, TextAreaField
 # from wtforms import validators
 from wtforms.validators import DataRequired, Optional
 from wtforms.widgets import TextArea, FileInput
@@ -26,7 +26,7 @@ class ProductionSearchForm(FlaskForm):
 
 
 class ImportForm(FlaskForm):
-    old_sheet_import = SubmitField('Old Import', validators=[Optional()])
+    file = FileField('Excel File', validators=[DataRequired()])
     new_sheet_import = SubmitField('New Import', validators=[Optional()])
 
 
