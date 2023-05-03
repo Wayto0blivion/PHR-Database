@@ -1,9 +1,15 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileField
-from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, TextAreaField
+from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, TextAreaField, PasswordField
 # from wtforms import validators
 from wtforms.validators import DataRequired, Optional
 from wtforms.widgets import TextArea, FileInput
+
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
 
 
 class ProductionSearchForm(FlaskForm):
@@ -17,12 +23,6 @@ class ProductionSearchForm(FlaskForm):
     # noinspection SpellCheckingInspection
     downl = SubmitField('Download!', validators=[Optional()])
     clear = SubmitField('Clear', validators=[Optional()])
-    # searchDate1 = DateField('searchDate', format='%Y-%m-%d')
-    # searchDate2 = DateField('searchDate', format='%Y-%m-%d')
-    # select2 = SelectField('Search for records:', choices=choices)
-    # search2 = StringField('')
-    # select3 = SelectField('Search for records:', choices=choices)
-    # search3 = StringField('')
 
 
 class ImportForm(FlaskForm):
@@ -49,9 +49,6 @@ class DateForm(FlaskForm):
     startdate = DateField('Start Date', format='%Y-%m-%d')
     # noinspection SpellCheckingInspection
     enddate = DateField('End Date', format='%Y-%m-%d', validators=[DataRequired()])
-    # batch = StringField('')
-    # passOnly = BooleanField()
-    # passTest = BooleanField()
     submit = SubmitField('Submit')
     # noinspection SpellCheckingInspection
     downl = SubmitField('Download', validators=[Optional()])
