@@ -104,10 +104,10 @@ def delete_note():
 
 
 # Pulls tables from Production for handsontable
-@views.route("/handson", methods=['GET'])
-def cycle_handson():
-    return excel.make_response_from_tables(
-        db.session, [Production], 'handsontable.html')
+# @views.route("/handson", methods=['GET'])
+# def cycle_handson():
+#     return excel.make_response_from_tables(
+#         db.session, [Production], 'handsontable.html')
 
 
 # for exporting in CycleLutions format
@@ -417,48 +417,45 @@ def safeimport():
 @hf.user_permissions('Validation')
 def validation_addition():
     """
-    For adding a record to the validation log.
+    For adding a record to the drive validation log.
     Requires make, model, serialNo.
     Date and Sanitization checkbox are required for form to submit.
     """
-    entryform = ValidationEntryForm()
+    form = ValidationEntryForm()
 
-    if request.method == 'POST':
-        form = request.form
-        disk_info_field = form['disk_info']
-        sanitization_field = form['sanitization']
-        date_field = form['valid_date']
-        serial_field = form['serial']
-        initials_field = form['initials']
+    if form.validate_on_submit():
+        # form = request.form
+        disk_info_field = form.disk_info.data
+        serial_field = form.serial.data
+        sanitization_field = form.sanitization.data
+        date_field = form.valid_date.data
+        initials_field = form.initials.data
+
+        # print(disk_info_field, serial_field, sanitization_field, date_field, initials_field)
 
         # This can be replaced by the DataRequired() validator in the form itself, but hasn't been yet.
-        if not [x for x in (disk_info_field, serial_field, initials_field) if x is None]:
-            try:
-                record = VALIDATION(DiskInfo=disk_info_field, DiskSerial=serial_field, Sanitized=int(sanitization_field),
-                                    Date=date_field, Verification=initials_field)
-                db.session.add(record)
-                db.session.commit()
-                print('\n\nUploaded!\n\n')
-                flash('Validation entry added!', category='success')
-                #db.get_engine(app, 'hdd_db').execute(record)
+        # if not [x for x in (disk_info_field, serial_field, initials_field) if x is None]:
+        try:
+            record = VALIDATION(DiskInfo=disk_info_field, DiskSerial=serial_field, Sanitized=int(sanitization_field),
+                                Date=date_field, Verification=initials_field)
+            # print(record)
+            db.session.add(record)
+            db.session.commit()
+            print('\n\nUploaded!\n\n')
+            flash('Validation entry added!', category='success')
+            # db.get_engine(app, 'hdd_db').execute(record)
 
-            except AttributeError:
-                # record = VALIDATION.add(Make=make_field, Model=model_field, DiskSerial=serial_field, Date=date.today(), Verification=initials_field)
-                # print(record)
-                db.session.rollback()
-                flash('Something is wrong with your data!', category='error')
-                print('\n\nSomething is wrong with your data!\n\n')
+        except AttributeError:
+            db.session.rollback()
+            flash('Something is wrong with your data!', category='error')
+            print('\n\nSomething is wrong with your data!\n\n')
 
-            except exc.IntegrityError:
-                db.session.rollback()
-                flash('Error! This could be duplicate information!', category='error')
-                print('\n\nError! This could be duplicate information!\n\n')
+        except exc.IntegrityError:
+            db.session.rollback()
+            flash('Error! This could be duplicate information!', category='error')
+            print('\n\nError! This could be duplicate information!\n\n')
 
-        else:
-            flash('Something went wrong!', category='error')
-            print('\n\nBad IF Statement!\n\n')
-
-    return render_template('validate_new.html', form=entryform, user=current_user)
+    return render_template('validate_new.html', form=form, user=current_user)
 
 # ------------------------------------------------------------------------------------------------------
 
