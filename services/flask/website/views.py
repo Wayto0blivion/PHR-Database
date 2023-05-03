@@ -441,19 +441,19 @@ def validation_addition():
             # print(record)
             db.session.add(record)
             db.session.commit()
-            print('\n\nUploaded!\n\n')
+            # print('\n\nUploaded!\n\n')
             flash('Validation entry added!', category='success')
             # db.get_engine(app, 'hdd_db').execute(record)
 
         except AttributeError:
             db.session.rollback()
             flash('Something is wrong with your data!', category='error')
-            print('\n\nSomething is wrong with your data!\n\n')
+            # print('\n\nSomething is wrong with your data!\n\n')
 
         except exc.IntegrityError:
             db.session.rollback()
             flash('Error! This could be duplicate information!', category='error')
-            print('\n\nError! This could be duplicate information!\n\n')
+            # print('\n\nError! This could be duplicate information!\n\n')
 
     return render_template('validate_new.html', form=form, user=current_user)
 
