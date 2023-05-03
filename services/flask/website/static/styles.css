@@ -187,7 +187,19 @@ span {
 }
 
 /* Sets the general options for background image */
-body {
+/*body {*/
+/*    background-image: url('PHR-Gradient-BG.png');*/
+/*    background-repeat: no-repeat;*/
+/*    background-size: contain;*/
+/*    background-color: #1c271a;*/
+/*    background-position: center center;*/
+/*    margin: 0;*/
+/*    padding: 0;*/
+/*    min-width: 1000px;*/
+/*    min-height: 1000px;*/
+/*}*/
+
+body, .base-body {
     background-image: url('Semitruck.jpg');
     background-repeat: no-repeat;
     background-size: cover;
