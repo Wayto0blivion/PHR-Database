@@ -24,7 +24,7 @@ class User(db.Model, UserMixin):
     hdd_status = db.Column('HDD', db.Boolean, default=False)
     validation_status = db.Column('Validation', db.Boolean, default=False)
     admin_status = db.Column('Admin', db.Boolean, default=False)
-    notes = db.relationship('Note')
+    notes = db.relationship('Note', backref='author')
     sheets = db.relationship('imported_sheets')
     B2B_sheets = db.relationship('B2B_Imported_Sheets')
     # equip_check = db.relationship('R2_Equipment_Checklist')

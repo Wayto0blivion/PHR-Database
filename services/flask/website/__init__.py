@@ -1,13 +1,17 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from os import path
-from flask_login import LoginManager
-import flask_excel as excel
-from simplejson import JSONEncoder
-from flask_bootstrap import Bootstrap
+from sqlalchemy import inspect
 
+from flask_admin.menu import MenuLink
 from flask_admin import Admin, BaseView
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.model import BaseModelView
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+import flask_excel as excel
+from flask_bootstrap import Bootstrap
+
+
 
 db = SQLAlchemy()
 DB_NAME = 'Processing_Data'
@@ -46,12 +50,49 @@ def create_app():
     db.init_app(app)
 
     # Setting up admin panel for Flask
-    from .models import Production, imported_sheets, User
+    from .models import Production, imported_sheets, User, Note, DISKS, BATCHES, VALIDATION, MasterVerificationLog
     admin = Admin(name="Pandas")
     admin.init_app(app)
-    admin.add_view(ModelView(Production, db.session))
-    admin.add_view(ModelView(imported_sheets, db.session))
-    admin.add_view(ModelView(User, db.session))
+
+    # Setup ModelView functions for specific views
+    class UserView(ModelView):
+        column_display_pk = True
+        create_modal = True
+        column_editable_list = ['active_status', 'pc_status', 'processing_status',
+                                'hdd_status', 'validation_status', 'admin_status']
+
+    class DiskView(ModelView):
+        column_display_pk = True
+        column_display_foreign_keys = True
+        can_edit = False
+        can_create = False
+        can_delete = False
+
+    class ValidationView(ModelView):
+        column_display_pk = True
+        column_default_sort = ('Date', True)
+        can_create = False
+        edit_modal = True
+
+    class ProcessingView(ModelView):
+        column_display_pk = True
+        # column_auto_select_related = True
+        # column_hide_backrefs = True
+        # column_hide_backrefs = True
+        # column_list = [c_attr.key for c_attr in inspect(Production).mapper.column_attrs]
+        # column_searchable_list = ["sheet_id"]
+
+    admin.add_link(MenuLink(name='Back', url='/'))
+
+    # Adds views for specific database models to the MenuBar for Flask-Admin
+    admin.add_view(ProcessingView(Production, db.session, name='Processing', category='Processing'))
+    admin.add_view(ProcessingView(imported_sheets, db.session, name='Imported Sheets', category='Processing'))
+    admin.add_view(DiskView(DISKS, db.session, name='Disks', category='Killdisk'))
+    admin.add_view(DiskView(BATCHES, db.session, name='Batches', category='Killdisk'))
+    admin.add_view(ValidationView(VALIDATION, db.session, name='Drive Validation', category='Validation'))
+    admin.add_view(ValidationView(MasterVerificationLog, db.session, name='Product Validation', category='Validation'))
+    admin.add_view(UserView(User, db.session, category='Users'))
+    admin.add_view(ModelView(Note, db.session, category='Users'))
 
     # Import views from python view files.
     from .views import views
