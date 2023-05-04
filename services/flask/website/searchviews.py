@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, flash, request, redirect, url_for, session
+from sqlalchemy import desc
 from flask_login import login_required, current_user
 from .models import Production, DISKS, MasterVerificationLog, VALIDATION
 from . import db
@@ -80,8 +81,8 @@ def pandasSearch():
 
     if session.get('production_search'):
         result_query = Production.query.filter\
-            (getattr(Production, session['production_select']).like\
-             ('%{}%'.format(session['production_search'])))
+            (getattr(Production, session['production_select'])
+             .like('%{}%'.format(session['production_search'])))
         cur_result = result_query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
         count = result_query.count()
 
@@ -123,7 +124,9 @@ def master_validation():
         session['end_date'] = str(form.enddate.data)
 
     if session.get('start_date'):
-        result_query = MasterVerificationLog.query.filter(MasterVerificationLog.Date.between(session['start_date'], session['end_date']))
+        result_query = MasterVerificationLog.query\
+            .filter(MasterVerificationLog.Date.between(session['start_date'], session['end_date']))\
+            .order_by(desc(MasterVerificationLog.Date))
         cur_result = result_query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
         count = result_query.count()
 
@@ -162,7 +165,8 @@ def hdd_validation():
         session['end_date'] = str(form.enddate.data)
 
     if session.get('start_date'):
-        result_query = VALIDATION.query.filter(VALIDATION.Date.between(session['start_date'], session['end_date']))
+        result_query = VALIDATION.query.filter(VALIDATION.Date.between(session['start_date'], session['end_date']))\
+            .order_by(desc(VALIDATION.Date))
         cur_result = result_query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
         count = result_query.count()
 
