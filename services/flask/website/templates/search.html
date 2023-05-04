@@ -91,11 +91,11 @@
                         <th>Keyboard</th>
                         <th>Screen Backlights</th>
                     </tr>
-                </thead-dark>
+                </thead>
             {% for row in pagination.items %}
                 <tbody>
                     <tr>
-                        <th scope="row:>{{ row.orderNo }}</th>
+                        <td>{{ row.orderNo }}</td>
                         <td>{{ row.unitNo }}</td>
                         <td>{{ row.productName }}</td>
                         <td>{{ row.r2Applicability }}</td>
