@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response
 from .models import User
-from .forms import LoginForm
+from .forms import LoginForm, UserProfileForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
@@ -72,6 +72,24 @@ def sign_up():
             return redirect(url_for('views.home'))
 
     return render_template("sign_up.html", user=current_user)
+
+
+@auth.route('/user-account', methods=['GET', 'POST'])
+@login_required
+def user_account():
+    form = UserProfileForm()
+    if form.validate_on_submit():
+        print("Form Validated")
+        if check_password_hash(current_user.password, form.current_password.data):
+            user = User.query.filter_by(id=current_user.id).first()
+            user.password = generate_password_hash(form.new_password.data, method='sha256')
+            db.session.commit()
+            session.clear()
+            flash('Password changed!', category='success')
+        else:
+            flash('That password is incorrect!', category='error')
+
+    return render_template('test.html', form=form, user=current_user)
 
 
 

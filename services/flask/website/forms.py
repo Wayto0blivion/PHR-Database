@@ -2,14 +2,29 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileField
 from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, TextAreaField, PasswordField
 # from wtforms import validators
-from wtforms.validators import DataRequired, Optional
+from wtforms.validators import DataRequired, Optional, EqualTo, InputRequired
 from wtforms.widgets import TextArea, FileInput
+
+"""
+
+"""
 
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+
+class UserProfileForm(FlaskForm):
+    """
+    User Profile Form
+    For updating user passwords
+    """
+    current_password = PasswordField('Current Password', validators=[InputRequired()])
+    new_password = PasswordField('New Password', validators=[InputRequired()])
+    new_password_verify = PasswordField('Verify New Password', validators=[InputRequired(), EqualTo('new_password', message='Password Mismatch!')])
+    submit = SubmitField('Reset Password')
 
 
 class ProductionSearchForm(FlaskForm):
