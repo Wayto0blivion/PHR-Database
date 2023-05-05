@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileField
 from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, TextAreaField, PasswordField
 # from wtforms import validators
-from wtforms.validators import DataRequired, Optional, EqualTo, InputRequired
+from wtforms.validators import DataRequired, Optional, EqualTo, InputRequired, Length
 from wtforms.widgets import TextArea, FileInput
 
 """
@@ -22,7 +22,7 @@ class UserProfileForm(FlaskForm):
     For updating user passwords
     """
     current_password = PasswordField('Current Password', validators=[InputRequired()])
-    new_password = PasswordField('New Password', validators=[InputRequired()])
+    new_password = PasswordField('New Password', validators=[Length(min=7, message='Too short!')])
     new_password_verify = PasswordField('Verify New Password', validators=[InputRequired(), EqualTo('new_password', message='Password Mismatch!')])
     submit = SubmitField('Reset Password')
 

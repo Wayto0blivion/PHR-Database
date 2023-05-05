@@ -1,6 +1,9 @@
+from time import strftime
+
 from flask import Flask, Blueprint, render_template, flash, request, jsonify, redirect, url_for, send_file, session, make_response
 from flask_login import login_required, current_user
-from sqlalchemy import create_engine, exc
+from sqlalchemy import create_engine, exc, desc, asc
+from sqlalchemy.sql import func
 from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist, MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech
 from . import db, sqlEngine, validEngine, hddEngine
 import json
@@ -1954,32 +1957,59 @@ def has_no_empty_params(rule):
 #     return render_template('b2b_search.html', form=form, user=current_user)
 
 
-# @testviews.route('/servers', methods = ['GET'])
-# def servers():
-#
-#
-#     hosts = {}
-#
-#
-#     for value in db.session.query(BATCHES.Host).distinct():
-#         print(value)
-#         last_upload = db.session.query(BATCHES).filter_by(BATCHES.Host==value).all()
-#         print(last_upload)
-#         # if last_upload.Started != None:
-#         #     hosts[value] = last_upload.Started
-#
-#         # print(hosts)
-#
-#     # prior_batches = BATCHES.query.order_by(desc(BATCHES.Started)).limit(500)
-#     # for value in BATCHES.query.distinct(DISKS.Host):
-#     #     print(value)
-#     #     last_upload = prior_batches.filter(BATCHES.Host==value).first()
-#     #
-#     #     hosts[value] = last_upload.Started
-#     #
-#     # print(hosts)
-#
-#     return render_template('home.html', user=current_user)
+@testviews.route('/servers', methods = ['GET'])
+@login_required
+@hf.user_permissions('Admin')
+def servers():
+
+    hosts = []
+    most_recent_results = []
+
+    # for value in db.session.query(BATCHES.Host).distinct():
+    #     print(value)
+    #     last_upload = db.session.query(BATCHES).filter_by(BATCHES.Host==value).all()
+    #     print(last_upload)
+    #     # if last_upload.Started != None:
+    #     #     hosts[value] = last_upload.Started
+    #
+    #     # print(hosts)
+    #
+    # # prior_batches = BATCHES.query.order_by(desc(BATCHES.Started)).limit(500)
+    # # for value in BATCHES.query.distinct(DISKS.Host):
+    # #     print(value)
+    # #     last_upload = prior_batches.filter(BATCHES.Host==value).first()
+    # #
+    # #     hosts[value] = last_upload.Started
+    # #
+    # # print(hosts)
+
+    # query = BATCHES.query.group_by(BATCHES.Host).order_by(desc(BATCHES.Finished))
+    #
+    # # print(most_recent_values)
+    #
+    # for result in query:
+    #     latest_value = BATCHES.query.filter_by(Finished=result.Finished).first()
+    #     try:
+    #         hosts.append((latest_value.Host, latest_value.Finished.strftime("%m/%d/%Y %H:%M:%S")))
+    #     except Exception as e:
+    #         print(latest_value.Host, str(e))
+    # print(hosts)
+
+    get_hosts = BATCHES.query.group_by(BATCHES.Host)
+
+    for result in get_hosts:
+        hosts.append(result.Host)
+
+    for host in hosts:
+        try:
+            recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
+            most_recent_results.append((host, recent.Finished.strftime("%m/%d/%Y %H:%M:%S"), recent.Batch))
+        except Exception as e:
+            print(host, str(e))
+
+    print(most_recent_results)
+
+    return render_template('home.html', user=current_user)
 
 
 

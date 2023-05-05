@@ -54,7 +54,7 @@ def create_app():
 
     # Setting up admin panel for Flask
     from .models import Production, imported_sheets, User, Note, DISKS, BATCHES, VALIDATION, MasterVerificationLog
-    admin = Admin(name="Pandas")
+    admin = Admin(name="PHR")
     admin.init_app(app)
 
     # Setup ModelView functions for specific views
@@ -67,6 +67,7 @@ def create_app():
     class DiskView(ModelView):
         column_display_pk = True
         column_display_foreign_keys = True
+        column_default_sort = ('Finished', True)
         can_edit = False
         can_create = False
         can_delete = False
