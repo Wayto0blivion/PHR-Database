@@ -576,17 +576,17 @@ def autoimport():
 #         return render_template('test_checkboxes.html', form=dateForm, user=current_user)
 
 #Testing. Unused-------------------------------------------------------------------------
-@testviews.route('/test_checkbox', methods=['GET', 'POST'])
-def test_checkbox():
-    if request.method == 'POST':
-        print(request.form.getlist('hello'))
-
-    return '''<form method="post">
-    <input type="checkbox" name="hello" value="world" checked>
-    <input type="checkbox" name="hello" value="dustinism" checked>
-    <input type="submit">
-    </form>
-    '''
+# @testviews.route('/test_checkbox', methods=['GET', 'POST'])
+# def test_checkbox():
+#     if request.method == 'POST':
+#         print(request.form.getlist('hello'))
+#
+#     return '''<form method="post">
+#     <input type="checkbox" name="hello" value="world" checked>
+#     <input type="checkbox" name="hello" value="dustinism" checked>
+#     <input type="submit">
+#     </form>
+#     '''
 
 
 # @testviews.route('/test_checkboxes_hdd_pass', methods=['GET', 'POST'])
