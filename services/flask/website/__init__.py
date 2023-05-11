@@ -16,7 +16,7 @@ from flask_bootstrap import Bootstrap
 db = SQLAlchemy()
 DB_NAME = 'Processing_Data'
 
-# importFolder = 'file://192.168.1.196/Root/Dustin/Testing'
+UPLOAD_FOLDER = '/home/owner/avatars'
 
 sqlEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Processing_Data')
 validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Validation')
@@ -39,6 +39,8 @@ def create_app():
     }
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'
+
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
     # initialize the flask_excel package with the current app
     excel.init_excel(app)

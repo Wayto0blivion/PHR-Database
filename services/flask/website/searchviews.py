@@ -39,7 +39,8 @@ def hdd_search():
         session['end_date'] = str(form.enddate.data)
 
     if session.get('start_date'):
-        result_query = DISKS.query.filter(DISKS.BatchStarted.between(session['start_date'], session['end_date']))
+        result_query = DISKS.query.filter(DISKS.BatchStarted.between(session['start_date'], session['end_date']))\
+            .order_by(DISKS.BatchStarted)
         cur_result = result_query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
         count = result_query.count()
 

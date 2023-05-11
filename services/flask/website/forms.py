@@ -27,6 +27,14 @@ class UserProfileForm(FlaskForm):
     submit = SubmitField('Reset Password')
 
 
+class AvatarForm(FlaskForm):
+    """
+    For uploading new avatars
+    """
+    file = FileField('Avatar')
+    submit = SubmitField('Change Avatar')
+
+
 class ProductionSearchForm(FlaskForm):
     choices = [('orderNo', 'Order Number'),
                ('productName', 'Product Name'),

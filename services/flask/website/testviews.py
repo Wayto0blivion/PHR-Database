@@ -1,16 +1,16 @@
 from time import strftime
-
+from . import app
 from flask import Flask, Blueprint, render_template, flash, request, jsonify, redirect, url_for, send_file, session, make_response
 from flask_login import login_required, current_user
 from sqlalchemy import create_engine, exc, desc, asc
 from sqlalchemy.sql import func
-from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist, MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech
+from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist, MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech, UserData
 from . import db, sqlEngine, validEngine, hddEngine
 import json
 import flask_excel as excel
 import pandas as pandas
 #import pymysql as pms
-from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm, EquipmentChecklistForm, ImportForm
+from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm, EquipmentChecklistForm, ImportForm, AvatarForm
 import os
 from datetime import date
 import plotly
@@ -18,6 +18,7 @@ import plotly.express as px
 import website.helper_functions as hf
 import numpy as np
 from datetime import datetime
+# from werkzeug.utils import secure_filename
 
 testviews = Blueprint('testviews', __name__)
 
@@ -1957,6 +1958,7 @@ def has_no_empty_params(rule):
 #     return render_template('b2b_search.html', form=form, user=current_user)
 
 
+# ----------------------------------------------------------------------------------------------------------------------
 @testviews.route('/servers', methods = ['GET'])
 @login_required
 @hf.user_permissions('Admin')
@@ -2009,8 +2011,49 @@ def servers():
 
     print(most_recent_results)
 
-    return render_template('home.html', user=current_user)
+    return render_template('home.html', results=most_recent_results, user=current_user)
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+@testviews.route('/upload_avatar', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Admin')
+def upload_avatar():
+
+
+    form = AvatarForm()
+    # if form.validate_on_submit():
+    #     print('Validated!')
+    #     file = form.file.data
+    #     if file:
+    #         filename = secure_filename(file.filename)
+    #         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    #         file.save(filepath)
+    #         image = UserData(user_id=current_user.id, filename=filename, path=filepath)
+    #         db.session.add(image)
+    #         db.session.commit()
+    #         print("Image Uploaded!")
+    #     else:
+    #         print("Invalid File Type")
+    # else:
+    #     print('Did you submit?')
+
+
+    if form.validate_on_submit():
+        print('Testing')
+        file = form.file.data
+
+    else:
+        file = None
+    return render_template('test_avatar_upload.html', form=form, file=file, user=current_user)
+
+
+# For checking if the filename of a file is secure.
+# def allowed_filename(filename):
+#     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+#     return '.' in filename and \
+#         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 
