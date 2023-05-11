@@ -27,7 +27,19 @@ class User(db.Model, UserMixin):
     notes = db.relationship('Note', backref='author')
     sheets = db.relationship('imported_sheets')
     B2B_sheets = db.relationship('B2B_Imported_Sheets')
+    avatar_id = db.relationship('UserData')
     # equip_check = db.relationship('R2_Equipment_Checklist')
+
+
+class UserData(db.Model):
+    """
+    For storing User Data such as Avatar location on the server.
+    """
+    __tablename__ = 'user_data'
+    auto_id = db.Column('auto_id', db.Integer, primary_key=True)
+    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+    filename = db.Column('filename', db.String(255))
+    path = db.Column('path', db.String(255))
 
 
 class Production(db.Model):

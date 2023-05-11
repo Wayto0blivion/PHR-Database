@@ -29,6 +29,13 @@ For testing random features for PHR Database
                 <td>{{ form.new_password.label }}</td>
                 <td>{{ form.new_password }}</td>
             </tr>
+            {% if form.new_password.errors %}
+                {% for error in form.new_password.errors %}
+                    <tr><td>
+                        {{ error }}
+                    </td></tr>
+                {% endfor %}
+            {% endif %}
             {% if form.new_password_verify.errors %}
                 {% for error in form.new_password_verify.errors %}
                     <tr><td>
@@ -36,6 +43,7 @@ For testing random features for PHR Database
                     </td></tr>
                 {% endfor %}
             {% endif %}
+
             <tr>
                 <td>{{ form.new_password_verify.label }}</td>
                 <td>{{ form.new_password_verify }}</td>
