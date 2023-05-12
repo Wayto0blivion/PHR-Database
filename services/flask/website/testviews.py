@@ -1959,13 +1959,13 @@ def has_no_empty_params(rule):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-@testviews.route('/servers', methods = ['GET'])
-@login_required
-@hf.user_permissions('Admin')
-def servers():
+#@testviews.route('/servers', methods = ['GET'])
+#@login_required
+#@hf.user_permissions('Admin')
+#def servers():
 
-    hosts = []
-    most_recent_results = []
+    #hosts = []
+    #most_recent_results = []
 
     # for value in db.session.query(BATCHES.Host).distinct():
     #     print(value)
@@ -1997,21 +1997,21 @@ def servers():
     #         print(latest_value.Host, str(e))
     # print(hosts)
 
-    get_hosts = BATCHES.query.group_by(BATCHES.Host)
+  #  get_hosts = BATCHES.query.group_by(BATCHES.Host)
 
-    for result in get_hosts:
-        hosts.append(result.Host)
+   # for result in get_hosts:
+       # hosts.append(result.Host)
 
-    for host in hosts:
-        try:
-            recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
-            most_recent_results.append((host, recent.Finished.strftime("%m/%d/%Y %H:%M:%S"), recent.Batch))
-        except Exception as e:
-            print(host, str(e))
+    #for host in hosts:
+       # try:
+           # recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
+           # most_recent_results.append([host, recent.Finished.strftime("%m/%d/%Y %H:%M:%S"), recent.Batch])
+        #except Exception as e:
+           # print(host, str(e))
 
-    print(most_recent_results)
+    #print(most_recent_results)
 
-    return render_template('home.html', results=most_recent_results, user=current_user)
+   # return render_template('servers.html', results=most_recent_results, user=current_user)
 
 # ----------------------------------------------------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 from flask import Flask, Blueprint, render_template, flash, request, jsonify, session, url_for
 from flask_login import login_required, current_user
-from sqlalchemy import exc
+from sqlalchemy import exc, desc
 # from sqlalchemy import create_engine
-from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog
+from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES
 from . import db, sqlEngine, validEngine, app
 import json
 import flask_excel as excel
@@ -248,3 +248,26 @@ def validation_import():
 
 # -----------------------------------------------------------------------------------------------------
 
+@views.route('/servers', methods = ['GET'])
+@login_required
+@hf.user_permissions('Admin')
+def servers():
+
+    hosts = []
+    most_recent_results = []
+
+    get_hosts = BATCHES.query.group_by(BATCHES.Host)
+
+    for result in get_hosts:
+        hosts.append(result.Host)
+
+    for host in hosts:
+        try:
+            recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
+            most_recent_results.append([host, recent.Finished.strftime("%m/%d/%Y %H:%M:%S"), recent.Batch])
+        except Exception as e:
+            print(host, str(e))
+
+    print(most_recent_results)
+
+    return render_template('servers.html', results=most_recent_results, user=current_user)
