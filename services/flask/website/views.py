@@ -9,7 +9,7 @@ import flask_excel as excel
 import pandas as pandas
 # import pymysql as pms
 from .forms import ValidationEntryForm, ImportForm
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
 from werkzeug.utils import secure_filename
@@ -248,7 +248,7 @@ def validation_import():
 
 # -----------------------------------------------------------------------------------------------------
 
-@views.route('/servers', methods = ['GET'])
+@views.route('/servers', methods=['GET'])
 @login_required
 @hf.user_permissions('Admin')
 def servers():
@@ -264,10 +264,15 @@ def servers():
     for host in hosts:
         try:
             recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
+            finished = recent.Finished
+            # Calculate the time difference between the current time and the server's finished time
+            time_difference = datetime.now() - finished
+            is_expired = time_difference >= timedelta(hours=24)
             most_recent_results.append({
-               'host': host,
-               'finished': recent.Finished.strftime("%m/%d/%Y %H:%M:%S"),
-               'batch': recent.Batch
+                'host': host,
+                'finished': recent.Finished.strftime("%m-%d-%Y %H:%M:%S"),
+                'batch': recent.Batch,
+                'is_expired': is_expired  # Add a flag to indicate if the server is expired
             })
         except Exception as e:
             print(host, str(e))
