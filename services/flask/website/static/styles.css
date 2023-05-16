@@ -446,3 +446,16 @@ overflow: auto;
 .table-wrapper-scroll-y {
 display: block;
 }
+
+.table-hover thead tr:hover th, .table-hover tbody tr:hover td {
+    background-color: #a6d97c;
+}
+/*link color*/
+a {
+  color: #AF7CD9;
+}
+
+/* mouse over link */
+a:hover {
+  color: #458307;
+}
