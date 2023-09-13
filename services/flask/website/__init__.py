@@ -16,7 +16,7 @@ from flask_bootstrap import Bootstrap
 db = SQLAlchemy()
 DB_NAME = 'Processing_Data'
 
-# importFolder = 'file://192.168.1.196/Root/Dustin/Testing'
+UPLOAD_FOLDER = '/home/owner/avatars'
 
 sqlEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Processing_Data')
 validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Validation')
@@ -40,6 +40,8 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'
 
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
     # initialize the flask_excel package with the current app
     excel.init_excel(app)
 
@@ -54,7 +56,7 @@ def create_app():
 
     # Setting up admin panel for Flask
     from .models import Production, imported_sheets, User, Note, DISKS, BATCHES, VALIDATION, MasterVerificationLog
-    admin = Admin(name="Pandas")
+    admin = Admin(name="PHR")
     admin.init_app(app)
 
     # Setup ModelView functions for specific views
@@ -67,6 +69,7 @@ def create_app():
     class DiskView(ModelView):
         column_display_pk = True
         column_display_foreign_keys = True
+        column_default_sort = ('Finished', True)
         can_edit = False
         can_create = False
         can_delete = False

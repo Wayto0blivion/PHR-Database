@@ -1,13 +1,16 @@
+from time import strftime
+from . import app
 from flask import Flask, Blueprint, render_template, flash, request, jsonify, redirect, url_for, send_file, session, make_response
 from flask_login import login_required, current_user
-from sqlalchemy import create_engine, exc
-from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist, MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech
+from sqlalchemy import create_engine, exc, desc, asc
+from sqlalchemy.sql import func
+from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist, MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech, UserData
 from . import db, sqlEngine, validEngine, hddEngine
 import json
 import flask_excel as excel
 import pandas as pandas
 #import pymysql as pms
-from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm, EquipmentChecklistForm, ImportForm
+from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm, EquipmentChecklistForm, ImportForm, AvatarForm
 import os
 from datetime import date
 import plotly
@@ -16,6 +19,7 @@ import qrcode
 import website.helper_functions as hf
 import numpy as np
 from datetime import datetime
+# from werkzeug.utils import secure_filename
 
 testviews = Blueprint('testviews', __name__)
 
@@ -574,17 +578,17 @@ def autoimport():
 #         return render_template('test_checkboxes.html', form=dateForm, user=current_user)
 
 #Testing. Unused-------------------------------------------------------------------------
-@testviews.route('/test_checkbox', methods=['GET', 'POST'])
-def test_checkbox():
-    if request.method == 'POST':
-        print(request.form.getlist('hello'))
-
-    return '''<form method="post">
-    <input type="checkbox" name="hello" value="world" checked>
-    <input type="checkbox" name="hello" value="dustinism" checked>
-    <input type="submit">
-    </form>
-    '''
+# @testviews.route('/test_checkbox', methods=['GET', 'POST'])
+# def test_checkbox():
+#     if request.method == 'POST':
+#         print(request.form.getlist('hello'))
+#
+#     return '''<form method="post">
+#     <input type="checkbox" name="hello" value="world" checked>
+#     <input type="checkbox" name="hello" value="dustinism" checked>
+#     <input type="submit">
+#     </form>
+#     '''
 
 
 # @testviews.route('/test_checkboxes_hdd_pass', methods=['GET', 'POST'])
@@ -1955,40 +1959,105 @@ def has_no_empty_params(rule):
 #     return render_template('b2b_search.html', form=form, user=current_user)
 
 
-# @testviews.route('/servers', methods = ['GET'])
-# def servers():
-#
-#
-#     hosts = {}
-#
-#
-#     for value in db.session.query(BATCHES.Host).distinct():
-#         print(value)
-#         last_upload = db.session.query(BATCHES).filter_by(BATCHES.Host==value).all()
-#         print(last_upload)
-#         # if last_upload.Started != None:
-#         #     hosts[value] = last_upload.Started
-#
-#         # print(hosts)
-#
-#     # prior_batches = BATCHES.query.order_by(desc(BATCHES.Started)).limit(500)
-#     # for value in BATCHES.query.distinct(DISKS.Host):
-#     #     print(value)
-#     #     last_upload = prior_batches.filter(BATCHES.Host==value).first()
-#     #
-#     #     hosts[value] = last_upload.Started
-#     #
-#     # print(hosts)
-#
-#     return render_template('home.html', user=current_user)
+# ----------------------------------------------------------------------------------------------------------------------
+@testviews.route('/servers', methods = ['GET'])
+@login_required
+@hf.user_permissions('Admin')
+def servers():
 
-@testviews.route('/qr_generate', methods=['GET','POST'])
-def qr_generate():
-    img = qrcode.make('Testing image generation')
-    type(img)
-    img.save("testing.png")
+    hosts = []
+    most_recent_results = []
 
-    return
+    # for value in db.session.query(BATCHES.Host).distinct():
+    #     print(value)
+    #     last_upload = db.session.query(BATCHES).filter_by(BATCHES.Host==value).all()
+    #     print(last_upload)
+    #     # if last_upload.Started != None:
+    #     #     hosts[value] = last_upload.Started
+    #
+    #     # print(hosts)
+    #
+    # # prior_batches = BATCHES.query.order_by(desc(BATCHES.Started)).limit(500)
+    # # for value in BATCHES.query.distinct(DISKS.Host):
+    # #     print(value)
+    # #     last_upload = prior_batches.filter(BATCHES.Host==value).first()
+    # #
+    # #     hosts[value] = last_upload.Started
+    # #
+    # # print(hosts)
+
+    # query = BATCHES.query.group_by(BATCHES.Host).order_by(desc(BATCHES.Finished))
+    #
+    # # print(most_recent_values)
+    #
+    # for result in query:
+    #     latest_value = BATCHES.query.filter_by(Finished=result.Finished).first()
+    #     try:
+    #         hosts.append((latest_value.Host, latest_value.Finished.strftime("%m/%d/%Y %H:%M:%S")))
+    #     except Exception as e:
+    #         print(latest_value.Host, str(e))
+    # print(hosts)
+
+    get_hosts = BATCHES.query.group_by(BATCHES.Host)
+
+    for result in get_hosts:
+        hosts.append(result.Host)
+
+    for host in hosts:
+        try:
+            recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
+            most_recent_results.append((host, recent.Finished.strftime("%m/%d/%Y %H:%M:%S"), recent.Batch))
+        except Exception as e:
+            print(host, str(e))
+
+    print(most_recent_results)
+
+    return render_template('home.html', results=most_recent_results, user=current_user)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+@testviews.route('/upload_avatar', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Admin')
+def upload_avatar():
+
+
+    form = AvatarForm()
+    # if form.validate_on_submit():
+    #     print('Validated!')
+    #     file = form.file.data
+    #     if file:
+    #         filename = secure_filename(file.filename)
+    #         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    #         file.save(filepath)
+    #         image = UserData(user_id=current_user.id, filename=filename, path=filepath)
+    #         db.session.add(image)
+    #         db.session.commit()
+    #         print("Image Uploaded!")
+    #     else:
+    #         print("Invalid File Type")
+    # else:
+    #     print('Did you submit?')
+
+
+    if form.validate_on_submit():
+        print('Testing')
+        file = form.file.data
+
+    else:
+        file = None
+    return render_template('test_avatar_upload.html', form=form, file=file, user=current_user)
+
+
+
+# For checking if the filename of a file is secure.
+# def allowed_filename(filename):
+#     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+#     return '.' in filename and \
+#         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    # return
 
 
 

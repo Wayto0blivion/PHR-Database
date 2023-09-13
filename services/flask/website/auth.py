@@ -79,7 +79,6 @@ def sign_up():
 def user_account():
     form = UserProfileForm()
     if form.validate_on_submit():
-        print("Form Validated")
         if check_password_hash(current_user.password, form.current_password.data):
             user = User.query.filter_by(id=current_user.id).first()
             user.password = generate_password_hash(form.new_password.data, method='sha256')
