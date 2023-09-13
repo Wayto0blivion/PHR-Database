@@ -12,6 +12,7 @@ import os
 from datetime import date
 import plotly
 import plotly.express as px
+import qrcode
 import website.helper_functions as hf
 import numpy as np
 from datetime import datetime
@@ -1981,7 +1982,13 @@ def has_no_empty_params(rule):
 #
 #     return render_template('home.html', user=current_user)
 
+@testviews.route('/qr_generate', methods=['GET','POST'])
+def qr_generate():
+    img = qrcode.make('Testing image generation')
+    type(img)
+    img.save("testing.png")
 
+    return
 
 
 
