@@ -336,6 +336,13 @@ class R2_Equipment_Checklist(db.Model):
 '''
 
 
+class Customers(db.Model):
+    """
+    Customer Database for generating QR Codes from
+    """
+    __tablename__ = "Customers"
+    autoID = db.Column("autoID", db.Integer, primary_key=True)
+    customer_name = db.Column("Customer Name", db.String(256))
 
 
 
@@ -514,3 +521,5 @@ class PC_Tech(db.Model):
 #    id = db.Column(db.Integer, primary_key=True)
 #    name = db.Column(db.String(50))
 #    surname = db.Column(db.String(50))
+
+

@@ -15,6 +15,7 @@ import os
 from datetime import date
 import plotly
 import plotly.express as px
+import qrcode
 import website.helper_functions as hf
 import numpy as np
 from datetime import datetime
@@ -2049,12 +2050,14 @@ def upload_avatar():
     return render_template('test_avatar_upload.html', form=form, file=file, user=current_user)
 
 
+
 # For checking if the filename of a file is secure.
 # def allowed_filename(filename):
 #     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 #     return '.' in filename and \
 #         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+    # return
 
 
 

@@ -189,6 +189,16 @@ class EquipmentChecklistForm(FlaskForm):
     submit = SubmitField('Complete Record?')
 
 
+class CustomerSearchForm(FlaskForm):
+    customer_name = StringField('')
+    submit = SubmitField("Search")
+
+
+class CustomerEntryForm(FlaskForm):
+    customer_name = StringField('')
+    submit = SubmitField('Save')
+
+
 
 
 
