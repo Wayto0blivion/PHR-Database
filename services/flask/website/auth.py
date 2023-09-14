@@ -1,9 +1,11 @@
+import os
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response
 from .models import User
 from .forms import LoginForm, UserProfileForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
+from werkzeug.utils import secure_filename
 
 
 auth = Blueprint('auth', __name__)
@@ -74,7 +76,7 @@ def sign_up():
     return render_template("sign_up.html", user=current_user)
 
 
-@auth.route('/user-account', methods=['GET', 'POST'])
+@auth.route('/profile', methods=['GET', 'POST'])
 @login_required
 def user_account():
     form = UserProfileForm()
@@ -88,7 +90,11 @@ def user_account():
         else:
             flash('That password is incorrect!', category='error')
 
-    return render_template('test.html', form=form, user=current_user)
+    return render_template('profile.html', form=form, user=current_user)
 
-
+@auth.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    user = User.query.get(current_user.id)
+    return render_template('profile.html', user=user)
 

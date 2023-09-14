@@ -4,35 +4,35 @@
 {% block content %}
     <form method=post>
     <div class="col d-flex justify-content-center">
-      <div class="card" style="width: 20rem;">
-  <div class="card-header">
-      <div class="card-text"><h4>Drive Validation</h4></div>
-      <table>
-          {{ form.csrf_token }}
-           <tr>
-               <td>Disk Info: </td>
-               <td>{{ form.disk_info }}</td>
-           </tr>
-           <tr>
-               <td>Serial: </td>
-               <td>{{ form.serial }}</td>
-           </tr>
-           <tr>
-               <td>Sanitized: </td>
-               <td>{{ form.sanitization }}</td>
-           </tr>
-           <tr>
-               <td>Date: </td>
-               <td>{{ form.valid_date }}</td>
-           </tr>
-           <tr>
-               <td>Initials: </td>
-               <td>{{ form.initials }}</td>
-           </tr>
-      </table>
-      <div align="center">{{ form.submit (class="import-button") }}</div>
-  </div>
-</div>
+      <div class="card w-auto" style="width: 20rem;">
+          <div class="card-header">
+              <div class="card-text"><h4>Drive Validation</h4></div>
+              <table>
+                  {{ form.csrf_token }}
+                  <tr>
+                      <td>Disk Info: </td>
+                      <td>{{ form.disk_info }}</td>
+                  </tr>
+                  <tr>
+                      <td>Serial: </td>
+                      <td>{{ form.serial }}</td>
+                  </tr>
+                  <tr>
+                      <td>Sanitized: </td>
+                      <td>{{ form.sanitization }}</td>
+                  </tr>
+                  <tr>
+                      <td>Date: </td>
+                      <td>{{ form.valid_date }}</td>
+                  </tr>
+                  <tr>
+                      <td>Initials: </td>
+                      <td>{{ form.initials }}</td>
+                  </tr>
+              </table>
+              <div align="center">{{ form.submit (class="import-button") }}</div>
+          </div>
+      </div>
     </div>
     </form>
 {% endblock %}

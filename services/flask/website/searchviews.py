@@ -7,6 +7,7 @@ from . import db
 from .forms import ProductionSearchForm, DateForm
 # from flask_wtf import FlaskForm
 import website.helper_functions as hf
+from datetime import datetime
 
 searchviews = Blueprint('searchviews', __name__)
 ROWS_PER_PAGE = 50
@@ -71,6 +72,8 @@ def hdd_search():
 def pandasSearch():
     form = ProductionSearchForm()
     page = request.args.get('page', 1, type=int)
+    # search = request.args.get('date', None, type=str)
+    # print(search)
 
     if form.clear.data:
         session.clear()

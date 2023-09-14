@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}QR Search{% endblock %}
+{% block content %}
+
+   <div align="center">
+    <form method="POST">
+    {{ form.hidden_tag() }}
+      <div>
+          <table align="center">
+                <tr>
+                    <td>{{ form.select }}</td>
+
+                    <td>{{ form.search }}</td>
+                </tr>
+        </table>
+      </div>
+      <div>
+        <p style="background-color:white; width: 40%; display: block; margin-left: auto; margin-right: auto; text-align: center;">For Dates, use the format YYYY-MM-DD</p>
+      </div>
+      <div>
+          <p align="center" style="margin-bottom: 0; padding: 0%">
+              {{ form.submit (class="import-button") }}
+              {% if pagination %}
+                {{ form.downl(formnovalidate=True, class="import-button") }}
+              {% endif %}
+                {{ form.clear(formnovalidate=True, class="import-button") }}
+          </p>
+      </div>
+    </form>
+    </div>
+
+   {% if pagination %}
+        <div>
+            <nav aria-label="Pagination Navigation" style="border-style:ridge;
+    border-color: limegreen; background-color:whitesmoke">
+                {{ macros.pagination_widget(pagination, 'searchviews.qrSearch') }}
+            </nav>
+
+            <p class="text-center mt-3" style="background-color:whitesmoke">
+                Showing page {{ pagination.page }} of {{ pagination.pages }}
+            </p>
+        </div>
+    {% endif %}
+
+{% endblock %}

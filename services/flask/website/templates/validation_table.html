@@ -32,20 +32,20 @@
     {% endif %}
     <div style="height:800px; overflow:auto">
         {% if pagination %}
-            <table class="data-table">
+            <table class="data-table table-hover" id="myTable2">
                 <thead>
                     <tr>
-                        <th>Disk Info</th>
-                        <th>Disk Serial</th>
-                        <th>Sanitized (Pass/Fail)</th>
-                        <th>Date</th>
-                        <th>Verification</th>
+                        <th onclick="sortTable(0)">Disk Info</th>
+                        <th onclick="sortTable(1)">Disk Serial</th>
+                        <th onclick="sortTable(2)">Sanitized (Pass/Fail)</th>
+                        <th onclick="sortTable(3)">Date</th>
+                        <th onclick="sortTable(4)">Verification</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in pagination.items %}
                         <tr>
-                            <td class="table_data">{{ row.DiskInfo }}</td>
+                            <td class="table_data">{{ row.DiskInfo}}</td>
                             <td class="table_data">{{ row.DiskSerial }}</td>
                             <td class="table_data">
                                 {% if row.Sanitized == 1 %}

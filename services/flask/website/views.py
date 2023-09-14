@@ -1,15 +1,15 @@
 from flask import Flask, Blueprint, render_template, flash, request, jsonify, session, url_for
 from flask_login import login_required, current_user
-from sqlalchemy import exc
+from sqlalchemy import exc, desc
 # from sqlalchemy import create_engine
-from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog
+from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES
 from . import db, sqlEngine, validEngine, app
 import json
 import flask_excel as excel
 import pandas as pandas
 # import pymysql as pms
 from .forms import ValidationEntryForm, ImportForm
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
 from werkzeug.utils import secure_filename
@@ -248,3 +248,94 @@ def validation_import():
 
 # -----------------------------------------------------------------------------------------------------
 
+@views.route('/servers', methods=['GET'])
+@login_required
+@hf.user_permissions('Admin')
+def servers():
+
+    hosts = []
+    most_recent_results = []
+
+    get_hosts = BATCHES.query.group_by(BATCHES.Host)
+
+    for result in get_hosts:
+        hosts.append(result.Host)
+
+    for host in hosts:
+        try:
+            recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
+            finished = recent.Finished
+            # Calculate the time difference between the current time and the server's finished time
+            time_difference = datetime.now() - finished
+            is_expired = time_difference >= timedelta(hours=24)
+            most_recent_results.append({
+                'host': host,
+                'finished': recent.Finished.strftime("%m-%d-%Y %H:%M:%S"),
+                'batch': recent.Batch,
+                'is_expired': is_expired  # Add a flag to indicate if the server is expired
+            })
+        except Exception as e:
+            print(host, str(e))
+
+    print(most_recent_results)
+
+    return render_template('servers.html', results=most_recent_results, user=current_user)
+
+@views.route('/servers/<host>', methods=['GET'])
+@login_required
+@hf.user_permissions('Admin')
+def server_details(host):
+    try:
+        recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
+        batch_info = {
+            'host': host,
+            'finished': recent.Finished.strftime("%m/%d/%Y %H:%M:%S"),
+            'batch': recent.Batch
+        }
+        # You can pass the batch_info dictionary to the template and render it accordingly
+        return render_template('server_details.html', batch_info=batch_info, user=current_user)
+    except Exception as e:
+        print(host, str(e))
+        # Handle the case where the recent batch information is not found for the specified server
+        # For example, you can display an error message or redirect the user back to the servers page
+        return render_template('servers.html', error_message='Recent batch information not found.', user=current_user)
+
+    @views.route('/servers/<finished>', methods=['GET'])
+    @login_required
+    @hf.user_permissions('Admin')
+    def server_details(host):
+        try:
+            recent = BATCHES.query.filter_by(Finished=finished).order_by(desc(BATCHES.Finished)).first()
+            batch_info = {
+                'host': host,
+                'finished': recent.Finished.strftime("%m/%d/%Y %H:%M:%S"),
+                'batch': recent.Batch
+            }
+            # You can pass the batch_info dictionary to the template and render it accordingly
+            return render_template('server_details.html', batch_info=batch_info, user=current_user)
+        except Exception as e:
+            print(host, str(e))
+            # Handle the case where the recent batch information is not found for the specified server
+            # For example, you can display an error message or redirect the user back to the servers page
+            return render_template('servers.html', error_message='Recent batch information not found.',
+                                   user=current_user)
+
+    @views.route('/servers/<batch>', methods=['GET'])
+    @login_required
+    @hf.user_permissions('Admin')
+    def server_details(host):
+        try:
+            recent = BATCHES.query.filter_by(Batch=batch).order_by(desc(BATCHES.Finished)).first()
+            batch_info = {
+                'host': host,
+                'finished': recent.Finished.strftime("%m/%d/%Y %H:%M:%S"),
+                'batch': recent.Batch
+            }
+            # You can pass the batch_info dictionary to the template and render it accordingly
+            return render_template('server_details.html', batch_info=batch_info, user=current_user)
+        except Exception as e:
+            print(host, str(e))
+            # Handle the case where the recent batch information is not found for the specified server
+            # For example, you can display an error message or redirect the user back to the servers page
+            return render_template('servers.html', error_message='Recent batch information not found.',
+                                   user=current_user)

@@ -1,25 +1,28 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
     %}
     <h1 align="center">Notes</h1>
-    <div style="margin: 10% 10% 10% 10%">
-    <ul class="list-group list-group-flush" id="notes">
-      {% for note in user.notes %}
-      <li class="list-group-item">
-        {{ note.data }}
-        <button type="button" class="close" onClick="deleteNote({{ note.id }})">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </li>
-      {% endfor %}
-    </ul>
+<div class="container">
+    <div class="form-floating w-50">
+        {% for note in user.notes %}
+            <li class="list-group-item">
+                {{note.data}}
+                <button type="button"class="close"onClick="deleteNote({{ note.id }})">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </li>
+        {%endfor%}
     </div>
-    <form method="POST">
-    <div align="center">
-      <textarea name="note" id="note" class="note"></textarea>
-      <br />
-        </div>
-      <div align="center">
-        <button type="submit" class="loginbutton">Add Note</button>
-      </div>
-    </form>
-    {% endblock %}
+<div class="container-fluid">
+    <div class="form-floating w-auto">
+        <form method="POST">
+            <div align="center">
+                <textarea name="note" id="note" class="note"></textarea>
+                <br />
+            </div>
+            <div align="center">
+                <button type="submit" class="loginbutton">Add Note</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
