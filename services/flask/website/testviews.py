@@ -2056,6 +2056,10 @@ def upload_avatar():
 #         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@testviews.route('/qr-test', methods=["GET"])
+def qr_test():
+    text = "This is the text string"
+    return render_template('qrtest.html', text=text, user=current_user)
 
 
 

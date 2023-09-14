@@ -1,6 +1,6 @@
 from flask import Flask
 from sqlalchemy import inspect
-
+from flask_qrcode import QRcode
 from flask_admin.menu import MenuLink
 from flask_admin import Admin, BaseView
 from flask_admin.contrib.sqla import ModelView
@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import flask_excel as excel
 from flask_bootstrap import Bootstrap
+
 
 
 
@@ -23,7 +24,7 @@ validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.
 hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/db_killdisk')
 
 app = Flask(__name__)
-
+QRcode(app)
 # set optional bootswatch theme
 app.config['FLASK_ADMIN_SWATCH'] = 'slate'
 
