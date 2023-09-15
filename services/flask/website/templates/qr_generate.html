@@ -8,8 +8,9 @@
             {{ form.customer_name }}
             {{ form.submit }}
 
-
-
+            {% if form.customer_name.data %}
+                <img src="{{ qrcode(form.customer_name.data, box_size=5)}}">
+            {% endif %}
         </form>
     </div>
 
