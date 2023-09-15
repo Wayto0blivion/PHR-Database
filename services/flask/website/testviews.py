@@ -2071,6 +2071,9 @@ def upload_avatar():
 @login_required
 @hf.user_permissions('Admin')
 def qr_generate():
+    """
+    For adding a customer to the database.
+    """
     form = CustomerEntryForm()
 
     if form.validate_on_submit():
@@ -2078,7 +2081,7 @@ def qr_generate():
 
         customer_check = Customers.query.filter_by(customer_name=customer_name).all()
 
-        print(customer_check)
+        # print(customer_check)
         if not customer_check:
             new_customer = Customers(customer_name=customer_name)
             db.session.add(new_customer)
@@ -2086,6 +2089,18 @@ def qr_generate():
 
     return render_template('qr_generate.html', form=form, user=current_user)
 
+
+@testviews.route('/qr-search', methods=['GET', 'POST'])
+def qr_search():
+    form = CustomerSearchForm()
+    results = None
+
+    if form.validate_on_submit():
+        customer_name = form.customer_name.data
+
+        results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
+
+    return render_template("qr_search.html", form=form, results=results, user=current_user)
 
 
 
