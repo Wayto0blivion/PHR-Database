@@ -1,9 +1,37 @@
 {% extends "base.html" %}
+
 {% block head %}
     <script src="../static/print_qr.js"></script>
 {% endblock %}
 {% block content %}
-    <div class="centered-square">
+    
+
+{% block title %}New Customer{% endblock %}
+
+{% block content %}
+    <div>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.customer_name }}
+            {{ form.submit }}
+        </form>
+    </div>
+    <div>
+    {% if results %}
+        <table>
+        {% for result in results %}
+            <tr>
+                <td>
+                    {{ result.customer_name }}
+                </td>
+                <td>
+                    <img src="{{ qrcode(result.customer_name, box_size=5)}}">
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+      <div class="centered-square">
         <div class="qr-container">
             <div class="qr-div" id="qr-div">
                 <img src="{{ qrcode(text, box_size=5)}}">
@@ -11,4 +39,7 @@
             <div class="print-button-div"><button class="print-button" id="btnClick" onclick="clickEvent();">Print</button></div>
         </div>
     </div>
+    </div>
+
+
 {% endblock %}

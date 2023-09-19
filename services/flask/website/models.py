@@ -23,6 +23,7 @@ class User(db.Model, UserMixin):
     processing_status = db.Column('Processing', db.Boolean, default=False)
     hdd_status = db.Column('HDD', db.Boolean, default=False)
     validation_status = db.Column('Validation', db.Boolean, default=False)
+    qr_generation = db.Column('QR Generation', db.Boolean, default=False)
     admin_status = db.Column('Admin', db.Boolean, default=False)
     notes = db.relationship('Note', backref='author')
     sheets = db.relationship('imported_sheets')

@@ -1,10 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}New Customer{% endblock %}
 
-</body>
-</html>
+{% block content %}
+    <div>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.customer_name }}
+            {{ form.submit }}
+
+            {% if form.customer_name.data %}
+                <img src="{{ qrcode(form.customer_name.data, box_size=5)}}">
+            {% endif %}
+        </form>
+    </div>
+
+{% endblock %}
