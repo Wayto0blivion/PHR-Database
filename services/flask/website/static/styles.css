@@ -459,3 +459,75 @@ a {
 a:hover {
   color: #458307;
 }
+
+/*.qrCode {*/
+/*  display: flex;*/
+/*    flex-direction: column*/
+/*    !* margin-top: 400px; *!*/
+/*    height: 500px;*/
+/*    align-items: center;*/
+/*}*/
+
+ /*print button for QR code */
+.print-button {
+  margin: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 1rem;
+  border: solid 1px #2b4410;
+  font-size: 1.1rem;
+  font-weight: bolder;
+  color: #2b4410;
+  background: linear-gradient(to right, #8dee37, #5EB00CFF, #75d324, #5EB00CFF);
+  align-items: center;
+}
+
+.qr-container {
+    font-family: arial;
+    font-size: 24px;
+    margin: auto;
+    width: auto;
+    height: auto;
+    /* Setup */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.qr-div {
+    width: auto;
+    height: auto;
+    /* Center vertically */
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.print-button-div {
+    font-family: Arial;
+    font-size: larger;
+    /* Center vertically */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 70%);
+}
+
+.centered-square {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    top: 50%;
+    left: 50%;
+    margin-left: -200px;
+    margin-top: -200px;
+    /* Setup */
+    /*display: flex;*/
+    justify-content: center;
+    align-items: center;
+    background: rgb(255, 255, 255, .4);
+    border: 2px solid;
+    border-color: black;
+}
