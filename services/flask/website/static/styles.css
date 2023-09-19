@@ -483,36 +483,36 @@ a:hover {
   align-items: center;
 }
 
-.qr-container {
-    font-family: arial;
-    font-size: 24px;
-    margin: auto;
-    width: auto;
-    height: auto;
-    /* Setup */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+/*.qr-container {*/
+/*    font-family: arial;*/
+/*    font-size: 24px;*/
+/*    margin: auto;*/
+/*    width: auto;*/
+/*    height: auto;*/
+/*    !* Setup *!*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*}*/
 
-.qr-div {
-    width: auto;
-    height: auto;
-    /* Center vertically */
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
+/*.qr-div {*/
+/*    width: auto;*/
+/*    height: auto;*/
+/*    !* Center vertically *!*/
+/*    position: absolute;*/
+/*    top: 40%;*/
+/*    left: 50%;*/
+/*    transform: translate(-50%, -50%);*/
+/*}*/
 
-.print-button-div {
-    font-family: Arial;
-    font-size: larger;
-    /* Center vertically */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, 70%);
+/*.print-button-div {*/
+/*    font-family: Arial;*/
+/*    font-size: larger;*/
+/*    !* Center vertically *!*/
+/*    position: absolute;*/
+/*    top: 50%;*/
+/*    left: 50%;*/
+/*    transform: translate(-50%, 70%);*/
 }
 
 .centered-square {

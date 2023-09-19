@@ -339,3 +339,9 @@ def server_details(host):
             # For example, you can display an error message or redirect the user back to the servers page
             return render_template('servers.html', error_message='Recent batch information not found.',
                                    user=current_user)
+
+
+@views.route('/qr-search', methods=["GET"])
+def qr_test():
+    text = "This is the text string"
+    return render_template('qrtest.html', text=text, user=current_user)

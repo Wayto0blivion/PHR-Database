@@ -4,15 +4,13 @@ from flask import Flask, Blueprint, render_template, flash, request, jsonify, re
 from flask_login import login_required, current_user
 from sqlalchemy import create_engine, exc, desc, asc
 from sqlalchemy.sql import func
-from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist,\
-    MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech, UserData, Customers
+from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist, MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech, UserData
 from . import db, sqlEngine, validEngine, hddEngine
 import json
 import flask_excel as excel
 import pandas as pandas
 #import pymysql as pms
-from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm, \
-    EquipmentChecklistForm, ImportForm, AvatarForm, CustomerEntryForm, CustomerSearchForm
+from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm, EquipmentChecklistForm, ImportForm, AvatarForm
 import os
 from datetime import date
 import plotly
@@ -2061,46 +2059,32 @@ def upload_avatar():
 
     # return
 
-# @testviews.route('/qr-test', methods=["GET"])
-# def qr_test():
-#     text = "This is the text string"
-#     return render_template('qrtest.html', text=text, user=current_user)
+@testviews.route('/qr-test', methods=["GET"])
+def qr_test():
+    text = "This is the text string"
+    return render_template('qrtest.html', text=text, user=current_user)
 
 
-@testviews.route('/qr-generate', methods=['GET', 'POST'])
-@login_required
-@hf.user_permissions('Admin')
-def qr_generate():
-    """
-    For adding a customer to the database.
-    """
-    form = CustomerEntryForm()
-
-    if form.validate_on_submit():
-        customer_name = form.customer_name.data
-
-        customer_check = Customers.query.filter_by(customer_name=customer_name).all()
-
-        # print(customer_check)
-        if not customer_check:
-            new_customer = Customers(customer_name=customer_name)
-            db.session.add(new_customer)
-            db.session.commit()
-
-    return render_template('qr_generate.html', form=form, user=current_user)
 
 
-@testviews.route('/qr-search', methods=['GET', 'POST'])
-def qr_search():
-    form = CustomerSearchForm()
-    results = None
 
-    if form.validate_on_submit():
-        customer_name = form.customer_name.data
 
-        results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
 
-    return render_template("qr_search.html", form=form, results=results, user=current_user)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
