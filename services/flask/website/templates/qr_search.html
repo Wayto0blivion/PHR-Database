@@ -1,14 +1,45 @@
 {% extends "base.html" %}
+{% import "_macros.html" as macros %}
 {% block head %}
     <script src="../static/print_qr.js"></script>
 {% endblock %}
 {% block content %}
-    <div class="centered-square">
-        <div class="qr-container">
-            <div class="qr-div" id="qr-div">
-                <img src="{{ qrcode(text, box_size=5)}}">
-            </div>
-            <div class="print-button-div"><button class="print-button" id="btnClick" onclick="clickEvent();">Print</button></div>
-        </div>
+<div class="qr-search-div">
+    <form method="POST" style="margin-top: 2%">
+        {{ form.hidden_tag() }}
+        <tr>
+            <td>{{ form.bol_number }}</td>
+            <td>{{ form.customer_name }}</td>
+            <td>{{ form.submit(class="import-button") }}</td>
+        </tr>
+    </form>
+</div>
+<div class="qr-container">
+    {% if results %}
+    <div class="qr-table">
+        <table class="table w-80 h-25 table-bordered table-hover" style="background-color: white">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Customer</th>
+                    <th>QR Code</th>
+                </tr>
+            </thead>
+            <tr>
+                {% for column in results %}
+                <td>{{ column.customer_name }}</td>
+                <td>
+                    <!-- Create a button to show the QR code -->
+                    <button class="qr-button" onclick="showQR('{{ column.customer_name }}')">Show QR</button>
+                </td>
+                </tr>
+                {% endfor %}
+        </table>
     </div>
+
+    <div id="qr-display" class="hidden">
+        <img id="selected-qr" src="">
+        <button class="print-button" onclick="printQR()">Print</button>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
