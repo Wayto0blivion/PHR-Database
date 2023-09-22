@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import exc, desc
 # from sqlalchemy import create_engine
 from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers
-from . import db, sqlEngine, validEngine, app
+from . import db, sqlEngine, validEngine, app, qrcode
 import json
 import flask_excel as excel
 import pandas as pandas
@@ -360,5 +360,7 @@ def qr_test():
     return render_template('qr_search.html', form=form, results=results, user=current_user)
 
 
-
+@views.route('/generate_qr/<string:customer_name>')
+def generate_qr_code(customer_name):
+    return qrcode(customer_name, mode="raw")
 
