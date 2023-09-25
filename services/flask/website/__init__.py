@@ -24,7 +24,7 @@ validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.
 hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/db_killdisk')
 
 app = Flask(__name__)
-QRcode(app)
+qrcode = QRcode(app)
 # set optional bootswatch theme
 app.config['FLASK_ADMIN_SWATCH'] = 'slate'
 

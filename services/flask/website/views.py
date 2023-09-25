@@ -2,17 +2,18 @@ from flask import Flask, Blueprint, render_template, flash, request, jsonify, se
 from flask_login import login_required, current_user
 from sqlalchemy import exc, desc
 # from sqlalchemy import create_engine
-from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES
-from . import db, sqlEngine, validEngine, app
+from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers
+from . import db, sqlEngine, validEngine, app, qrcode
 import json
 import flask_excel as excel
 import pandas as pandas
 # import pymysql as pms
-from .forms import ValidationEntryForm, ImportForm
+from .forms import ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm
 from datetime import datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
 from werkzeug.utils import secure_filename
+import flask_qrcode
 
 
 views = Blueprint('views', __name__)
@@ -339,3 +340,28 @@ def server_details(host):
             # For example, you can display an error message or redirect the user back to the servers page
             return render_template('servers.html', error_message='Recent batch information not found.',
                                    user=current_user)
+
+
+@views.route('/qr-search', methods=["GET", "POST"])
+def qr_test():
+    form = CustomerSearchForm()
+    results = None
+
+    if form.validate_on_submit():
+        bol_number = form.bol_number.data
+        customer_name = form.customer_name.data
+
+        if customer_name:
+            results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
+
+            for result in results:
+                print(result.customer_name)
+
+    # text = "This is the text string"
+    return render_template('qr_search.html', form=form, results=results, user=current_user)
+
+
+@views.route('/generate_qr/<string:customer_name>')
+def generate_qr_code(customer_name):
+    return qrcode(customer_name, mode="raw")
+

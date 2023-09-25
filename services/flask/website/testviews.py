@@ -11,8 +11,8 @@ import json
 import flask_excel as excel
 import pandas as pandas
 #import pymysql as pms
-from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm, \
-    EquipmentChecklistForm, ImportForm, AvatarForm, CustomerEntryForm, CustomerSearchForm
+from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm,\
+    EquipmentChecklistForm, ImportForm, AvatarForm, CustomerSearchForm, CustomerEntryForm
 import os
 from datetime import date
 import plotly
@@ -2061,10 +2061,11 @@ def upload_avatar():
 
     # return
 
-# @testviews.route('/qr-test', methods=["GET"])
-# def qr_test():
-#     text = "This is the text string"
-#     return render_template('qrtest.html', text=text, user=current_user)
+@testviews.route('/qr-test', methods=["GET"])
+def qr_test():
+    text = "This is the text string"
+    return render_template('qrtest.html', text=text, user=current_user)
+
 
 
 @testviews.route('/qr-generate', methods=['GET', 'POST'])
@@ -2101,6 +2102,24 @@ def qr_search():
         results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
 
     return render_template("qr_search.html", form=form, results=results, user=current_user)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -190,6 +190,7 @@ class EquipmentChecklistForm(FlaskForm):
 
 
 class CustomerSearchForm(FlaskForm):
+    bol_number = StringField("")
     customer_name = StringField('')
     submit = SubmitField("Search")
 
