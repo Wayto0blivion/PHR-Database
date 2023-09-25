@@ -351,10 +351,11 @@ def qr_test():
         bol_number = form.bol_number.data
         customer_name = form.customer_name.data
 
-        results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
+        if customer_name:
+            results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
 
-        for result in results:
-            print(result.customer_name)
+            for result in results:
+                print(result.customer_name)
 
     # text = "This is the text string"
     return render_template('qr_search.html', form=form, results=results, user=current_user)
