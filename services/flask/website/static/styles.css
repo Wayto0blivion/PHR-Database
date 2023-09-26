@@ -459,34 +459,85 @@ a:hover {
   color: #458307;
 }
 
-.qr-search-div {
-    position: relative;
-    width: 1400px;
-    height: 100px;
-    margin-top: 1%;
-    left: 13%;
-    justify-content: center;
-    align-items: center;
-    background: rgb(0, 0, 0, .6);
-    border: 2px solid black;
-    border-bottom: 0;
-    text-align: center;
-    vertical-align: middle;
-    padding: 0%;
-}
 
 .qr-container {
-    position: relative;
-    width: 1400px;
-    height: 700px;
-    top: 10%;
-    left: 13%;
-    justify-content: center;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    height: 500px; /* Set a fixed height */
+    width: 1400px; /* Set a fixed width */
+    max-width: 100%; /* Allow it to be responsive up to 100% of the viewport width */
     background: rgb(255, 255, 255, .4);
-    border: 2px solid;
-    border-color: black;
+    border: 2px solid black;
+    margin: 0 auto; /* Center horizontally */
+    overflow: hidden;
 }
+
+.qr-search-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    width: 1400px;
+    max-width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid black;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    text-align: center;
+    padding-bottom: 3%;
+    text-decoration-color: white;
+}
+
+form {
+    width: 100%;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form, input, label, p {
+    color: white !important;
+}
+
+
+.col {
+    margin: 0.5rem;
+}
+
+
+.qr-display-div {
+    display: flex;
+    flex-direction: row; /* Change from column to row */
+    align-items: center;
+    height: 150px;
+    width: 1400px;
+    max-width: 100%;
+    max-height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid black;
+    border-top: 0;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    text-align: center;
+    padding-top: 0.5%;
+    text-decoration-color: white;
+    padding-left: 600px;
+}
+
+.qr-display-div img {
+    margin-right: 20px; /* Adjust the value to increase or decrease the space between the QR codes */
+}
+
+.print-button {
+    margin-left: 20px; /* Adjust the value to increase or decrease the space between the QR codes and the Print button */
+}
+
 
 p {
   color: #ffffff;
@@ -495,17 +546,47 @@ p {
 .qr-table {
     text-align: center;
     font-size: 24px;
+    width: 1400px;
 }
 
 .qr-button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    color: blue;
-    text-decoration: underline;
-    padding: 0;
+  margin: 0.5rem;
+  margin-bottom: 1.0rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 1rem;
+  border: solid 1px #2b4410;
+  font-size: 1.1rem;
+  font-weight: bolder;
+  color: #2b4410;
+  background: linear-gradient(to right, #8dee37, #5EB00CFF, #75d324, #5EB00CFF);
 }
 
 .hidden {
     display: none;
 }
+
+.print-button {
+  margin: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 1rem;
+  border: solid 1px #2b4410;
+  font-size: 1.1rem;
+  font-weight: bolder;
+  color: #2b4410;
+  background: linear-gradient(to right, #8dee37, #5EB00CFF, #75d324, #5EB00CFF);
+}
+
+/* Hide horizontal scrollbar */
+body {
+    overflow-x: hidden;
+}
+
+/* Hide vertical scrollbar */
+body {
+    overflow-y: hidden;
+}
+
+
