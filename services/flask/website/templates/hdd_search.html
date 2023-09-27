@@ -4,92 +4,48 @@
 
 {% block title %}HDD Search{% endblock %} 
 {% block content %}
-    <h1 align="center">Killdisk Search</h1>
-    <div align="center">
-    <form method="post">
-    {{ form.hidden_tag() }}
-      <div>
-          <table align="center">
+    <h1 class="text-center">Killdisk Search</h1>
+    <form method="post" class="mx-auto text-center">
+        {{ form.hidden_tag() }}
+        <div class="mx-auto text-center">
+            <table class="mx-auto">
                 <tr>
                     <td>{{ form.startdate }}</td>
-                    
                     <td>{{ form.enddate }}</td>
-                </tr>     
-         </table>
-      </div>
+                </tr>
+            </table>
+        </div>
 
-      <div>
-          <p align="center" style="margin-bottom: 0; padding:0%">
-              {{ form.submit (class="import-button")}}
-              {% if pagination %}
-                {{ form.downl(formnovalidate=True, class="import-button") }}
-              {% endif %}
+        <div class="justify-content-center text-center">
+            <p class="text-center" style="margin-bottom: 0; padding:0%">
+                {{ form.submit(class="import-button") }}
+                {% if pagination %}
+                    {{ form.downl(formnovalidate=True, class="import-button") }}
+                {% endif %}
                 {{ form.clear(formnovalidate=True, class="import-button") }}
-          </p>
-      </div>
+            </p>
+        </div>
     </form>
-    </div>
     {% if count %}
-    <div align="center" style="padding-top:10px; background-color:white">
-       <p>
-           Search returned {{ count }} results<br>
-           There are {{ quality_count }} good results returned
-       </p>
-    </div>
-    {% endif %}   
-    <div  style="height:800px; overflow:auto">
+        <div class="text-center" style="padding-top:10px; background-color:white">
+            <p>
+                Search returned {{ count }} results<br>
+                There are {{ quality_count }} good results returned
+            </p>
+        </div>
+    {% endif %}
+    <div class="mx-auto text-center" style="overflow-x:auto;">
         {% if pagination %}
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Process</th>
-                        <th>Finished</th>
-                        <th>Batch Started</th>
-                        <th>Batch</th>
-                        <th>Success</th>
-                        <th>Status</th>
-                        <th>Method</th>
-                        <th>Progress</th>
-                        <th>Disk Serial</th>
-                        <th>Disk Info</th>
-                        <th>DiskSizeStr</th>
-                        <th>Provider</th>
-                        <th>ProviderVer</th>
-                        <th>Host</th>
-                        <th>Err Msg</th>
-                    </tr>
-                </thead>
-            {% for row in pagination.items %}
-                <tbody>
-                    <tr>
-                        <td class="table_data">{{ row.Process }}</td>
-                        <td class="table_data">{{ row.Finished }}</td>
-                        <td class="table_data">{{ row.BatchStarted }}</td>
-                        <td class="table_data">{{ row.Batch }}</td>
-                        <td class="table_data">{{ row.Success }}</td>
-                        <td class="table_data">{{ row.Status }}</td>
-                        <td class="table_data">{{ row.Method }}</td>
-                        <td class="table_data">{{ row.Progress }}</td>
-                        <td class="table_data">{{ row.DiskSerial }}</td>
-                        <td class="table_data">{{ row.DiskInfo }}</td>
-                        <td class="table_data">{{ row.DiskSizeStr }}</td>
-                        <td class="table_data">{{ row.Provider }}</td>
-                        <td class="table_data">{{ row.ProviderVer }}</td>
-                        <td class="table_data">{{ row.Host }}</td>
-                        <td class="table_data">{{ row.ErrMsg }}</td>
-                    </tr>
-                </tbody>
-                {% endfor %}
+            <table class="table table-hover" style="background-color: white">
+                <!-- Your table content goes here -->
             </table>
         {% endif %}
     </div>
     {% if pagination %}
-        <div>
-            <nav aria-label="Pagination Navigation" style="border-style:ridge;
-    border-color: limegreen; background-color:whitesmoke">
+        <div class="text-center">
+            <nav aria-label="Pagination Navigation" style="border-style:ridge; border-color: limegreen; background-color:whitesmoke">
                 {{ macros.pagination_widget(pagination, 'searchviews.hdd_search') }}
             </nav>
-
             <p class="text-center mt-3" style="background-color:whitesmoke">
                 Showing page {{ pagination.page }} of {{ pagination.pages }}
             </p>
