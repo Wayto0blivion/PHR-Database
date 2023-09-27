@@ -1,28 +1,28 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
-    %}
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
     <h1 align="center">Notes</h1>
-<div class="container">
-    <div class="form-floating w-50">
-        {% for note in user.notes %}
-            <li class="list-group-item">
-                {{note.data}}
-                <button type="button"class="close"onClick="deleteNote({{ note.id }})">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </li>
-        {%endfor%}
-    </div>
-<div class="container-fluid">
-    <div class="form-floating w-auto">
-        <form method="POST">
-            <div align="center">
-                <textarea name="note" id="note" class="note"></textarea>
-                <br />
+    <div class="d-flex justify-content-center w-auto">
+        <div class="container">
+            <div class="form-floating w-auto">
+                {% for note in user.notes %}
+                    <li class="list-group-item">
+                        {{note.data}}
+                        <button type="button"class="close"onClick="deleteNote({{ note.id }})">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </li>
+                {%endfor%}
             </div>
-            <div align="center">
-                <button type="submit" class="loginbutton">Add Note</button>
+            <div class="container-fluid d-flex justify-content-center">
+                <div class="d-flex justify-content-center form-floating w-auto">
+                    <form method="POST">
+                        <label for="note"></label><textarea name="note" id="note" class="note" style="justify-content"></textarea>
+                        <br />
+                        <button type="submit" class="loginbutton text-center">Add Note</button>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
-</div>
 {% endblock %}
