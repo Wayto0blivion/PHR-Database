@@ -43,15 +43,19 @@
         </table>
             </div>
             </div>
-            <div class="qr-display-div">
-                <div id="qr-display">
+            <div class="qr-display-div row">
+                <div id="qr-display" class="col">
                     {% if form.bol_number.data %}
-                        <span style="padding:10px; font-size:24px; color: black;">BOL #:</span>
-                        <img src="{{ qrcode(form.bol_number.data)}}" alt="" width="100">
-                        <span style="padding:20px"></span>
+                        <div class="box" style="margin-bottom: 30px;">
+                            <img src="{{ qrcode(form.bol_number.data)}}" alt="" width="100">
+                            <span style="padding:5px; font-size:24px; font-weight: bolder; color: black;">{{(form.bol_number.data)}}</span>
+                            <span style="padding:10px"></span>
+                        </div>
                     {% endif %}
-                    <span style="padding:10px; font-size:24px; color: black;">Customer:</span>
-                    <img id="selected-qr" src="" alt="" width="100">
+                    <div class="box">
+                        <img id="selected-qr" src="" alt="" width="100" style=float-wrap:>
+                        <span style="padding:5px; font-size:24px;font-weight: bolder; color: black;" id="selected_customer"></span>
+                    </div>
                 </div>
                 <button class="print-button" onclick="printQR()">Print</button>
             </div>
