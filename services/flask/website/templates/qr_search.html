@@ -2,6 +2,12 @@
 {% import "_macros.html" as macros %}
 {% block head %}
     <script src="../static/print_qr.js"></script>
+    <link
+        rel="stylesheet"
+        type="text/css"
+        media="print"
+        href={{ url_for('static', filename='styles.css') }}
+    />
 {% endblock %}
 {% block content %}
         <div class="qr-search-div">
@@ -17,7 +23,7 @@
 
         {% if results %}
             <div class="qr-container">
-            <div class="qr-table" style="height:500px; overflow:auto">
+            <div class="qr-table" style="height:auto; overflow:auto">
                 <table class="table table-bordered table-hover" style="background-color: white;">
                     <thead class="thead-dark">
                     <tr>
@@ -40,8 +46,11 @@
             <div class="qr-display-div">
                 <div id="qr-display">
                     {% if form.bol_number.data %}
+                        <span style="padding:10px; font-size:24px; color: black;">BOL #:</span>
                         <img src="{{ qrcode(form.bol_number.data)}}" alt="" width="100">
+                        <span style="padding:20px"></span>
                     {% endif %}
+                    <span style="padding:10px; font-size:24px; color: black;">Customer:</span>
                     <img id="selected-qr" src="" alt="" width="100">
                 </div>
                 <button class="print-button" onclick="printQR()">Print</button>
