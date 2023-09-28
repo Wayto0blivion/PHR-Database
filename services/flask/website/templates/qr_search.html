@@ -14,9 +14,8 @@
             <form method="POST">
                     {{ form.hidden_tag() }}
                     <tr>
-
-                        <td>BOL #:</td><td>{{ form.bol_number }}</td>
-                        <td>Customer Name:</td> <td>{{ form.customer_name }}</td>
+                        <td><span id="bol_number">BOL #:</span></td><td>{{ form.bol_number }}</td>
+                        <td><span id="customer_name">Customer Name:</span></td> <td>{{ form.customer_name }}</td>
 
                         <td>{{ form.submit(class="import-button") }}</td>
                     </tr>
