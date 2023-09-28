@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}New Customer{% endblock %}
 
-</body>
-</html>
+{% block content %}
+    <div class="container">
+        <div class="qr-generate-container mx-auto">
+            <form method="POST" class="qr-form mx-auto">
+                {{ form.hidden_tag() }}
+                {{ form.customer_name }}
+                {{ form.submit(class="import-button") }}
+
+                {% if form.customer_name.data %}
+                    <img src="{{ qrcode(form.customer_name.data, box_size=5)}}">
+                {% endif %}
+            </form>
+        </div>
+    </div>
+{% endblock %}
