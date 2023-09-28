@@ -3,97 +3,94 @@
 {% import "_macros.html" as macros %}
 {% block title %}Processing Search{% endblock %} 
 {% block content %}
-    <h1 align="center">Processing Search</h1>
-    <div align="center">
-    <form method="POST">
-    {{ form.hidden_tag() }}
-      <div>
-          <table align="center">
-                <tr>
-                    <td>{{ form.select }}</td>
-                    
-                    <td>{{ form.search }}</td>
-                </tr>   
-        </table>
-      </div>
-      <div>
-        <p style="background-color:white; width: 40%; display: block; margin-left: auto; margin-right: auto; text-align: center;">For Dates, use the format YYYY-MM-DD</p>
-      </div>
-      <div>
-          <p align="center" style="margin-bottom: 0; padding: 0%">
-              {{ form.submit (class="import-button") }}
-              {% if pagination %}
-                {{ form.downl(formnovalidate=True, class="import-button") }}
-              {% endif %}
-                {{ form.clear(formnovalidate=True, class="import-button") }}
-          </p>
-      </div>
-    </form>
-    </div>
-    {% if count %}
-    <div align="center" style="padding-top:10px; background-color:#ffffff">
-        <p>Search returned {{ count }} results</p>
-    </div>
-    {% endif %} 
-    <div style="height:800px; overflow:auto;">
+    <div class="container">
+        <h1 class="text-center">Processing Search</h1>
+        <div class="row justify-content-center">
+            <form method="POST" class="mx-auto">
+                {{ form.hidden_tag() }}
+                <div class="col-md-4">
+                    <table class="mx-auto">
+                        <tr>
+                            <td>{{ form.select }}</td>
+                            <td>{{ form.search }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="mx-auto w-auto">
+                    <p style="background-color:white; width: 80%; display: block; margin-left: auto; margin-right: auto; text-align: center;">For Dates, use the format YYYY-MM-DD</p>
+                </div>
+                <div class="col-md-4 d-flex justify-content-between align-items-center">
+                    {{ form.clear(formnovalidate=True, class="import-button") }}
+                    {{ form.submit(class="import-button") }}
+                    {% if pagination %}
+                        {{ form.downl(formnovalidate=True, class="import-button") }}
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        {% if count %}
+            <div class="row justify-content-center" style="padding-top:10px; background-color:#ffffff">
+                <p>Search returned {{ count }} results</p>
+            </div>
+        {% endif %}
         {% if pagination %}
             <table class="table table-hover" style="background-color: white">
                 <thead class="thead-dark">
-                    <tr>
-                        <th>Order #</th>
-                        <th>Unit #</th>
-                        <th>Product Name</th>
-                        <th>R2 Applicability</th>
-                        <th>Data Sanitization</th>
-                        <th>Next Process</th>
-                        <th>HDD MFG</th>
-                        <th>HDD Serial No</th>
-                        <th>Manufacturer</th>
-                        <th>Model</th>
-                        <th>Serial Number</th>
-                        <th>Asset</th>
-                        <th>Customer Name</th>
-                        <th>Sales Rep</th>
-                        <th>New/Used</th>
-                        <th>Year of MFG</th>
-                        <th>Processor</th>
-                        <th>Speed</th>
-                        <th>RAM</th>
-                        <th>HDD Size</th>
-                        <th>Media</th>
-                        <th>COA</th>
-                        <th>Form Factor</th>
-                        <th>Tech Initials</th>
-                        <th>Date</th>
-                        <th>Cosmetic Grade</th>
-                        <th>Functional Grade</th>
-                        <th>Ac Adapter Included?</th>
-                        <th>Screen Size</th>
-                        <th>Test Result Codes</th>
-                        <th>Battery Load Test</th>
-                        <th>Org. Bat. Design Cap.</th>
-                        <th>Bat. Cap. at Test</th>
-                        <th>Percent Org. Bat. Cap.</th>
-                        <th>Battery Status</th>
-                        <th>Data Wiped?</th>
-                        <th>Disposition</th>
-                        <th>Power Supply</th>
-                        <th>Motherboard</th>
-                        <th>HDD</th>
-                        <th>Memory</th>
-                        <th>USB Ports</th>
-                        <th>Peripheral Port</th>
-                        <th>Card Reader</th>
-                        <th>Optical Drive</th>
-                        <th>Screen</th>
-                        <th>Screen Hinge</th>
-                        <th>Trackpad</th>
-                        <th>Keyboard</th>
-                        <th>Screen Backlights</th>
-                    </tr>
+                <tr>
+                    <th>Order #</th>
+                    <th>Unit #</th>
+                    <th>Product Name</th>
+                    <th>R2 Applicability</th>
+                    <th>Data Sanitization</th>
+                    <th>Next Process</th>
+                    <th>HDD MFG</th>
+                    <th>HDD Serial No</th>
+                    <th>Manufacturer</th>
+                    <th>Model</th>
+                    <th>Serial Number</th>
+                    <th>Asset</th>
+                    <th>Customer Name</th>
+                    <th>Sales Rep</th>
+                    <th>New/Used</th>
+                    <th>Year of MFG</th>
+                    <th>Processor</th>
+                    <th>Speed</th>
+                    <th>RAM</th>
+                    <th>HDD Size</th>
+                    <th>Media</th>
+                    <th>COA</th>
+                    <th>Form Factor</th>
+                    <th>Tech Initials</th>
+                    <th>Date</th>
+                    <th>Cosmetic Grade</th>
+                    <th>Functional Grade</th>
+                    <th>Ac Adapter Included?</th>
+                    <th>Screen Size</th>
+                    <th>Test Result Codes</th>
+                    <th>Battery Load Test</th>
+                    <th>Org. Bat. Design Cap.</th>
+                    <th>Bat. Cap. at Test</th>
+                    <th>Percent Org. Bat. Cap.</th>
+                    <th>Battery Status</th>
+                    <th>Data Wiped?</th>
+                    <th>Disposition</th>
+                    <th>Power Supply</th>
+                    <th>Motherboard</th>
+                    <th>HDD</th>
+                    <th>Memory</th>
+                    <th>USB Ports</th>
+                    <th>Peripheral Port</th>
+                    <th>Card Reader</th>
+                    <th>Optical Drive</th>
+                    <th>Screen</th>
+                    <th>Screen Hinge</th>
+                    <th>Trackpad</th>
+                    <th>Keyboard</th>
+                    <th>Screen Backlights</th>
+                </tr>
                 </thead>
-            {% for row in pagination.items %}
-                <tbody>
+                {% for row in pagination.items %}
+                    <tbody>
                     <tr>
                         <td>{{ row.orderNo }}</td>
                         <td>{{ row.unitNo }}</td>
@@ -146,21 +143,19 @@
                         <td>{{ row.keyboard }}</td>
                         <td>{{ row.screenBacklights }}</td>
                     </tr>
-                </tbody>
+                    </tbody>
                 {% endfor %}
             </table>
         {% endif %}
+        {% if pagination %}
+            <div class="row justify-content-center">
+                <nav aria-label="Pagination Navigation" style="border-style:ridge; border-color: limegreen; background-color:whitesmoke">
+                    {{ macros.pagination_widget(pagination, 'searchviews.pandasSearch') }}
+                </nav>
+                <p class="text-center mt-3" style="background-color:whitesmoke">
+                    Showing page {{ pagination.page }} of {{ pagination.pages }}
+                </p>
+            </div>
+        {% endif %}
     </div>
-    {% if pagination %}
-        <div>
-            <nav aria-label="Pagination Navigation" style="border-style:ridge;
-    border-color: limegreen; background-color:whitesmoke">
-                {{ macros.pagination_widget(pagination, 'searchviews.pandasSearch') }}
-            </nav>
-
-            <p class="text-center mt-3" style="background-color:whitesmoke">
-                Showing page {{ pagination.page }} of {{ pagination.pages }}
-            </p>
-        </div>
-    {% endif %}
 {% endblock %}
