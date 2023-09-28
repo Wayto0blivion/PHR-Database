@@ -14,8 +14,10 @@
             <form method="POST">
                     {{ form.hidden_tag() }}
                     <tr>
-                        <h7 class="color: text-white">BOL #:</h7><td>{{ form.bol_number }}</td>
-                        <h7 class="color: text-white">Customer Name:</h7> <td>{{ form.customer_name }}</td>
+
+                        <td>BOL #:</td><td>{{ form.bol_number }}</td>
+                        <td>Customer Name:</td> <td>{{ form.customer_name }}</td>
+
                         <td>{{ form.submit(class="import-button") }}</td>
                     </tr>
             </form>
@@ -43,6 +45,8 @@
         </table>
             </div>
             </div>
+            {% endif %}
+            {% if results or form.bol_number.data %}
             <div class="qr-display-div row">
                 <div id="qr-display" class="col">
                     {% if form.bol_number.data %}
