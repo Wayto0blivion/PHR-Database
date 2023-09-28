@@ -593,3 +593,7 @@ body {
     overflow-x: auto;
     overflow-y: auto;
 }
+
+#bol_number, #customer_name {
+        color: white !important;
+    }
