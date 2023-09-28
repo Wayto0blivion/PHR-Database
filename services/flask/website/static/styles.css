@@ -12,6 +12,7 @@
     align-items: center;
     max-width: 600px;
     margin: 0 auto;
+    overflow: auto;
     /*align-content: center;*/
     /*margin: 0;*/
     /*padding: 0;*/
@@ -207,6 +208,7 @@ body, .base-body {
     background-color: rgba(164, 164, 164, 0.5);
     background-position: center center;
     margin: 0;
+    overflow: auto;
 }
 
 /* Styles the input boxes to be lime colored. */
@@ -389,6 +391,7 @@ body{
     color: #1a202c;
     text-align: left;
     background-color: #e2e8f0;
+    overflow: auto;
 }
 .main-body {
     padding: 15px;
@@ -504,7 +507,7 @@ form {
 }
 
 form, input, label, p {
-    color: white !important;
+    color: black !important;
 }
 
 
@@ -593,3 +596,7 @@ body {
     overflow-x: auto;
     overflow-y: auto;
 }
+
+#bol_number, #customer_name {
+        color: white !important;
+    }
