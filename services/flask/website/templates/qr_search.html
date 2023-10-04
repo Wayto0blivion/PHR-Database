@@ -37,7 +37,7 @@
                             <td>{{ column.customer_name }}</td>
                             <td>
                                 <!-- Create a button to show the QR code -->
-                                <button class="qr-button" onclick="showQR('{{ column.customer_name }}')">Show QR</button>
+                                <button class="qr-button" onclick='showQR("{{ column.customer_name }}")'>Show QR</button>
                             </td>
                             </tr>
                 {% endfor %}
