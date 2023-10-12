@@ -19,9 +19,9 @@ DB_NAME = 'Processing_Data'
 
 UPLOAD_FOLDER = '/home/owner/avatars'
 
-sqlEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Processing_Data')
-validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Validation')
-hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/db_killdisk')
+sqlEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Processing_Data')
+validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation')
+hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk')
 
 app = Flask(__name__)
 qrcode = QRcode(app)
@@ -31,12 +31,12 @@ app.config['FLASK_ADMIN_SWATCH'] = 'slate'
 
 def create_app():
     app.config['SECRET_KEY'] = 'Secret!'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Processing_Data'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Processing_Data'
     app.config['SQLALCHEMY_BINDS'] = {
-        'hdd_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/db_killdisk',
+        'hdd_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk',
         # 'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Ecommerce',
-        'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Ecommerce',
-        'validation_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Validation',
+        'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Ecommerce',
+        'validation_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation',
     }
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'
