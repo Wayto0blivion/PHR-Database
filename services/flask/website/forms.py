@@ -67,6 +67,21 @@ class TemplateDownloadForm(FlaskForm):
     lcd_template_download = SubmitField('LCDs')
 
 
+class KilldiskForm(FlaskForm):
+    choices = [('OrderNo', 'Order Number'),
+               ('DiskSerial', 'Serial #'),
+               ('Batch', 'Batch')]
+    select = SelectField('Search Field:', choices=choices)
+    # noinspection SpellCheckingInspection
+    startdate = DateField('Start Date', format='%Y-%m-%d')
+    # noinspection SpellCheckingInspection
+    enddate = DateField('End Date', format='%Y-%m-%d', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+    # noinspection SpellCheckingInspection
+    downl = SubmitField('Download', validators=[Optional()])
+    clear = SubmitField('Clear', validators=[Optional()])
+
+
 class DateForm(FlaskForm):
     # noinspection SpellCheckingInspection
     startdate = DateField('Start Date', format='%Y-%m-%d')

@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from .models import Production, DISKS, MasterVerificationLog, VALIDATION
 from . import db
 # import pymysql as pms
-from .forms import ProductionSearchForm, DateForm
+from .forms import ProductionSearchForm, DateForm, KilldiskForm
 # from flask_wtf import FlaskForm
 import website.helper_functions as hf
 from datetime import datetime
@@ -27,7 +27,7 @@ def hdd_search():
     but is internal.
     """
 
-    form = DateForm()
+    form = KilldiskForm()
 
     page = request.args.get('page', 1, type=int)
 
