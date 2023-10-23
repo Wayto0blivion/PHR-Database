@@ -36,16 +36,45 @@ def hdd_search():
         return redirect(url_for(request.endpoint))
 
     if form.validate_on_submit():
-        session['start_date'] = str(form.startdate.data)
-        session['end_date'] = str(form.enddate.data)
 
-    if session.get('start_date'):
-        result_query = DISKS.query.filter(DISKS.BatchStarted.between(session['start_date'], session['end_date']))\
-            .order_by(DISKS.BatchStarted)
-        cur_result = result_query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
-        count = result_query.count()
+        # session['start_date'] = str(form.startdate.data)
+        # session['end_date'] = str(form.enddate.data)
 
-        quality_count = result_query.filter(DISKS.Success == '1', DISKS.Passes == '1', DISKS.Progress == '100').count()
+        select = form.select.data
+        search = form.search.data
+        start_date = form.startdate.data
+        end_date = form.enddate.data
+
+        query = DISKS.query
+        filters = []
+        if form.select.data and form.search.data:
+            if select == 'OrderNo':
+                filters.append(DISKS.OrderNo.contains(search))
+            if select == 'DiskSerial':
+                filters.append(DISKS.DiskSerial.contains(search))
+            if select == 'Host':
+                filters.append(DISKS.Host.contains(search))
+
+            if start_date and end_date:
+                start_date = datetime.combine(start_date, datetime.min.time())
+                end_date = datetime.combine(end_date, datetime.max.time())
+                filters.append(DISKS.Finished.between(start_date, end_date))
+
+            if filters:
+                query=query.filter(*filters)
+
+            results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
+            count = query.count()
+            quality_count = results.filter(DISKS.Success == '1', DISKS.Passes == '1', DISKS.Progress == '100').count()
+
+
+    # if session.get('start_date'):
+    #     result_query = DISKS.query.filter(DISKS.BatchStarted.between(session['start_date'], session['end_date']))\
+    #         .order_by(DISKS.BatchStarted)
+    #     cur_result = result_query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
+    #     count = result_query.count()
+
+        # quality_count = result_query.filter(DISKS.Success == '1', DISKS.Passes == '1', DISKS.Progress == '100').count()
 
         if form.downl.data:
             '''
@@ -59,9 +88,9 @@ def hdd_search():
             to the front, so it can easily be skipped.
             
             '''
-            return hf.download_search(result_query, 'hddEngine')
+            return hf.download_search(query, 'hddEngine')
 
-        return render_template('hdd_search.html', form=form, pagination=cur_result, count=count, quality_count=quality_count, user=current_user)
+        return render_template('hdd_search.html', form=form, pagination=results, count=count, quality_count=quality_count, user=current_user)
 
     return render_template('hdd_search.html', form=form, user=current_user)
 
