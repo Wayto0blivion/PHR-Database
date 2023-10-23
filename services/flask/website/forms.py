@@ -72,6 +72,7 @@ class KilldiskForm(FlaskForm):
                ('DiskSerial', 'Serial #'),
                ('Batch', 'Batch')]
     select = SelectField('Search Field:', choices=choices)
+    search = StringField('')
     # noinspection SpellCheckingInspection
     startdate = DateField('Start Date', format='%Y-%m-%d')
     # noinspection SpellCheckingInspection
