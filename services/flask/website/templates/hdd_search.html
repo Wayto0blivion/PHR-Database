@@ -10,8 +10,10 @@
         <div class="mx-auto text-center">
             <table class="mx-auto">
                 <tr>
-                    <td>{{ form.startdate }}</td>
-                    <td>{{ form.enddate }}</td>
+                    <td>{{ form.startdate (class="form-control datepicker col-xs-3 m-1") }}</td>
+                    <td>{{ form.enddate (class="form-control datepicker col-xs-3 m-2") }}</td>
+                    <td>{{ form.select (class="input-group rounded col-xs-3 m-3") }}</td>
+                    <td>{{ form.search (class="form-control rounded col-xs-3 m-4") }}</td>
                 </tr>
             </table>
         </div>
