@@ -70,7 +70,7 @@ class TemplateDownloadForm(FlaskForm):
 class KilldiskForm(FlaskForm):
     choices = [('OrderNo', 'Order Number'),
                ('DiskSerial', 'Serial #'),
-               ('Batch', 'Batch')]
+               ('Host', 'Drawer')]
     select = SelectField('Search Field:', choices=choices)
     search = StringField('')
     # noinspection SpellCheckingInspection
