@@ -74,9 +74,9 @@ class KilldiskForm(FlaskForm):
     select = SelectField('Search Field:', choices=choices)
     search = StringField('')
     # noinspection SpellCheckingInspection
-    startdate = DateField('Start Date', format='%Y-%m-%d')
+    startdate = DateField('Start Date', format='%Y-%m-%d', validators=[Optional()])
     # noinspection SpellCheckingInspection
-    enddate = DateField('End Date', format='%Y-%m-%d', validators=[DataRequired()])
+    enddate = DateField('End Date', format='%Y-%m-%d', validators=[Optional()])
     submit = SubmitField('Submit')
     # noinspection SpellCheckingInspection
     downl = SubmitField('Download', validators=[Optional()])
