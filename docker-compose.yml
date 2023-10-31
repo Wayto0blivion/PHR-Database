@@ -3,6 +3,7 @@ version: '3.8'
 services:
   web:
     build: ./services/flask
+    restart: always
     command: gunicorn --bind 0.0.0.0:5000 -w 4 --log-level=debug flask_site:app
 #    command: flask --app flask_site run --host 0.0.0.0
     expose:
@@ -14,6 +15,7 @@ services:
 
   db:
     build: ./services/db
+    restart: always
     ports:
       - '3306:3306'
     volumes:
@@ -23,6 +25,7 @@ services:
 
   nginx:
     build: ./services/nginx
+    restart: always
     ports:
       - '80:80'
     depends_on:
