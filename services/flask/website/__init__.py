@@ -12,8 +12,6 @@ import flask_excel as excel
 from flask_bootstrap import Bootstrap
 
 
-
-
 db = SQLAlchemy()
 DB_NAME = 'Processing_Data'
 
@@ -22,6 +20,7 @@ UPLOAD_FOLDER = '/home/owner/avatars'
 sqlEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Processing_Data')
 validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation')
 hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk')
+aikenEngine = db.create_engine('mysql+pymysql://manager:powerhouse@192.168.3.247/awbc_db')
 
 app = Flask(__name__)
 qrcode = QRcode(app)
@@ -37,6 +36,7 @@ def create_app():
         # 'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Ecommerce',
         'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Ecommerce',
         'validation_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation',
+        'aiken_db': 'mysql+pymysql://manager:powerhouse@192.168.3.247/awbc_db'
     }
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'

@@ -216,7 +216,13 @@ class CustomerEntryForm(FlaskForm):
     submit = SubmitField('Save')
 
 
-
+class AikenProductionForm(FlaskForm):
+    start_date = DateField('Start Date', [Optional()], format='%Y-%m-%d')
+    end_date = DateField('End Date', [Optional()], format='%Y-%m-%d')
+    active_lots = BooleanField('Active Lots?')
+    graph = SubmitField('Graph')
+    table = SubmitField('Table')
+    download = SubmitField('Download')
 
 
 

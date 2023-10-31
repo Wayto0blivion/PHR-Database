@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}Aiken Daily Production{% endblock %}
+{% block content %}
+    <div style="background-color: whitesmoke">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <table>
+                <tr>
+                    <td>Start Date</td>
+                    <td>{{ form.start_date }}</td>
+                </tr>
+                <tr>
+                    <td>End Date</td>
+                    <td>{{ form.end_date }}</td>
+                </tr>
+                <tr>
+                    <td>Active Lots?</td>
+                    <td>{{ form.active_lots }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.graph }}</td>
+                    <td>{{ form.table }}</td>
+                    {% if query|length > 0 %}
+                        <td>{{ form.download }}</td>
+                    {% endif %}
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <div class="mx-auto text-center" style="overflow-x:auto;">
+    <table class="data-table">
+    {% for item in query %}
+        <tr>
+            <td class="table_data">{{ item.User }}</td>
+            <td class="table_data">{{ item.AuditedDate }}</td>
+            <td class="table_data">{{ item.UnitsCount }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+{% endblock %}

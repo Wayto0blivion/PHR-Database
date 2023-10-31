@@ -1,19 +1,23 @@
-from flask import Flask, Blueprint, render_template, flash, request, jsonify, session, url_for
+from flask import Flask, Blueprint, render_template, flash, request, jsonify, session, url_for, Response, send_file
 from flask_login import login_required, current_user
-from sqlalchemy import exc, desc
+from sqlalchemy import exc, desc, func, and_
+from sqlalchemy.orm import sessionmaker
 # from sqlalchemy import create_engine
-from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers
-from . import db, sqlEngine, validEngine, app, qrcode
+from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units
+from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
 import pandas as pandas
+import seaborn as sns
+import matplotlib.pyplot as plt
 # import pymysql as pms
-from .forms import ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm
+from .forms import ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm
 from datetime import datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
 from werkzeug.utils import secure_filename
 import flask_qrcode
+from io import BytesIO
 
 
 views = Blueprint('views', __name__)
@@ -364,4 +368,106 @@ def qr_test():
 @views.route('/generate_qr/<string:customer_name>')
 def generate_qr_code(customer_name):
     return qrcode(customer_name, mode="raw")
+
+
+@views.route('/aiken-production', methods=['GET', 'POST'])
+@login_required
+def aiken_daily_production():
+    """
+    Allows a user to check production values for a range of dates, as well as limiting
+    the search to currently active lots.
+    :return: Either a graph or a table. Can also download the table.
+    """
+
+    form = AikenProductionForm()
+
+    if form.validate_on_submit():
+
+        query = aiken_query(form)
+
+        if form.graph.data:
+            img_stream = production_graph(query.all())
+            return Response(img_stream.getvalue(), content_type='image/png')
+
+        if form.table.data:
+            return render_template('skeleton_aiken_daily_production.html', query=query.all(), form=form, user=current_user)
+
+        if form.download.data:
+
+            results = query.all()
+
+            df = pandas.DataFrame(results, columns=['User', 'Audited Date', 'Units Count'])
+
+            print(df.head())
+
+            output = BytesIO()
+            with pandas.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, sheet_name='Aiken Production', index=False)
+
+            output.seek(0)
+            return send_file(output, download_name=f"Aiken Production { datetime.today().strftime('%Y-%m-%d') }.xlsx", as_attachment=True)
+
+    return render_template('skeleton_aiken_daily_production.html', form=form, user=current_user)
+
+
+def production_graph(query):
+    """
+    Creates a graph based on a passed query for Aiken and stores it in memory.
+    :return: A BytesIO object called img_stream for display in the browser.
+    """
+
+    df = pandas.DataFrame(query, columns=['User', 'AuditedDate', 'UnitsCount'])
+    agg_data = df.groupby('User').sum()['UnitsCount'].reset_index()
+
+    plt.figure(figsize=(15, 6))
+    ax = sns.barplot(data=agg_data, x='User', y='UnitsCount')
+    plt.title('Total Units Count By User')
+
+    for index, value in enumerate(agg_data['UnitsCount']):
+        ax.text(index, value + 0.5, str(value), ha='center', va='center')
+
+    plt.tight_layout()
+
+    img_stream = BytesIO()
+    plt.savefig(img_stream, format='png')
+    img_stream.seek(0)
+
+    return img_stream
+
+
+def aiken_query(form):
+
+    AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
+    session = AikenSession()
+
+    filters = []
+
+    if form.start_date.data and form.end_date.data:
+        start_date = datetime.combine(form.start_date.data, datetime.min.time())
+        end_date = datetime.combine(form.end_date.data, datetime.max.time())
+        filters.append(Units.Audited.between(start_date, end_date))
+    elif form.start_date.data:
+        start_date = datetime.combine(form.start_date.data, datetime.min.time())
+        filters.append(Units.Audited >= start_date)
+    elif form.end_date.data:
+        end_date = datetime.combine(form.end_date.data, datetime.max.time())
+        filters.append(Units.Audited <= end_date)
+    if form.active_lots.data:
+        filters.append(Lots.Status == 0)
+
+    query = (
+        session.query(
+            Units.User,
+            func.date(Units.Audited).label('AuditedDate'),
+            func.count(Units.UnitID).label('UnitsCount')
+        )
+        .join(Lots, Units.LotID == Lots.LotID)
+        .filter(and_(*filters))
+        .group_by(Units.User, func.date(Units.Audited))
+        .order_by(func.date(Units.Audited).desc(), Units.User)
+    )
+
+    session.close()
+
+    return query
 

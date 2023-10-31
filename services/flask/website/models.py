@@ -474,11 +474,59 @@ class PC_Tech(db.Model):
     sheet_id = db.Column('sheet_id', db.Integer, db.ForeignKey('PC_Imported_Sheets.sheetID'))
 
 
+# === Aiken Models ===
 
 
+class Lots(db.Model):
+    """
+    Aiken table for created Lots
+    """
+    __bind_key__ = 'aiken_db'
+    __tablename__ = 'Lots'
+    LotID = db.Column(db.Integer, primary_key=True)
+    Number = db.Column(db.String(30))
+    Owner = db.Column(db.String(60))
+    Customer = db.Column(db.String(60))
+    Description = db.Column(db.String(255))
+    Status = db.Column(db.Integer)
+    Params = db.Column(db.LargeBinary)
+    Created = db.Column(db.DateTime)
+    Uploaded = db.Column(db.DateTime)
 
 
-
+class Units(db.Model):
+    """
+    Aiken table for audited units. One record per asset.
+    """
+    __bind_key__ = 'aiken_db'
+    __tablename__ = 'Units'
+    UnitID = db.Column(db.Integer, primary_key=True)
+    LotID = db.Column(db.Integer)
+    ProductType = db.Column(db.String(20))
+    Manufacturer = db.Column(db.String(30))
+    Model = db.Column(db.String(60))
+    PartNumber = db.Column(db.String(30))
+    SerialNumber = db.Column(db.String(30))
+    Chassis = db.Column(db.String(16))
+    Exported = db.Column(db.Integer)
+    PictureID = db.Column(db.Integer)
+    AssetTag = db.Column(db.String(50))
+    Grade = db.Column(db.String(10))
+    ObservCodes = db.Column(db.String(255))
+    ObservNotes = db.Column(db.String(255))
+    User = db.Column(db.String(16))
+    Audited = db.Column(db.DateTime)
+    RGrade = db.Column(db.String(10))
+    RObservCodes = db.Column(db.String(255))
+    RObservNotes = db.Column(db.String(255))
+    RUser = db.Column(db.String(16))
+    RAudited = db.Column(db.DateTime)
+    OSRestored = db.Column(db.String(60))
+    WarehLocation = db.Column(db.String(20))
+    PackGroupType = db.Column(db.String(20))
+    PackGroupNumber = db.Column(db.Integer)
+    HwID = db.Column(db.String(30))
+    Created = db.Column(db.DateTime)
 
 
 
