@@ -2,7 +2,7 @@ from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 from datetime import datetime, date
-from sqlalchemy.dialects.mysql import TINYTEXT, TEXT, LONGTEXT
+from sqlalchemy.dialects.mysql import TINYTEXT, TEXT, LONGTEXT, LONGBLOB
 
 
 # Note homepage
@@ -529,6 +529,29 @@ class Units(db.Model):
     Created = db.Column(db.DateTime)
 
 
+class Units_Devices(db.Model):
+    """
+    Aiken table to store individual device info for units. This is also where custom fields are stored.
+    """
+    __bind_key__ = 'aiken_db'
+    __tablename__ = 'Units_Devices'
+    ID = db.Column(db.Integer, primary_key=True)
+    UnitID = db.Column(db.Integer)
+    Category = db.Column(db.String(30))
+    Manufacturer = db.Column(db.String(60))
+    Model = db.Column(db.String(60))
+    Serial = db.Column(db.String(60))
+    Size = db.Column(db.String(60))
+    Speed = db.Column(db.String(60))
+    Info1 = db.Column(db.String(255))
+    Info2 = db.Column(db.String(255))
+    Info3 = db.Column(db.String(255))
+    Didx = db.Column(db.Integer)
+    Refurbished = db.Column(db.Boolean)
+    Erased = db.Column(db.Integer)
+    Tested = db.Column(db.Integer)
+    Type = db.Column(db.Integer)
+    Data = db.Column(LONGBLOB)
 
 
 # Flask-Excel Testing
