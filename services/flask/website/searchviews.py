@@ -55,10 +55,10 @@ def hdd_search():
             if select == 'Host':
                 filters.append(DISKS.Host.contains(search))
 
-            if start_date and end_date:
-                start_date = datetime.combine(start_date, datetime.min.time())
-                end_date = datetime.combine(end_date, datetime.max.time())
-                filters.append(DISKS.Finished.between(start_date, end_date))
+        if start_date and end_date:
+            start_date = datetime.combine(start_date, datetime.min.time())
+            end_date = datetime.combine(end_date, datetime.max.time())
+            filters.append(DISKS.Finished.between(start_date, end_date))
 
             if filters:
                 query=query.filter(*filters)
