@@ -39,7 +39,7 @@ function printQR() {
 
     printWindow.onload = function() {
         printWindow.print();
-        // printWindow.close();
+        printWindow.close();
     };
 }
 
