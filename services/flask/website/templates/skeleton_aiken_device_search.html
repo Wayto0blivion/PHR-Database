@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}Aiken Daily Production{% endblock %}
+{% block content %}
+    <div style="background-color: whitesmoke">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <table>
+                <tr>
+                    <td>Select</td>
+                    <td>{{ form.select }}</td>
+                </tr>
+                <tr>
+                    <td>Search</td>
+                    <td>{{ form.search }}</td>
+                </tr>
+                <tr>
+                    <td>Active Lots?</td>
+                    <td>{{ form.active_lots }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.table }}</td>
+                    {% if query|length > 0 %}
+                        <td>{{ form.download }}</td>
+                    {% endif %}
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <div class="mx-auto text-center" style="overflow-x:auto;">
+    <table class="data-table">
+        <thead>
+            <tr>
+                {% for column in column_names %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+                <tr>
+                    {% for column in column_names %}
+                        <td>{{ row[column] }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

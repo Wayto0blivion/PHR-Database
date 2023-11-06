@@ -5,9 +5,10 @@ from wtforms import StringField, SelectField, DateField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Optional, EqualTo, InputRequired, Length
 from wtforms.widgets import TextArea, FileInput
 
-"""
-
-"""
+'''
+forms.py is intended to build forms for user input that will query data 
+from various databases and tables through a view.
+'''
 
 
 class LoginForm(FlaskForm):
@@ -206,8 +207,12 @@ class EquipmentChecklistForm(FlaskForm):
 
 
 class CustomerSearchForm(FlaskForm):
+    """
+    For searching Customers table to generate a QR code
+    """
     bol_number = StringField("")
     customer_name = StringField('')
+    sales_rep = StringField("Sales Rep")
     submit = SubmitField("Search")
 
 
@@ -221,6 +226,14 @@ class AikenProductionForm(FlaskForm):
     end_date = DateField('End Date', [Optional()], format='%Y-%m-%d')
     active_lots = BooleanField('Active Lots?')
     graph = SubmitField('Graph')
+    table = SubmitField('Table')
+    download = SubmitField('Download')
+
+
+class AikenDeviceSearchForm(FlaskForm):
+    select = SelectField('Category', choices=['BOL', 'CUSTOMER NAME', 'SALES REP'])
+    search = StringField('Search')
+    active_lots = BooleanField('Active Lots?')
     table = SubmitField('Table')
     download = SubmitField('Download')
 

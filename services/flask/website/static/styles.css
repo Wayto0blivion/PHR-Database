@@ -596,7 +596,7 @@ body {
     overflow-y: auto;
 }
 
-#bol_number, #customer_name {
+.qr-search {
         color: white !important;
     }
 

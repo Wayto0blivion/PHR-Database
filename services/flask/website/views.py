@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import exc, desc, func, and_
 from sqlalchemy.orm import sessionmaker
 # from sqlalchemy import create_engine
-from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units
+from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units, Units_Devices
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -11,7 +11,7 @@ import pandas as pandas
 import seaborn as sns
 import matplotlib.pyplot as plt
 # import pymysql as pms
-from .forms import ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm
+from .forms import ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm, AikenDeviceSearchForm
 from datetime import datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
@@ -354,6 +354,7 @@ def qr_test():
     if form.validate_on_submit():
         bol_number = form.bol_number.data
         customer_name = form.customer_name.data
+        sales_rep = form.sales_rep.data
 
         if customer_name:
             results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
@@ -361,7 +362,6 @@ def qr_test():
             for result in results:
                 print(result.customer_name)
 
-    # text = "This is the text string"
     return render_template('qr_search.html', form=form, results=results, user=current_user)
 
 
@@ -410,6 +410,29 @@ def aiken_daily_production():
     return render_template('skeleton_aiken_daily_production.html', form=form, user=current_user)
 
 
+@views.route('/aiken-unit-search', methods=['GET', 'POST'])
+@login_required
+def aiken_unit_search():
+    """
+    For searching and returning Units results for a full report from Aiken.
+    The goal is to return a table of units whose Devices match a provided criteria.
+    :return: Blank form or table with provided data
+    """
+    form = AikenDeviceSearchForm()
+
+    if form.validate_on_submit():
+
+        query = aiken_bol_query(form)
+
+        column_names = get_column_names_from_query(query)
+        results = query.all()
+
+        if form.table.data:
+            return render_template('skeleton_aiken_device_search.html', query=results, column_names=column_names, form=form, user=current_user)
+
+    return render_template('skeleton_aiken_device_search.html', form=form, user=current_user)
+
+
 def production_graph(query):
     """
     Creates a graph based on a passed query for Aiken and stores it in memory.
@@ -455,6 +478,7 @@ def aiken_query(form):
     if form.active_lots.data:
         filters.append(Lots.Status == 0)
 
+    # noinspection PyTypeChecker
     query = (
         session.query(
             Units.User,
@@ -471,3 +495,47 @@ def aiken_query(form):
 
     return query
 
+
+def aiken_bol_query(form):
+    AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
+    session = AikenSession()
+
+    filters = []
+
+    # if form.active_lots.data:
+    #     filters.append(Lots.Status == 0)
+    # if form.search.data:
+    #     if form.select.data == 'BOL':
+    #         filters.append(Units_Devices.Category == 'BOL')
+    #     if form.select.data == 'CUSTOMER NAME':
+    #         filters.append(Units_Devices.Category == 'CUSTOMER NAME')
+    #     if form.select.data == 'SALES REP':
+    #         filters.append(Units_Devices.Category == 'SALES REP')
+    #     filters.append(Units_Devices.Info1.contains(form.search.data))
+
+    query = (
+        session.query(
+            Lots.LotID.label('LotID'),
+            Units,
+            Units_Devices.Info1
+        )
+        .join(Units_Devices, Units.UnitID == Units_Devices.UnitID)
+        .join(Lots, Units.LotID == Lots.LotID)
+        .filter(and_(*filters))
+        .order_by(Units.Audited.desc())
+    )
+
+    session.close()
+
+    print("Query", str(query))
+    print("Parameters", query.params)
+
+    return query
+
+
+def get_column_names_from_query(query):
+    """
+    Takes a query object and pulls the column names from it.
+    :return: A list of column names.
+    """
+    return [column['name'] for column in query.column_descriptions]
