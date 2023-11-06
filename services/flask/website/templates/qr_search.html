@@ -49,26 +49,19 @@
             {% if results or form.bol_number.data or form.sales_rep.data %}
             <div class="qr-display-div">
                 <div id="qr-display">
-                <div class="row">
+                    <div class="qr-item">
                     {% if form.bol_number.data %}
-                        <div class="col box" style="margin-bottom: 30px;">
                             <img src="{{ qrcode(form.bol_number.data)}}" alt="" width="100">
-                            <span style="padding:5px; font-size:24px; font-weight: bolder; color: black;">{{(form.bol_number.data)}}</span>
-                            <span style="padding:10px"></span>
-                        </div>
+                            <span>{{(form.bol_number.data)}}</span>
                     {% endif %}
                     {% if form.sales_rep.data %}
-                        <div class="col box" style="margin-bottom: 30px;">
                             <img src="{{ qrcode(form.sales_rep.data) }}" alt="" width="100">
-                            <span style="padding:5px; font-size:24px; font-weight: bolder; color: black;">{{(form.sales_rep.data)}}</span>
-                        </div>
+                            <span>{{(form.sales_rep.data)}}</span>
                     {% endif %}
                     </div>
-                    <div class="row">
-                    <div class="box">
+                    <div class="qr-item">
                         <img id="selected-qr" src="" alt="" width="100" >
-                        <span style="padding:5px; font-size:24px;font-weight: bolder; color: black;" id="selected_customer"></span>
-                    </div>
+                        <span id="selected_customer"></span>
                     </div>
                 </div>
                 <button class="print-button" onclick="printQR()">Print</button>

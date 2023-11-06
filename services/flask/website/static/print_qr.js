@@ -19,12 +19,28 @@ function showQR(customerName) {
 
     document.getElementById('selected_customer').innerHTML = customerName;
 }
-
+/*
 function printQR() {
     let qrDisplay = document.getElementById("qr-display");
     let qrDisplayContent = qrDisplay.innerHTML;
     let newWindow = window.open();
     newWindow.document.body.innerHTML = qrDisplayContent;
     newWindow.print();
+}*/
+
+
+function printQR() {
+    let printWindow = window.open('', '_blank');
+    printWindow.document.write('<html lang="en"><head><title>Print QR Codes</title>');
+    printWindow.document.write('<link rel="stylesheet" href="../static/printstyles.css" type="text/css" media="print"></head><body>');
+    printWindow.document.write(document.getElementById('qr-display').innerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+
+    printWindow.onload = function() {
+        printWindow.print();
+        // printWindow.close();
+    };
 }
+
 

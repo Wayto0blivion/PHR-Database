@@ -100,7 +100,7 @@ span {
 
 /* ....///Media query///..... */
 
-@media (max-width: 501px) {
+/*@media (max-width: 501px) {
   html {
     font-size: 15px;
   }
@@ -135,7 +135,27 @@ span {
   .container {
     height: 100vmax;
   }
-}
+}*/
+
+
+/*@media print {
+    .qr-display-div {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 10px;
+    }
+    .qr-display {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 10px;
+    }
+
+    .qr-item {
+        page-break-inside: avoid;
+    }
+
+}*/
+
 
 .navbar a {
     float: left;
@@ -533,6 +553,27 @@ form, input, label, p {
     text-decoration-color: #ffffff;
     padding-left: 100px;
     overflow-x: auto;
+}
+
+.qr-item {
+    width: 50%; /* Each QR code item takes up half the width of the container */
+    float: left; /* Float the items to get them side by side */
+    box-sizing: border-box; /* Include padding and borders in the element's total width and height */
+    padding: 5px; /* Adjust as necessary */
+    margin-bottom: 10px; /* Adjust as necessary */
+    page-break-inside: avoid; /* Avoid breaking these elements across pages */
+}
+
+.qr-item img {
+    margin: 10px;
+}
+
+.qr-item span {
+    display: block; /* Make span a block-level element to ensure it appears below the image */
+    font-size: 24px;
+    font-weight: bolder;
+    color: black;
+    text-align: center; /* Center the text below the QR code */
 }
 
 /*.qr-display-div img {*/

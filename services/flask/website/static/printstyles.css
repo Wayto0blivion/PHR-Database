@@ -1,0 +1,36 @@
+
+@media print {
+  .qr-display-div {
+    width: 100%; /* Adjust as necessary */
+  }
+
+  .qr-item {
+    width: 50%; /* Each QR code item takes up half the width of the container */
+    float: left; /* Float the items to get them side by side */
+    box-sizing: border-box; /* Include padding and borders in the element's total width and height */
+    padding: 5px; /* Adjust as necessary */
+    margin-bottom: 10px; /* Adjust as necessary */
+    page-break-inside: avoid; /* Avoid breaking these elements across pages */
+  }
+
+  .qr-item img {
+    width: 100px; /* Fixed width for images */
+    height: auto; /* Maintain aspect ratio */
+  }
+
+  .qr-item span {
+    display: block; /* Make span a block-level element to ensure it appears below the image */
+    font-size: 24px;
+    font-weight: bolder;
+    color: black;
+    text-align: center; /* Center the text below the QR code */
+  }
+
+  /* Hide elements not needed for printing */
+  .print-button {
+    display: none;
+  }
+
+  /* Add any additional styles or overrides as needed */
+}
+
