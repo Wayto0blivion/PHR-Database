@@ -2,7 +2,7 @@ from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 from datetime import datetime, date
-from sqlalchemy.dialects.mysql import TINYTEXT, TEXT, LONGTEXT, LONGBLOB
+from sqlalchemy.dialects.mysql import TINYTEXT, TEXT, LONGTEXT, LONGBLOB, BIGINT
 
 
 # Note homepage
@@ -552,6 +552,81 @@ class Units_Devices(db.Model):
     Tested = db.Column(db.Integer)
     Type = db.Column(db.Integer)
     Data = db.Column(LONGBLOB)
+
+
+class UnitsDevicesSearch(db.Model):
+    """
+    For querying the view called Units_Devices_Search
+    """
+    __bind_key__ = 'aiken_db'
+    __tablename__ = 'Units_Devices_Search'
+    UnitID = db.Column(db.Integer, primary_key=True)
+    LotID = db.Column(db.Integer)
+    AssetTag = db.Column(db.String(50))
+    Created = db.Column(db.DateTime)
+    ProductType = db.Column(db.String(20))
+    Manufacturer = db.Column(db.String(60))
+    Model = db.Column(db.String(80))
+    Chassis = db.Column(db.String(16))
+    PartNumber = db.Column(db.String(60))
+    SerialNumber = db.Column(db.String(60))
+    DisplaySize = db.Column(db.String(60))
+    Resolution = db.Column(db.String(255))
+    Processor = db.Column(db.String(80))
+    ProcSpeed = db.Column(db.String(60))
+    ProcGen = db.Column(db.String(255))
+    ProcNumber = db.Column(BIGINT)
+    RAM = db.Column(db.String(60))
+    Storage1Size = db.Column(db.String(60))
+    Storage1Type = db.Column(db.String(255))
+    Storage1Model = db.Column(db.String(80))
+    Storage1Serial = db.Column(db.String(60))
+    Storage2Size = db.Column(db.String(60))
+    Storage2Type = db.Column(db.String(255))
+    Storage2Model = db.Column(db.String(80))
+    Storage2Serial = db.Column(db.String(60))
+    Optical = db.Column(db.String(255))
+    Keyb = db.Column(db.String(255))
+    Webcam = db.Column(BIGINT)
+    BatteryModel = db.Column(db.String(80))
+    Videocard = db.Column(db.String(80))
+    COA = db.Column(db.String(80))
+    OSRestored = db.Column(db.String(60))
+    COANumber = db.Column(db.String(255))
+    NewCOANumber = db.Column(db.String(255))
+    ObservCodes = db.Column(db.String(255))
+    ObservNotes = db.Column(db.String(255))
+    Grade = db.Column(db.String(10))
+    Audited = db.Column(db.DateTime)
+    Exported = db.Column(db.Integer)
+    PictureID = db.Column(db.Integer)
+    User = db.Column(db.String(16))
+    MBmfg = db.Column(db.String(60))
+    MBmodel = db.Column(db.String(80))
+    MBserial = db.Column(db.String(60))
+    MBversion = db.Column(db.String(255))
+    CPUsocket = db.Column(db.String(255))
+    RAM1Model = db.Column(db.String(80))
+    RAM1Serial = db.Column(db.String(60))
+    RAM1Type = db.Column(db.String(255))
+    RAM1Size = db.Column(db.String(60))
+    RAM2Model = db.Column(db.String(80))
+    RAM2Serial = db.Column(db.String(60))
+    RAM2Type = db.Column(db.String(255))
+    RAM2Size = db.Column(db.String(60))
+    RAM3Model = db.Column(db.String(80))
+    RAM3Serial = db.Column(db.String(60))
+    RAM3Type = db.Column(db.String(255))
+    RAM3Size = db.Column(db.String(60))
+    RAM4Model = db.Column(db.String(80))
+    RAM4Serial = db.Column(db.String(60))
+    RAM4Type = db.Column(db.String(255))
+    RAM4Size = db.Column(db.String(60))
+    OpticalSN = db.Column(db.String(60))
+    BatteryDuration = db.Column(db.String(255))
+    IMEI = db.Column(db.String(255))
+    HwID = db.Column(db.String(60))
+
 
 
 # Flask-Excel Testing

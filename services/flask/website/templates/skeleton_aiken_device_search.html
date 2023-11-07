@@ -20,7 +20,7 @@
                 </tr>
                 <tr>
                     <td>{{ form.table }}</td>
-                    {% if query|length > 0 %}
+                    {% if results|length > 0 %}
                         <td>{{ form.download }}</td>
                     {% endif %}
                 </tr>
@@ -32,16 +32,22 @@
     <table class="data-table">
         <thead>
             <tr>
-                {% for column in column_names %}
-                    <th>{{ column }}</th>
-                {% endfor %}
+                {%  if results %}
+                    {% for key in results[0].__dict__.keys() %}
+                        {% if key != '_sa_instance_state' %}
+                            <th>{{ key }}</th>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
             </tr>
         </thead>
         <tbody>
-            {% for row in results %}
+            {% for obj in results %}
                 <tr>
-                    {% for column in column_names %}
-                        <td>{{ row[column] }}</td>
+                    {% for key, value in obj.__dict__.items() %}
+                        {% if key != '_sa_instance_state' %}
+                            <td class="table_data">{{ value }}</td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}

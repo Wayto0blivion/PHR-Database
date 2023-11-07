@@ -2,8 +2,10 @@ from flask import Flask, Blueprint, render_template, flash, request, jsonify, se
 from flask_login import login_required, current_user
 from sqlalchemy import exc, desc, func, and_
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import text
 # from sqlalchemy import create_engine
-from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units, Units_Devices
+from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, \
+    Lots, Units, Units_Devices, UnitsDevicesSearch
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -398,7 +400,7 @@ def aiken_daily_production():
 
             df = pandas.DataFrame(results, columns=['User', 'Audited Date', 'Units Count'])
 
-            print(df.head())
+            # print(df.head())
 
             output = BytesIO()
             with pandas.ExcelWriter(output, engine='openpyxl') as writer:
@@ -422,13 +424,14 @@ def aiken_unit_search():
 
     if form.validate_on_submit():
 
-        query = aiken_bol_query(form)
+        results = aiken_bol_query(form)
 
-        column_names = get_column_names_from_query(query)
-        results = query.all()
+        if form.download.data:
 
-        if form.table.data:
-            return render_template('skeleton_aiken_device_search.html', query=results, column_names=column_names, form=form, user=current_user)
+            return download_results(results)
+
+        return render_template('skeleton_aiken_device_search.html', form=form, results=results, user=current_user)
+
 
     return render_template('skeleton_aiken_device_search.html', form=form, user=current_user)
 
@@ -500,42 +503,48 @@ def aiken_bol_query(form):
     AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
     session = AikenSession()
 
-    filters = []
+    search_string = form.search.data.strip()
+    # print(search_string)
 
-    # if form.active_lots.data:
-    #     filters.append(Lots.Status == 0)
-    # if form.search.data:
-    #     if form.select.data == 'BOL':
-    #         filters.append(Units_Devices.Category == 'BOL')
-    #     if form.select.data == 'CUSTOMER NAME':
-    #         filters.append(Units_Devices.Category == 'CUSTOMER NAME')
-    #     if form.select.data == 'SALES REP':
-    #         filters.append(Units_Devices.Category == 'SALES REP')
-    #     filters.append(Units_Devices.Info1.contains(form.search.data))
+    # Set the @search_string variable needed by the p2() function in MySQL
+    session.execute(text('SET @search_string = :search'), {'search': search_string})
+    session.commit()
 
-    query = (
-        session.query(
-            Lots.LotID.label('LotID'),
-            Units,
-            Units_Devices.Info1
-        )
-        .join(Units_Devices, Units.UnitID == Units_Devices.UnitID)
-        .join(Lots, Units.LotID == Lots.LotID)
-        .filter(and_(*filters))
-        .order_by(Units.Audited.desc())
-    )
+    # Test to make sure the @search_string mysql variable is being set.
+    # test_result = session.execute(text('SELECT @search_string')).fetchone()
+    # print(f"@search_string is set to: {test_result[0]}")
+
+    # Test that the p2() mysql function is functional and returning the @search_string variable.
+    # p2_result = session.execute(text('SELECT p2()')).fetchone()
+    # print(f'p2() returned: {p2_result[0]}')
+
+    results = session.query(UnitsDevicesSearch).all()
 
     session.close()
 
-    print("Query", str(query))
-    print("Parameters", query.params)
-
-    return query
+    return results
 
 
-def get_column_names_from_query(query):
+def download_results(results):
     """
-    Takes a query object and pulls the column names from it.
-    :return: A list of column names.
+
     """
-    return [column['name'] for column in query.column_descriptions]
+
+    # print("Download Attempt!")
+    # Convert the SQLAlchemy objects to dictionaries
+    results_as_dicts = [r.__dict__ for r in results]
+    # Exclude the SQLAlchemy state instance from the dictionaries
+    results_as_dicts = [{key: value for key, value in r.items() if key != '_sa_instance_state'} for r in results_as_dicts]
+
+    df = pandas.DataFrame(results_as_dicts)
+
+    output = BytesIO()
+    with pandas.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Aiken BOL Report', index=False)
+
+    output.seek(0)
+    return send_file(output, download_name=f"Aiken BOL Report {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
+
+
+
+
