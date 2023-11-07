@@ -231,9 +231,9 @@ class AikenProductionForm(FlaskForm):
 
 
 class AikenDeviceSearchForm(FlaskForm):
-    select = SelectField('Category', choices=['BOL', 'CUSTOMER NAME', 'SALES REP'])
+    # select = SelectField('Category', choices=['BOL', 'CUSTOMER NAME', 'SALES REP'])
     search = StringField('Search')
-    active_lots = BooleanField('Active Lots?')
+    # active_lots = BooleanField('Active Lots?')
     table = SubmitField('Table')
     download = SubmitField('Download')
 

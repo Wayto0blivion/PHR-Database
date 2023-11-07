@@ -570,6 +570,7 @@ class UnitsDevicesSearch(db.Model):
     Chassis = db.Column(db.String(16))
     PartNumber = db.Column(db.String(60))
     SerialNumber = db.Column(db.String(60))
+    BOL = db.Column(db.String(255))
     DisplaySize = db.Column(db.String(60))
     Resolution = db.Column(db.String(255))
     Processor = db.Column(db.String(80))

@@ -6,18 +6,18 @@
         <form method="POST">
             {{ form.hidden_tag() }}
             <table>
-                <tr>
+{#                <tr>
                     <td>Select</td>
                     <td>{{ form.select }}</td>
-                </tr>
+                </tr>#}
                 <tr>
                     <td>Search</td>
                     <td>{{ form.search }}</td>
-                </tr>
+{#                </tr>
                 <tr>
                     <td>Active Lots?</td>
                     <td>{{ form.active_lots }}</td>
-                </tr>
+                </tr>#}
                 <tr>
                     <td>{{ form.table }}</td>
                     {% if results|length > 0 %}
@@ -29,29 +29,30 @@
     </div>
 
     <div class="mx-auto text-center" style="overflow-x:auto;">
-    <table class="data-table">
-        <thead>
-            <tr>
-                {%  if results %}
-                    {% for key in results[0].__dict__.keys() %}
-                        {% if key != '_sa_instance_state' %}
-                            <th>{{ key }}</th>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for obj in results %}
+        {% if results %}
+          <table>
+            <thead>
+              <tr>
+                {# Loop through each column in the model #}
+                {% for column in results[0].__table__.columns %}
+                  <th>{{ column.name }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {# Now loop through the rows #}
+              {% for row in results %}
                 <tr>
-                    {% for key, value in obj.__dict__.items() %}
-                        {% if key != '_sa_instance_state' %}
-                            <td class="table_data">{{ value }}</td>
-                        {% endif %}
-                    {% endfor %}
+                  {# And then loop through each cell using the column order #}
+                  {% for column in row.__table__.columns %}
+                    <td class="table_data">{{ row[column.name] }}</td>
+                  {% endfor %}
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No results found</p>
+        {% endif %}
     </div>
 {% endblock %}
