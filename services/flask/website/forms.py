@@ -28,6 +28,13 @@ class UserProfileForm(FlaskForm):
     submit = SubmitField('Reset Password')
 
 
+class PasswordResetForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    new_password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired()])
+    submit = SubmitField('Reset Password')
+
+
 class AvatarForm(FlaskForm):
     """
     For uploading new avatars

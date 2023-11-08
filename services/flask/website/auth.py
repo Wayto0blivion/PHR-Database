@@ -1,10 +1,11 @@
 import os
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response
 from .models import User
-from .forms import LoginForm, UserProfileForm
+from .forms import LoginForm, UserProfileForm, PasswordResetForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
+import website.helper_functions as hf
 from werkzeug.utils import secure_filename
 
 
@@ -97,4 +98,31 @@ def user_account():
 def profile():
     user = User.query.get(current_user.id)
     return render_template('profile.html', user=user)
+
+
+@auth.route('/reset-user-password', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions("Admin")
+def reset_user_password():
+
+    form = PasswordResetForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        new_password = form.new_password.data
+        confirm_password = form.confirm_password.data
+
+        user = User.query.filter_by(email=username).first()
+        if user:
+            if new_password != confirm_password:
+                flash("Passwords Don\'t Match!", category='error')
+            elif len(new_password) < 7:
+                flash('Password Must Be At Least 7 Characters', category='error')
+            else:
+                user.password = generate_password_hash(new_password, method='sha256')
+                db.session.commit()
+        else:
+            flash('Email Does Not Exist', category='error')
+
+    return render_template('admin_password_reset.html', form=form, user=current_user)
 
