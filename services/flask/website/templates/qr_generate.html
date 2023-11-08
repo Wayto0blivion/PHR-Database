@@ -6,7 +6,7 @@
         <div class="qr-generate-container mx-auto">
             <form method="POST" class="qr-form mx-auto">
                 {{ form.hidden_tag() }}
-                {{ form.customer_name }}
+                {{ form.customer_name(style='color: white') }}
                 {{ form.submit(class="import-button") }}
 
                 {% if form.customer_name.data %}

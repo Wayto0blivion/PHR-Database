@@ -526,7 +526,7 @@ form {
 }
 
 form, input, label, p {
-    color: black !important;
+    color: black;
 }
 
 

@@ -14,9 +14,9 @@
             <form method="POST">
                     {{ form.hidden_tag() }}
                     <tr>
-                        <td><span class="qr-search">BOL #:</span></td><td>{{ form.bol_number }}</td>
-                        <td><span class="qr-search">Customer Name:</span></td> <td>{{ form.customer_name }}</td>
-                        <td><span class="qr-search">Sales Rep</span></td><td>{{ form.sales_rep }}</td>
+                        <td><span class="qr-search">BOL #:</span></td><td class="qr-search">{{ form.bol_number(style="color: white;") }}</td>
+                        <td><span class="qr-search">Customer Name:</span></td> <td>{{ form.customer_name(style="color: white;") }}</td>
+                        <td><span class="qr-search">Sales Rep</span></td><td>{{ form.sales_rep(style="color: white;") }}</td>
 
                         <td>{{ form.submit(class="import-button") }}</td>
                     </tr>
