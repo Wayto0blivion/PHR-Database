@@ -288,25 +288,25 @@ def servers():
 
     return render_template('servers.html', results=most_recent_results, user=current_user)
 
-# @views.route('/servers/<host>', methods=['GET'])
-# @login_required
-# @hf.user_permissions('Admin')
-# def server_details(host):
-#     try:
-#         recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
-#         batch_info = {
-#             'host': host,
-#             'finished': recent.Finished.strftime("%m/%d/%Y %H:%M:%S"),
-#             'batch': recent.Batch
-#         }
-#         # You can pass the batch_info dictionary to the template and render it accordingly
-#         return render_template('server_details.html', batch_info=batch_info, user=current_user)
-#     except Exception as e:
-#         print(host, str(e))
-#         # Handle the case where the recent batch information is not found for the specified server
-#         # For example, you can display an error message or redirect the user back to the servers page
-#         return render_template('servers.html', error_message='Recent batch information not found.', user=current_user)
-#
+@views.route('/servers/<host>', methods=['GET'])
+@login_required
+@hf.user_permissions('Admin')
+def server_details(host):
+    try:
+        recent = BATCHES.query.filter_by(Host=host).order_by(desc(BATCHES.Finished)).first()
+        batch_info = {
+            'host': host,
+            'finished': recent.Finished.strftime("%m/%d/%Y %H:%M:%S"),
+            'batch': recent.Batch
+        }
+        # You can pass the batch_info dictionary to the template and render it accordingly
+        return render_template('server_details.html', batch_info=batch_info, user=current_user)
+    except Exception as e:
+        print(host, str(e))
+        # Handle the case where the recent batch information is not found for the specified server
+        # For example, you can display an error message or redirect the user back to the servers page
+        return render_template('servers.html', error_message='Recent batch information not found.', user=current_user)
+
 # @views.route('/servers/<finished>', methods=['GET'])
 # @login_required
 # @hf.user_permissions('Admin')
