@@ -392,7 +392,7 @@ def aiken_daily_production():
             return Response(img_stream.getvalue(), content_type='image/png')
 
         if form.table.data:
-            return render_template('skeleton_aiken_daily_production.html', query=query.all(), form=form, user=current_user)
+            return render_template('aiken_daily_production.html', query=query.all(), form=form, user=current_user)
 
         if form.download.data:
 
@@ -409,7 +409,7 @@ def aiken_daily_production():
             output.seek(0)
             return send_file(output, download_name=f"Aiken Production { datetime.today().strftime('%Y-%m-%d') }.xlsx", as_attachment=True)
 
-    return render_template('skeleton_aiken_daily_production.html', form=form, user=current_user)
+    return render_template('aiken_daily_production.html', form=form, user=current_user)
 
 
 @views.route('/aiken-unit-search', methods=['GET', 'POST'])
@@ -430,9 +430,9 @@ def aiken_unit_search():
 
             return download_results(results)
 
-        return render_template('skeleton_aiken_device_search.html', form=form, results=results, user=current_user)
+        return render_template('aiken_device_search.html', form=form, results=results, user=current_user)
 
-    return render_template('skeleton_aiken_device_search.html', form=form, user=current_user)
+    return render_template('aiken_device_search.html', form=form, user=current_user)
 
 
 # === End of Views ===

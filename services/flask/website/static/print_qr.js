@@ -19,6 +19,7 @@ function showQR(customerName) {
 
     document.getElementById('selected_customer').innerHTML = customerName;
 }
+
 /*
 function printQR() {
     let qrDisplay = document.getElementById("qr-display");
@@ -35,7 +36,7 @@ function printQR() {
     printWindow.document.write('<link rel="stylesheet" href="../static/printstyles.css" type="text/css" media="print"></head><body>');
     printWindow.document.write(document.getElementById('qr-display').innerHTML);
     printWindow.document.write('</body></html>');
-    printWindow.document.close();
+    // printWindow.document.close();
 
     printWindow.onload = function() {
         printWindow.print();
