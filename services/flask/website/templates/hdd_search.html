@@ -48,30 +48,30 @@
            There are {{ quality_count }} good results returned
        </p>
     </div>
-    {% endif %}
+{% endif %}
     <div class="mx-auto text-center" style="overflow-x:auto; background: white;">
         {% if pagination %}
             <table class="data-table table-striped table-bordered table-hover">
                 <thead>
-                    <tr>
-                        <th>Process</th>
-                        <th>Finished</th>
-                        <th>Batch Started</th>
-                        <th>Batch</th>
-                        <th>Success</th>
-                        <th>Status</th>
-                        <th>Method</th>
-                        <th>Progress</th>
-                        <th>Disk Serial</th>
-                        <th>Disk Info</th>
-                        <th>DiskSizeStr</th>
-                        <th>Provider</th>
-                        <th>ProviderVer</th>
-                        <th>Host</th>
-                        <th>Err Msg</th>
-                    </tr>
+                <tr>
+                    <th>Process</th>
+                    <th>Finished</th>
+                    <th>Batch Started</th>
+                    <th>Batch</th>
+                    <th>Success</th>
+                    <th>Status</th>
+                    <th>Method</th>
+                    <th>Progress</th>
+                    <th>Disk Serial</th>
+                    <th>Disk Info</th>
+                    <th>DiskSizeStr</th>
+                    <th>Provider</th>
+                    <th>ProviderVer</th>
+                    <th>Host</th>
+                    <th>Err Msg</th>
+                </tr>
                 </thead>
-            {% for row in pagination.items %}
+                {% for row in pagination.items %}
                     <tr>
                         <td class="table_data">{{ row.Process }}</td>
                         <td class="table_data">{{ row.Finished }}</td>
