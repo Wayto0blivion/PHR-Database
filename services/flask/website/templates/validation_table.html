@@ -4,71 +4,80 @@
 
 {% block title %}Validation{% endblock %}
 {% block content %}
-    <h1 align="center">Data Sanitization QC Database</h1>
-    <form method="post" class="mx-auto">
-    {{ form.hidden_tag() }}
-        <div>
-            <table style="text-align: center; margin-left: auto; margin-right: auto">
-                <tr>
-                    <td>{{ form.startdate }} </td>
-                    <td>{{ form.enddate }}</td>
-                </tr>
-            </table>
-        </div>
-        <div>
-            <p style="text-align: center; margin-bottom: 0; padding: 0">
-                {{ form.submit (class="import-button") }}
-                {% if pagination %}
-                    {{ form.downl(formnovalidate=True, class="import-button") }}
-                {% endif %}
-                {{ form.clear(formnovalidate=True, class="import-button") }}
-            </p>
-        </div>
-    </form>
-    {% if count %}
-        <div style="text-align: center; padding-top: 10px; background-color: white">
-            <p>Search returned {{ count }} results</p>
-        </div>
-    {% endif %}
-    <div style="height:autox; overflow:auto">
+<body>
+    <div class="container" style="margin-top: 50px;">
+        <form method="post">
+           {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col d-xl-flex justify-content-xl-center align-items-xl-center">
+                    {{ form.startdate }}
+                    {{ form.enddate (style="margin-left: 15px;") }}
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col d-xl-flex justify-content-xl-center align-items-xl-center">
+                    {{ form.submit (class="login-button") }}
+                    {% if pagination %}
+                        {{ form.downl(formnovalidate=True, class="login-button", style="margin-left: 15px;") }}
+                    {% endif %}
+                    {{ form.clear(formnovalidate=True, class="login-button", style="margin-left: 15px;") }}
+                </div>
+            </div>
+        </form>
+        {% if count %}
+            <div style="text-align: center; padding-top: 10px; background-color: white; margin-top: 25px;">
+                <p>Search returned {{ count }} results</p>
+            </div>
+        {% endif %}
         {% if pagination %}
-            <table class="data-table table-hover" id="myTable2">
-                <thead>
-                    <tr>
-                        <th onclick="sortTable(0)">Disk Info</th>
-                        <th onclick="sortTable(1)">Disk Serial</th>
-                        <th onclick="sortTable(2)">Sanitized (Pass/Fail)</th>
-                        <th onclick="sortTable(3)">Date</th>
-                        <th onclick="sortTable(4)">Verification</th>
-                    </tr>
+            <div class="row" style="margin-top: 25px; max-height: 450px; overflow: scroll;">
+            <div class="col">
+            <div class="table-responsive">
+            <table class="table">
+                <thead class="sticky-header">
+                <tr style="background: rgb(52,58,64);">
+                    <th onclick="sortTable(0)" style="background: transparent;color: rgb(255,255,255);">Disk Info</th>
+                    <th onclick="sortTable(1)" style="background: transparent;color: rgb(255,255,255);">Disk Serial</th>
+                    <th onclick="sortTable(2)" style="background: transparent;color: rgb(255,255,255);">Sanitized (Pass/Fail)</th>
+                    <th onclick="sortTable(3)" style="background: transparent;color: rgb(255,255,255);">Date</th>
+                    <th onclick="sortTable(4)" style="background: transparent;color: rgb(255,255,255);">Verification</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for row in pagination.items %}
-                        <tr>
-                            <td class="table_data">{{ row.DiskInfo}}</td>
-                            <td class="table_data">{{ row.DiskSerial }}</td>
-                            <td class="table_data">
-                                {% if row.Sanitized == 1 %}
-                                    Pass
-                                {% else %}
-                                    Fail
-                                {% endif %}
-                            <td class="table_data">{{ row.Date }}</td>
-                            <td class="table_data">{{ row.Verification }}</td>
-                        </tr>
-                    {% endfor %}
+                {% for row in pagination.items %}
+                    <tr style="border: 1px solid rgb(0,0,0);">
+                        <td style="padding-right: 10px;">{{ row.DiskInfo}}</td>
+                        <td style="padding-right: 10px;">{{ row.DiskSerial }}</td>
+                        <td style="padding-right: 10px;">
+                            {% if row.Sanitized == 1 %}
+                                Pass
+                            {% else %}
+                                Fail
+                            {% endif %}
+                        </td>
+                        <td style="padding-right: 10px;">{{ row.Date }}</td>
+                        <td style="padding-right: 10px;">{{ row.Verification }}</td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         {% endif %}
-    </div>
-    {% if pagination %}
-        <div>
-            <nav class="page-nav" aria-label="Pagination Navigation">
-                {{ macros.pagination_widget(pagination, 'searchviews.hdd_validation') }}
-            </nav>
-            <p class="text-center mt-3" style="background-color: whitesmoke">
-                Showing page {{ pagination.page }} of {{ pagination.pages }}
-            </p>
+        </div>
+        </div>
+        </div>
+        {% if pagination %}
+        <div class="d-xl-flex justify-content-xl-center align-items-xl-center" style="margin-top: 30px;">
+            <div class="row justify-content-center" style="width: 1100px;">
+                <nav aria-label="Pagination Navigation" style="border-style:ridge; border-color: limegreen; background-color:whitesmoke">
+                    {{ macros.pagination_widget(pagination, 'searchviews.hdd_validation') }}
+                </nav>
+                <p class="text-center mt-3" style="background-color:whitesmoke">
+                    Showing page {{ pagination.page }} of {{ pagination.pages }}
+                </p>
+            </div>
         </div>
     {% endif %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 {% endblock %}

@@ -6,27 +6,29 @@
 {% block content %}
 <div align="center"><h2>Servers</h2></div>
 
-<div class="table-wrapper-scroll-y my-custom-scrollbar" align="center">
-    <table class="table table-hover w-auto" style="background-color: white">
-    <thead class="thead-dark">
-    <th>Server</th>
-    <th>Finished</th>
-    <th>Batch</th>
-    </thead>
+<div class align="center">
+    <div style="max-height: 600px; overflow-y: scroll;">
+    <table class="table table-hover w-auto" style="background-color: white;">
+        <thead class="thead-dark">
+        <th>Server</th>
+        <th>Finished</th>
+        <th>Batch</th>
+        </thead>
         <tbody class="table-hover table-bordered">
         {% for server in results %}
-        <tr>
-            <td><a href="{{ url_for('views.server_details', host=server['host']) }}">{{ server['host'] }}</a></td>
-            {% if server['is_expired'] %}
-                <td><a href="{{ url_for('views.server_details', host=server['finished']) }}" style="color: red;">{{ server['finished'] }}</a></td>
-            {% else %}
-                <td><a href="{{ url_for('views.server_details', host=server['finished']) }}">{{ server['finished'] }}</a></td>
-            {% endif %}
-            <td><a href="{{ url_for('views.server_details', host=server['batch']) }}">{{ server['batch'] }}</a></td>
-        </tr>
+            <tr>
+                <td><a href="{{ url_for('views.server_details', host=server['host']) }}">{{ server['host'] }}</a></td>
+                {% if server['is_expired'] %}
+                    <td><a href="{{ url_for('views.server_details', host=server['finished']) }}" style="color: red;">{{ server['finished'] }}</a></td>
+                {% else %}
+                    <td><a href="{{ url_for('views.server_details', host=server['finished']) }}">{{ server['finished'] }}</a></td>
+                {% endif %}
+                <td><a href="{{ url_for('views.server_details', host=server['batch']) }}">{{ server['batch'] }}</a></td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
+    </div>
 </div>
 {% if pagination %}
 <div>

@@ -2,33 +2,46 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "_macros.html" as macros %}
 
-{% block title %}HDD Search{% endblock %} 
+{% block title %}HDD Search{% endblock %}
 {% block content %}
     <h1 class="text-center">Killdisk Search</h1>
-    <form method="post" class="mx-auto text-center">
+    <form method="post">
         {{ form.hidden_tag() }}
-        <div class="mx-auto text-center">
-            <table class="mx-auto">
-                <tr>
-                    <td>{{ form.startdate (class="form-control datepicker col-xs-3 m-1") }}</td>
-                    <td>{{ form.enddate (class="form-control datepicker col-xs-3 m-2") }}</td>
-                    <td>{{ form.select (class="input-group rounded col-xs-3 m-3") }}</td>
-                    <td>{{ form.search (class="form-control rounded col-xs-3 m-4") }}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="justify-content-center text-center">
-            <p class="text-center" style="margin-bottom: 0; padding:0">
-                {{ form.submit(class="import-button") }}
+        <body>
+        <div class="container">
+            <div class="row" style="margin-top: 50px;background: rgb(52,58,64);padding: 10px;">
+                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                    {{ form.startdate }}
+                </div>
+                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                    {{ form.enddate }}
+                </div>
+                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                    {{ form.select }}
+                </div>
+                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                    {{ form.search (style="color: var(--bs-body-bg);background: transparent;border-color: var(--bs-body-bg);") }}
+                </div>
+            </div>
+            <div class="row" style="background: rgb(52,58,64);padding: 10px;">
+                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                    {{ form.submit(class="login-button") }}
+                </div>
                 {% if pagination %}
-                    {{ form.downl(formnovalidate=True, class="import-button") }}
+                    <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                    {{ form.downl(formnovalidate=True, class="login-button") }}
+                    </div>
                 {% endif %}
-                {{ form.clear(formnovalidate=True, class="import-button") }}
-            </p>
+                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                    {{ form.clear(formnovalidate=True, class="login-button") }}
+                </div>
+            </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        </body>
     </form>
 
-    {% if count %}
+{% if count %}
     <div class="text-center" style="padding-top:10px; background-color:white">
        <p>
            Search returned {{ count }} results<br>
@@ -36,9 +49,9 @@
        </p>
     </div>
     {% endif %}
-    <div class="mx-auto text-center" style="overflow-x:auto;">
+    <div class="mx-auto text-center" style="overflow-x:auto; background: white;">
         {% if pagination %}
-            <table class="data-table">
+            <table class="data-table table-striped table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>Process</th>
