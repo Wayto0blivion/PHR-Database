@@ -4,104 +4,109 @@
 
 {% block title %}HDD Search{% endblock %}
 {% block content %}
-    <h1 class="text-center">Killdisk Search</h1>
-    <form method="post">
-        {{ form.hidden_tag() }}
-        <body>
-        <div class="container">
-            <div class="row" style="margin-top: 50px;background: rgb(52,58,64);padding: 10px;">
-                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                    {{ form.startdate }}
-                </div>
-                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                    {{ form.enddate }}
-                </div>
-                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                    {{ form.select }}
-                </div>
-                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                    {{ form.search (style="color: var(--bs-body-bg);background: transparent;border-color: var(--bs-body-bg);") }}
-                </div>
+<body>
+<div class="container">
+    <form method="POST">
+    {{ form.hidden_tag() }}
+        <div class="row" style="margin-top: 50px;background: rgb(52,58,64);padding: 10px;">
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                {{ form.startdate }}
             </div>
-            <div class="row" style="background: rgb(52,58,64);padding: 10px;">
-                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                    {{ form.submit(class="login-button") }}
-                </div>
-                {% if pagination %}
-                    <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                    {{ form.downl(formnovalidate=True, class="login-button") }}
-                    </div>
-                {% endif %}
-                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                    {{ form.clear(formnovalidate=True, class="login-button") }}
-                </div>
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                {{ form.enddate }}
+            </div>
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                {{ form.select }}
+            </div>
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                {{ form.search (style="color: rgb(255,255,255);background: transparent;border-color: rgb(255,255,255);") }}
             </div>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        </body>
+        <div class="row" style="background: rgb(52,58,64);padding: 10px;">
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                {{ form.submit (class="login-button") }}
+            </div>
+            {% if pagination %}
+                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                    {{ form.downl(formnovalidate=True, class="login-button") }}
+                </div>
+            {% endif %}
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                {{ form.clear(formnovalidate=True, class="login-button") }}
+            </div>
+        </div>
     </form>
-
-{% if count %}
-    <div class="text-center" style="padding-top:10px; background-color:white">
-       <p>
-           Search returned {{ count }} results<br>
-           There are {{ quality_count }} good results returned
-       </p>
-    </div>
-{% endif %}
-    <div class="mx-auto text-center" style="overflow-x:auto; background: white;">
-        {% if pagination %}
-            <table class="data-table table-striped table-bordered table-hover">
-                <thead>
-                <tr>
-                    <th>Process</th>
-                    <th>Finished</th>
-                    <th>Batch Started</th>
-                    <th>Batch</th>
-                    <th>Success</th>
-                    <th>Status</th>
-                    <th>Method</th>
-                    <th>Progress</th>
-                    <th>Disk Serial</th>
-                    <th>Disk Info</th>
-                    <th>DiskSizeStr</th>
-                    <th>Provider</th>
-                    <th>ProviderVer</th>
-                    <th>Host</th>
-                    <th>Err Msg</th>
-                </tr>
-                </thead>
-                {% for row in pagination.items %}
-                    <tr>
-                        <td class="table_data">{{ row.Process }}</td>
-                        <td class="table_data">{{ row.Finished }}</td>
-                        <td class="table_data">{{ row.BatchStarted }}</td>
-                        <td class="table_data">{{ row.Batch }}</td>
-                        <td class="table_data">{{ row.Success }}</td>
-                        <td class="table_data">{{ row.Status }}</td>
-                        <td class="table_data">{{ row.Method }}</td>
-                        <td class="table_data">{{ row.Progress }}</td>
-                        <td class="table_data">{{ row.DiskSerial }}</td>
-                        <td class="table_data">{{ row.DiskInfo }}</td>
-                        <td class="table_data">{{ row.DiskSizeStr }}</td>
-                        <td class="table_data">{{ row.Provider }}</td>
-                        <td class="table_data">{{ row.ProviderVer }}</td>
-                        <td class="table_data">{{ row.Host }}</td>
-                        <td class="table_data">{{ row.ErrMsg }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        {% endif %}
-    </div>
-    {% if pagination %}
-        <div>
-            <nav aria-label="Pagination Navigation" style="border-style:ridge; border-color: limegreen; background-color:whitesmoke">
-                {{ macros.pagination_widget(pagination, 'searchviews.hdd_search') }}
-            </nav>
-
-            <p class="text-center mt-3" style="background-color:whitesmoke">
-                Showing page {{ pagination.page }} of {{ pagination.pages }}
-            </p>
+    {% if count %}
+        <div class="row" style="margin-top: 15px;background: rgb(255,255,255);">
+            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255);">
+                <span>Search returned {{ count }} results.</span>
+            </div>
+        </div>
+        <div class="row" style="background: rgb(255,255,255);">
+            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255);">
+                <span>There are {{ quality_count }} good results returned.</span>
+            </div>
         </div>
     {% endif %}
+    {% if pagination %}
+        <div class="table-responsive" style="max-height: 450px;">
+        <table class="table">
+            <thead class="sticky-header" style="background: rgb(34,37,41);">
+            <tr style="background: rgb(34,37,41);">
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Process</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Finished</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Batch Started</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Batch</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Success</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Status</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Method</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Progress</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Disk Serial</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Disk Info</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">DiskSizeStr</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Provider</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">ProviderVer</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Host</th>
+                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Err Msg</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in pagination.items %}
+                <tr style="border: 1px solid rgb(0,0,0);">
+                    <td>{{ row.Process }}</td>
+                    <td>{{ row.Finished }}</td>
+                    <td>{{ row.BatchStarted }}</td>
+                    <td>{{ row.Batch }}</td>
+                    <td>{{ row.Success }}</td>
+                    <td>{{ row.Status }}</td>
+                    <td>{{ row.Method }}</td>
+                    <td>{{ row.Progress }}</td>
+                    <td>{{ row.DiskSerial }}</td>
+                    <td>{{ row.DiskInfo }}</td>
+                    <td>{{ row.DiskSizeStr }}</td>
+                    <td>{{ row.Provider }}</td>
+                    <td>{{ row.ProviderVer }}</td>
+                    <td>{{ row.Host }}</td>
+                    <td>{{ row.ErrMsg }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    </div>
+    {% if pagination %}
+        <div class="row" style="background: rgb(255,255,255);">
+            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255); margin-top: 10px;">
+                {{ macros.pagination_widget(pagination, 'searchviews.hdd_search') }}
+            </div>
+        </div>
+        <div class="row" style="background: rgb(255,255,255);">
+            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255);">
+                <span style="margin-bottom: 10px;">Showing page {{ pagination.page }} of {{ pagination.pages }}</span>
+            </div>
+        </div>
+    {% endif %}
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 {% endblock %}
