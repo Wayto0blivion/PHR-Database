@@ -55,6 +55,8 @@ def user_permissions(permission):
                 return f(*args, **kwargs)
             elif permission_level == 'Validation' and current_user.validation_status:
                 return f(*args, **kwargs)
+            elif permission_level == 'QR Generation' and current_user.qr_generation:
+                return f(*args, **kwargs)
             elif permission_level == 'Admin' and current_user.admin_status:
                 return f(*args, **kwargs)
             else:
