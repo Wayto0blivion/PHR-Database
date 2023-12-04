@@ -2070,7 +2070,7 @@ def qr_test():
 
 @testviews.route('/qr-generate', methods=['GET', 'POST'])
 @login_required
-@hf.user_permissions('Admin')
+@hf.user_permissions('QR Generation')
 def qr_generate():
     """
     For adding a customer to the database.
