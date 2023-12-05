@@ -70,7 +70,6 @@ function printQR() {
 }
 
 
-
 // function printQR() {
 //     let printWindow = window.open('', '_blank');
 //     printWindow.document.write('<html lang="en"><head><title>Print QR Codes</title>');
