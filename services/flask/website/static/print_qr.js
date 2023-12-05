@@ -83,5 +83,3 @@ function printQR() {
 //         printWindow.close();
 //     };
 // }
-
-
