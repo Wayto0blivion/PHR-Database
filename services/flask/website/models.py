@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     active_status = db.Column('Active', db.Boolean, default=False)
     pc_status = db.Column('PC Tech', db.Boolean, default=False)
+    server_status = db.Column('Servers', db.Boolean, default=False)
     processing_status = db.Column('Processing', db.Boolean, default=False)
     hdd_status = db.Column('HDD', db.Boolean, default=False)
     validation_status = db.Column('Validation', db.Boolean, default=False)
@@ -346,6 +347,16 @@ class Customers(db.Model):
     customer_name = db.Column("Customer Name", db.String(256))
 
 
+class Server_AddOns(db.Model):
+    """
+    Used for generating QR Codes from Server_Addons table, or for storing values
+    into the table itself.
+    """
+    __tablename__ = 'Server_AddOns'
+    autoID = db.Column("autoID", db.Integer, primary_key=True)
+    PID = db.Column('PID', db.String(32))
+    make = db.Column('Make', db.String(32))
+    model = db.Column('Model', db.String(64))
 
 
 class B2B(db.Model):

@@ -48,6 +48,8 @@ def user_permissions(permission):
             if permission_level == 'PC Tech' and current_user.pc_status:
                 # print('Current PC Tech Status', current_user.pc_status)
                 return f(*args, **kwargs)
+            elif permission_level == 'Servers' and current_user.server_status:
+                return f(*args, **kwargs)
             elif permission_level == 'Processing' and current_user.processing_status:
                 # print('Current PC Tech Status', current_user.pc_status)
                 return f(*args, **kwargs)

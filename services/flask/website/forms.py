@@ -224,8 +224,23 @@ class CustomerSearchForm(FlaskForm):
 
 
 class CustomerEntryForm(FlaskForm):
+    """
+    Add customer to the Customers table.
+    """
     customer_name = StringField('')
     submit = SubmitField('Save')
+
+
+class Server_AddOn_Form(FlaskForm):
+    """
+    Used for generating QR Codes from Server_Addons table, or for storing values
+    into the table itself.
+    """
+    pid = StringField('PID')
+    make = StringField('Make')
+    model = StringField('Model')
+    qty = StringField('Qty')
+    submit = SubmitField('Submit')
 
 
 class AikenProductionForm(FlaskForm):
