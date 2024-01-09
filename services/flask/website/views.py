@@ -1,11 +1,12 @@
-from flask import Flask, Blueprint, render_template, flash, request, jsonify, session, url_for, Response, send_file
+from flask import (Flask, Blueprint, render_template, flash, request, jsonify, session,
+                   url_for, Response, send_file, redirect)
 from flask_login import login_required, current_user
 from sqlalchemy import exc, desc, func, and_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 # from sqlalchemy import create_engine
-from .models import Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, \
-    Lots, Units, Units_Devices, UnitsDevicesSearch
+from .models import (Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units,
+                     Units_Devices, UnitsDevicesSearch, Server_AddOns)
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -13,7 +14,8 @@ import pandas as pandas
 import seaborn as sns
 import matplotlib.pyplot as plt
 # import pymysql as pms
-from .forms import ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm, AikenDeviceSearchForm
+from .forms import (ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm,
+                    AikenDeviceSearchForm, Server_AddOn_Form)
 from datetime import datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
@@ -433,6 +435,28 @@ def aiken_unit_search():
         return render_template('aiken_device_search.html', form=form, results=results, user=current_user)
 
     return render_template('aiken_device_search.html', form=form, user=current_user)
+
+
+@views.route('/new-server-addon', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Servers')
+def new_server_addon():
+    """
+    Add a new server add on card to the table.
+    Use the Server_AddOn form and model.
+    """
+    form = Server_AddOn_Form()
+
+    # If the form is validated, which currently takes any string input, add it to the table.
+    if form.validate_on_submit():
+        entry = Server_AddOns(PID=form.pid.data, make=form.make.data, model=form.model.data)
+        db.session.add(entry)
+        db.session.commit()
+        # Redirect to a fresh version of the page. This helps prevent duplicate entries.
+        return redirect(url_for('views.new_server_addon', form=form, user=current_user))
+
+    # Return the HTML template to use for this view.
+    return render_template('skeleton_server_addons.html', form=form, user=current_user)
 
 
 # === End of Views ===

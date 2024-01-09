@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}New Server AddOns{% endblock %}
+{% block content %}
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.pid }}
+        {{ form.make }}
+        {{ form.model }}
+        {{ form.submit }}
+    </form>
+
+{% endblock %}
