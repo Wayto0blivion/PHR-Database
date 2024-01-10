@@ -363,8 +363,8 @@ def qr_test():
         if customer_name:
             results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
 
-            for result in results:
-                print(result.customer_name)
+            # for result in results:
+            #     print(result.customer_name)
 
     return render_template('qr_search.html', form=form, results=results, user=current_user)
 
@@ -453,10 +453,88 @@ def new_server_addon():
         db.session.add(entry)
         db.session.commit()
         # Redirect to a fresh version of the page. This helps prevent duplicate entries.
-        return redirect(url_for('views.new_server_addon', form=form, user=current_user))
+        # Not sure if this line is necessary, as the next line will essentially do the same thing.
+        return redirect(url_for('views.new_server_addon'))
 
     # Return the HTML template to use for this view.
     return render_template('skeleton_server_addons.html', form=form, user=current_user)
+
+
+@views.route('/search-server-addon', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Servers')
+def search_server_addon():
+    """
+    Search for AddOn results from the Server_AddOn table.
+    Allow user to add options from search to 'results', then
+    use results to generate a QR code the user can print.
+    """
+    form = Server_AddOn_Form()
+    results = None
+
+    if form.validate_on_submit():
+        # if session 'selected_items' exists, print the contents.
+        if 'selected_items' in session:
+            print(session['selected_items'])
+
+        # Get a reference to all values passed from the form.
+        pid = form.pid.data
+        make = form.make.data
+        model = form.model.data
+
+        # Create an empty query for the Server_AddOns model
+        query = Server_AddOns.query
+        # Create an empty filters list to be populated
+        filters = []
+        # If data existed in the PID field, add it to the filters
+        if pid:
+            filters.append(Server_AddOns.PID.like(f'%{pid}%'))
+        # If data existed in the make field, add it to the filters
+        if make:
+            filters.append(Server_AddOns.make.like(f'%{make}%'))
+        # If data existed in the model field, add it to the filters
+        if model:
+            filters.append(Server_AddOns.model.like(f'%{model}%'))
+
+        # Filter the Server_Addons table by the filters that have been added, if any
+        if filters:
+            query = query.filter(and_(*filters))
+        # Get all results matching the filters
+        results = query.all()
+        # Print for debugging the results
+        # for result in results:
+        #     print(result.autoID)
+
+    return render_template('skeleton_server_addons_search.html', form=form, results=results, user=current_user)
+
+
+@views.route('/add-to-session', methods=['POST'])
+def add_to_session():
+    """
+    Handle AJAX requests from server addons.
+    """
+
+    print('Called add-to-session')
+    data = request.json  # Get JSON data from the request object
+    print(f'Received Data: {data}')
+    quantity = data['quantity']  # Store quantity data
+    pid = data['pid']  # Store PID data
+    if pid is None:
+        return jsonify({'error': 'PID is missing'}), 400
+    make = data['make']  # Store Make data
+    model = data['model']  # Store Model data
+
+    # Set the name of the session object.
+    session_key = 'selected_items'
+    # Check if the session object already exists.
+    if session_key not in session:
+        session[session_key] = ''
+
+    # Add the string to the session.
+    session[session_key] += f'({quantity}) {pid} {make} {model}, '
+
+    # Return a message to the user.
+    return jsonify({"message": "Item added to session"})
 
 
 # === End of Views ===

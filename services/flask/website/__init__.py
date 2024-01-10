@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import flask_excel as excel
 from flask_bootstrap import Bootstrap
+from flask_wtf.csrf import CSRFProtect
 
 
 db = SQLAlchemy()
@@ -23,6 +24,7 @@ hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.
 aikenEngine = db.create_engine('mysql+pymysql://manager:powerhouse@192.168.3.247/awbc_db')
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)
 qrcode = QRcode(app)
 # set optional bootswatch theme
 app.config['FLASK_ADMIN_SWATCH'] = 'slate'
@@ -45,6 +47,9 @@ def create_app():
 
     # initialize the flask_excel package with the current app
     excel.init_excel(app)
+
+    # Initialize csrf protection
+    csrf.init_app(app)
 
     # admin = Admin(name="Pandas")
 

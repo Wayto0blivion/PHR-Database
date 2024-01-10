@@ -241,6 +241,7 @@ class Server_AddOn_Form(FlaskForm):
     model = StringField('Model')
     qty = StringField('Qty')
     submit = SubmitField('Submit')
+    clear = SubmitField('Clear')
 
 
 class AikenProductionForm(FlaskForm):
