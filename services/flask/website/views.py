@@ -475,7 +475,17 @@ def search_server_addon():
     if form.validate_on_submit():
         # if session 'selected_items' exists, print the contents.
         if 'selected_items' in session:
-            print(session['selected_items'])
+            print('Validated Session:', session['selected_items'])
+        else:
+            print('No data in session variable')
+
+        if form.clear.data:
+            if 'selected_items' in session:
+                session.pop('selected_items')
+            return redirect(url_for('views.search_server_addon'))
+
+        if form.generate.data:
+            return redirect(url_for('views.generate_qr_addon'))
 
         # Get a reference to all values passed from the form.
         pid = form.pid.data
@@ -506,6 +516,33 @@ def search_server_addon():
         #     print(result.autoID)
 
     return render_template('skeleton_server_addons_search.html', form=form, results=results, user=current_user)
+
+
+@views.route('/generate-qr-addon', methods=['GET'])
+@login_required
+@hf.user_permissions('Servers')
+def generate_qr_addon():
+    """
+    Takes data from the session and generates necessary QR codes from it.
+    """
+    session_key = 'selected_items'  # Set the term for session key
+    # If the session does not contain the session key, return.
+    if session_key not in session:
+        print('No session key in session!')
+        return redirect(url_for('views.search_server_addon'))
+
+    # Save the session string to a local variable, then clear the session.
+    session_data = session[session_key]
+    session.pop(session_key, None)
+
+    # For debugging purposes. Not necessary.
+    print('QR Data:', session_data)
+
+    # Get a list of strings that match the necessary parameters for Aiken (99 Characters max)
+    string_list = character_count_for_qr(session_data)
+
+    # This return is temporary until I put together an HTML framework for it.
+    return redirect(url_for('views.search_server_addon'))
 
 
 @views.route('/add-to-session', methods=['POST'])
@@ -658,5 +695,27 @@ def download_results(results):
     return send_file(output, download_name=f"Aiken BOL Report {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
 
 
+def character_count_for_qr(session_string):
+    """
+    Take the string of add-ons, count the number of characters,
+    and split it into the necessary strings for QR codes.
+    :return: list of strings
+    """
+    # Split the string into a list of devices
+    session_arr = session_string.split(', ')
 
+    character_count = 0  # Set the initial character count to 0
+    qr_code_strings = []  # Create an empty list used to store strings for QR codes
+    current_string = None  # Keep a record of the ongoing string
+
+    for string in session_arr:
+        # Add the current string length to the character count,
+        # With a padding for the ', ' characters between entries.
+        if (len(string) + character_count + 2) < 100:
+            current_string = current_string + ', ' + string if current_string else string
+        else:
+            qr_code_strings.append(current_string)
+            current_string = None
+
+    return qr_code_strings
 

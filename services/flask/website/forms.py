@@ -242,6 +242,7 @@ class Server_AddOn_Form(FlaskForm):
     qty = StringField('Qty')
     submit = SubmitField('Submit')
     clear = SubmitField('Clear')
+    generate = SubmitField('Generate')
 
 
 class AikenProductionForm(FlaskForm):

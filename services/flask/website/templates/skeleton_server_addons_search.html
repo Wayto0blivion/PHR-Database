@@ -12,10 +12,12 @@
     <form method="POST">
         {{ form.hidden_tag() }}
 {#        {{ form.csrf_token }}#}
-        {{ form.pid }}
-        {{ form.make }}
-        {{ form.model }}
+        PID: {{ form.pid }}
+        Make: {{ form.make }}
+        Model: {{ form.model }}
         {{ form.submit }}
+        {{ form.clear }}
+        {{ form.generate }}
     </form>
 
     {% if results %}

@@ -1,7 +1,18 @@
+/**
+ * Represents the selected result object.
+ *
+ * @typedef {Object} SelectedResult
+ *
+ * @property {any} [property1] - The first property of the selected result.
+ * @property {any} [property2] - The second property of the selected result.
+ * @property {any} [...] - Additional properties of the selected result.
+ */
 let selectedResult = {}
+
 $(document).ready(function(){
 
     $(document).on('show.bs.modal', '#quantityModal', function (event) {
+
         alert("Modal Shown");
 
         let button = $(event.relatedTarget); // Button that triggered the modal
@@ -12,6 +23,11 @@ $(document).ready(function(){
     });
 
     $("button[data-toggle='modal']").click(function() {
+        /**
+         * Retrieves the pid (process ID) of the selected result.
+         *
+         * @returns {number} The pid of the selected result.
+         */
         selectedResult.pid = $(this).data('pid');
         selectedResult.make = $(this).data('make');
         selectedResult.model = $(this).data('model');
@@ -20,9 +36,6 @@ $(document).ready(function(){
         console.log("Direct button click - Make: ", selectedResult.make);
         console.log("Direct button click - Model: ", selectedResult.model);
     });
-
-
-
 
 
     $('#saveQuantity').click(function() {
