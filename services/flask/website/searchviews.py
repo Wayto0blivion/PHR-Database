@@ -60,12 +60,12 @@ def hdd_search():
             end_date = datetime.combine(end_date, datetime.max.time())
             filters.append(DISKS.Finished.between(start_date, end_date))
 
-            if filters:
-                query=query.filter(*filters)
+        if filters:
+            query=query.filter(*filters)
 
-            results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
-            count = query.count()
-            quality_count = query.filter(DISKS.Success == '1', DISKS.Passes == '1', DISKS.Progress == '100').count()
+        results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
+        count = query.count()
+        quality_count = query.filter(DISKS.Success == '1', DISKS.Passes == '1', DISKS.Progress == '100').count()
 
 
     # if session.get('start_date'):
