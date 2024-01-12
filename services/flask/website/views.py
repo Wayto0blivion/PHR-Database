@@ -541,8 +541,10 @@ def generate_qr_addon():
     # Get a list of strings that match the necessary parameters for Aiken (99 Characters max)
     string_list = character_count_for_qr(session_data)
 
+    print('String_list:', string_list)
+
     # This return is temporary until I put together an HTML framework for it.
-    return redirect(url_for('views.search_server_addon'))
+    return render_template('skeleton_generate_server_qr.html', string_list=string_list, user=current_user)
 
 
 @views.route('/add-to-session', methods=['POST'])
@@ -703,19 +705,31 @@ def character_count_for_qr(session_string):
     """
     # Split the string into a list of devices
     session_arr = session_string.split(', ')
+    print('Session_arr:', session_arr)
 
     character_count = 0  # Set the initial character count to 0
     qr_code_strings = []  # Create an empty list used to store strings for QR codes
     current_string = None  # Keep a record of the ongoing string
 
     for string in session_arr:
-        # Add the current string length to the character count,
-        # With a padding for the ', ' characters between entries.
-        if (len(string) + character_count + 2) < 100:
-            current_string = current_string + ', ' + string if current_string else string
-        else:
+
+        if (len(string) + character_count + 2) >= 100:
             qr_code_strings.append(current_string)
             current_string = None
+            character_count = 0
 
+        if len(string) == 0:
+            break
+        # Add the current string length to the character count,
+        # With a padding for the ', ' characters between entries.
+        elif (len(string) + character_count + 2) < 100:
+            current_string = current_string + ', ' + string if current_string else string
+            character_count += len(string) + 2
+            print('Current String:', len(current_string), current_string)
+
+    if len(current_string) > 0:
+        qr_code_strings.append(current_string)
+
+    print('qr_code_strings:', qr_code_strings)
     return qr_code_strings
 
