@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block head %}
+    <script src="../static/print_qr.js"></script>
+    <link
+        rel="stylesheet"
+        type="text/css"
+        media="print"
+        href={{ url_for('static', filename='printstyles.css') }}
+    />
+{% endblock %}
+
+{% block title %}Generate Server AddOns QR{% endblock %}
+{% block content %}
+
+{#    {% for string in string_list %}#}
+{#        <div style="margin: 10px">#}
+{#            <img src="{{ qrcode(string) }}" alt="" width="200">#}
+{#        </div>#}
+{#    {% endfor %}#}
+
+        <div class="row qr-display-div" style="padding: 15px; min-height: 150px;" id="qr-display">
+        {% for string in string_list %}
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center qr-item" style="background: white; padding: 15px;">
+                <img src="{{ qrcode(string)}}" alt="" width="100">
+                <span style="padding-left: 10px;">{{(string)}}</span>
+            </div>
+        {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center" style="background: white; padding: 10px;">
+                <button class="login-button" onclick="printQR()" id="print-button">Print</button>
+            </div>
+        </div>
+
+{% endblock %}

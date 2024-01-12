@@ -40,7 +40,7 @@ function printQR() {
                 box-sizing: border-box;
                 padding: 5px;
                 margin-bottom: 10px;
-                page-break-inside: avoid;
+                 page-break-inside: avoid;
             }
             .qr-item img {
                 width: 100px;

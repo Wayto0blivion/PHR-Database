@@ -363,8 +363,8 @@ def qr_test():
         if customer_name:
             results = Customers.query.filter(Customers.customer_name.like(f"%{customer_name}%")).all()
 
-            for result in results:
-                print(result.customer_name)
+            # for result in results:
+            #     print(result.customer_name)
 
     return render_template('qr_search.html', form=form, results=results, user=current_user)
 
@@ -453,10 +453,127 @@ def new_server_addon():
         db.session.add(entry)
         db.session.commit()
         # Redirect to a fresh version of the page. This helps prevent duplicate entries.
-        return redirect(url_for('views.new_server_addon', form=form, user=current_user))
+        # Not sure if this line is necessary, as the next line will essentially do the same thing.
+        return redirect(url_for('views.new_server_addon'))
 
     # Return the HTML template to use for this view.
     return render_template('skeleton_server_addons.html', form=form, user=current_user)
+
+
+@views.route('/search-server-addon', methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions('Servers')
+def search_server_addon():
+    """
+    Search for AddOn results from the Server_AddOn table.
+    Allow user to add options from search to 'results', then
+    use results to generate a QR code the user can print.
+    """
+    form = Server_AddOn_Form()
+    results = None
+
+    if form.validate_on_submit():
+        # if session 'selected_items' exists, print the contents.
+        if 'selected_items' in session:
+            print('Validated Session:', session['selected_items'])
+        else:
+            print('No data in session variable')
+
+        if form.clear.data:
+            if 'selected_items' in session:
+                session.pop('selected_items')
+            return redirect(url_for('views.search_server_addon'))
+
+        if form.generate.data:
+            return redirect(url_for('views.generate_qr_addon'))
+
+        # Get a reference to all values passed from the form.
+        pid = form.pid.data
+        make = form.make.data
+        model = form.model.data
+
+        # Create an empty query for the Server_AddOns model
+        query = Server_AddOns.query
+        # Create an empty filters list to be populated
+        filters = []
+        # If data existed in the PID field, add it to the filters
+        if pid:
+            filters.append(Server_AddOns.PID.like(f'%{pid}%'))
+        # If data existed in the make field, add it to the filters
+        if make:
+            filters.append(Server_AddOns.make.like(f'%{make}%'))
+        # If data existed in the model field, add it to the filters
+        if model:
+            filters.append(Server_AddOns.model.like(f'%{model}%'))
+
+        # Filter the Server_Addons table by the filters that have been added, if any
+        if filters:
+            query = query.filter(and_(*filters))
+        # Get all results matching the filters
+        results = query.all()
+        # Print for debugging the results
+        # for result in results:
+        #     print(result.autoID)
+
+    return render_template('skeleton_server_addons_search.html', form=form, results=results, user=current_user)
+
+
+@views.route('/generate-qr-addon', methods=['GET'])
+@login_required
+@hf.user_permissions('Servers')
+def generate_qr_addon():
+    """
+    Takes data from the session and generates necessary QR codes from it.
+    """
+    session_key = 'selected_items'  # Set the term for session key
+    # If the session does not contain the session key, return.
+    if session_key not in session:
+        print('No session key in session!')
+        return redirect(url_for('views.search_server_addon'))
+
+    # Save the session string to a local variable, then clear the session.
+    session_data = session[session_key]
+    session.pop(session_key, None)
+
+    # For debugging purposes. Not necessary.
+    print('QR Data:', session_data)
+
+    # Get a list of strings that match the necessary parameters for Aiken (99 Characters max)
+    string_list = character_count_for_qr(session_data)
+
+    print('String_list:', string_list)
+
+    # This return is temporary until I put together an HTML framework for it.
+    return render_template('skeleton_generate_server_qr.html', string_list=string_list, user=current_user)
+
+
+@views.route('/add-to-session', methods=['POST'])
+def add_to_session():
+    """
+    Handle AJAX requests from server addons.
+    """
+
+    print('Called add-to-session')
+    data = request.json  # Get JSON data from the request object
+    print(f'Received Data: {data}')
+    quantity = data['quantity']  # Store quantity data
+    pid = data['pid']  # Store PID data
+    if pid is None:
+        return jsonify({'error': 'PID is missing'}), 400
+    make = data['make']  # Store Make data
+    model = data['model']  # Store Model data
+
+    # Set the name of the session object.
+    session_key = 'selected_items'
+    # Check if the session object already exists.
+    if session_key not in session:
+        session[session_key] = ''
+
+    # Add the string to the session.
+    session[session_key] += f'({quantity}) {pid} {make} {model}, '
+
+    # Return a message to the user.
+    return jsonify({"message": "Item added to session"})
 
 
 # === End of Views ===
@@ -580,5 +697,39 @@ def download_results(results):
     return send_file(output, download_name=f"Aiken BOL Report {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
 
 
+def character_count_for_qr(session_string):
+    """
+    Take the string of add-ons, count the number of characters,
+    and split it into the necessary strings for QR codes.
+    :return: list of strings
+    """
+    # Split the string into a list of devices
+    session_arr = session_string.split(', ')
+    print('Session_arr:', session_arr)
 
+    character_count = 0  # Set the initial character count to 0
+    qr_code_strings = []  # Create an empty list used to store strings for QR codes
+    current_string = None  # Keep a record of the ongoing string
+
+    for string in session_arr:
+
+        if (len(string) + character_count + 2) >= 100:
+            qr_code_strings.append(current_string)
+            current_string = None
+            character_count = 0
+
+        if len(string) == 0:
+            break
+        # Add the current string length to the character count,
+        # With a padding for the ', ' characters between entries.
+        elif (len(string) + character_count + 2) < 100:
+            current_string = current_string + ', ' + string if current_string else string
+            character_count += len(string) + 2
+            print('Current String:', len(current_string), current_string)
+
+    if len(current_string) > 0:
+        qr_code_strings.append(current_string)
+
+    print('qr_code_strings:', qr_code_strings)
+    return qr_code_strings
 
