@@ -3,7 +3,7 @@
 {% import "_macros.html" as macros %}
 
 {% block head %}
-    <script src="../static/print_qr.js"></script>
+    <script src="../static/print_server_qr.js"></script>
     <link
         rel="stylesheet"
         type="text/css"
@@ -24,8 +24,8 @@
     <body>
     <div class="container" id="qr-display" style="max-width: 400px;">
         {% for string in string_list %}
-        <div class="row d-lg-flex justify-content-lg-center align-items-lg-center  qr-display-div" id="qr-display" style="margin-top: 50px;background: rgb(255,255,255);padding: 10px;">
-            <div class="col d-lg-flex justify-content-lg-center align-items-lg-center" id="qr-item">
+        <div class="row d-lg-flex justify-content-lg-center align-items-lg-center qr-display-div" id="qr-display" style="margin-top: 50px;background: rgb(255,255,255);padding: 10px;">
+            <div class="col d-lg-flex justify-content-lg-center align-items-lg-center qr-item" id="qr-item">
                 <img src="{{ qrcode(string)}}" alt="" width="100">
             </div>
             <div class="col d-lg-flex justify-content-lg-center align-items-lg-center qr-item">
@@ -34,9 +34,11 @@
         </div>
         {% endfor %}
     </div>
-    <div class="row d-lg-flex justify-content-lg-center align-items-lg-center" style="background: rgb(255,255,255);padding: 10px;">
-        <div class="col d-lg-flex justify-content-lg-center align-items-lg-center">
-            <button class="login-button" onclick="printQR()" id="print-button">Print</button>
+    <div class="container" style="max-width: 400px;">
+        <div class="row d-lg-flex justify-content-lg-center align-items-lg-center" style="padding: 10px;">
+            <div class="col d-lg-flex justify-content-lg-center align-items-lg-center">
+                <button class="login-button" onclick="printQR()" id="print-button">Print</button>
+            </div>
         </div>
     </div>
 
