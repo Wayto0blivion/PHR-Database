@@ -7,6 +7,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.model import BaseModelView
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_statistics import Statistics
 from flask_login import LoginManager
 import flask_excel as excel
 from flask_bootstrap import Bootstrap
@@ -117,7 +118,10 @@ def create_app():
     app.register_blueprint(testviews, url_prefix='/test')
     app.register_blueprint(searchviews, url_prefix='/search')
 
-    from .models import User, Note
+    from .models import User, Note, Request
+
+    # Handle statistics
+    statistics = Statistics(app, db, Request)
 
     # create_database(app)
 
@@ -136,4 +140,8 @@ def create_app():
 #     if not path.exists('website/' + DB_NAME):
 #         db.create_all(app)
 #         # print('Created Database!')
+
+
+
+
 
