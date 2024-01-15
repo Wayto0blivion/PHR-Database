@@ -24,6 +24,7 @@
     font-weight: bolder;
     color: black;
     text-align: center; /* Center the text below the QR code */
+    padding-top: 10px;
   }
 
   /* Hide elements not needed for printing */
