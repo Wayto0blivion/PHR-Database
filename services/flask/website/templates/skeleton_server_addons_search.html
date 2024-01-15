@@ -4,73 +4,92 @@
 
 {% block head %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
 {% endblock %}
 
 {% block title %}Server AddOns Search{% endblock %}
 {% block content %}
+    <body>
+    <div class="container">
     <form method="POST">
         {{ form.hidden_tag() }}
-{#        {{ form.csrf_token }}#}
-        PID: {{ form.pid }}
-        Make: {{ form.make }}
-        Model: {{ form.model }}
-        {{ form.submit }}
-        {{ form.clear }}
-        {{ form.generate }}
+        {#        {{ form.csrf_token }}#}
+        <div class="row" style="margin-top: 50px;background: rgb(52,58,64);height: 80px;">
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                <span style="color: rgb(255,255,255); white-space: nowrap;">PID:</span>
+                {{ form.pid (style="margin-left: 10px;background: transparent;color: var(--bs-body-bg);") }}
+            </div>
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                <span style="color: rgb(255,255,255); white-space: nowrap;">Make:</span>
+                {{ form.make (style="margin-left: 10px;background: transparent;color: var(--bs-body-bg);") }}
+            </div>
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                <span style="color: rgb(255,255,255); white-space: nowrap;">Model:</span>
+                {{form.model (style="margin-left: 10px;background: transparent;color: var(--bs-body-bg);") }}
+            </div>
+        </div>
+        <div class="row" style="background: rgb(52,58,64);">
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                {{ form.submit (class="login-button", style="margin-left: 15px; margin-bottom: 15px;") }}
+                {{ form.clear (class="login-button", style="margin-left: 15px; margin-bottom: 15px;") }}
+                {{ form.generate (class="login-button", style="margin-left: 15px; margin-bottom: 15px;") }}
+            </div>
+        </div>
     </form>
 
     {% if results %}
-        <table style="background-color: white">
-            <thead>
-                <tr>
-                    <td>PID</td>
-                    <td>Make</td>
-                    <td>Model</td>
-                    <td>Add</td>
-                </tr>
-            </thead>
-            <tbody>
-            {% for result in results %}
-                <tr>
-                    <td>{{ result.PID }}</td>
-                    <td>{{ result.make }}</td>
-                    <td>{{ result.model }}</td>
-                    <td><button type="button" data-toggle="modal" data-target="#quantityModal"
+        <div class="table-responsive" style="margin-top: 30px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="background: rgb(52,58,64);color: rgb(255,255,255);">PID</th>
+                        <th class="text-center"  style="background: rgb(52,58,64);color: rgb(255,255,255);">Make</th>
+                        <th class="text-center"  style="background: rgb(52,58,64);color: rgb(255,255,255);">Model</th>
+                        <th class="text-center"  style="background: rgb(52,58,64);color: rgb(255,255,255);">Add</th>
+                    </tr>
+                </thead>
+                 {% for result in results %}
+                <tbody>
+                    <tr>
+                        <td style="background: rgb(255, 255, 255);border: 1px solid rgb(0,0,0) ;">{{ result.PID }}</td>
+                        <td style="background: rgb(255, 255, 255);border: 1px solid rgb(0,0,0) ;">{{ result.make }}</td>
+                        <td style="background: rgb(255, 255, 255);border: 1px solid rgb(0, 0, 0) ;">{{ result.model }}</td>
+                        <td class="text-center" style="background: rgb(255, 255, 255);border: 1px solid rgb(0, 0, 0) ;"><button class="login-button" type="button" data-toggle="modal" data-target="#quantityModal"
                                 data-pid="{{ result.PID }}" data-make="{{ result.make }}" data-model="{{ result.model }}" id="buttonTest">Add</button></td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% endif %}
 
     <!-- Modal -->
     <div class="modal fade" id="quantityModal" tabindex="-1" role="dialog" aria-labelledby="quantityModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="quantityModalLabel">Enter Quantity</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="quantityForm">
-                {{ form.csrf_token }}
-              <div class="form-group">
-                <label for="quantity" class="col-form-label">Quantity:</label>
-                <input type="number" class="form-control" id="quantity">
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveQuantity">Save</button>
-          </div>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quantityModalLabel">Enter Quantity</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="quantityForm">
+                        {{ form.csrf_token }}
+                        <div class="form-group">
+                            <label for="quantity" class="col-form-label">Quantity:</label>
+                            <input type="number" class="form-control" id="quantity">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal" id="saveQuantity">Save</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-
+    </div>
+    </body>
 
     <script
       type="text/javascript"
