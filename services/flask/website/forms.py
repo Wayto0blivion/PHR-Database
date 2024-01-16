@@ -236,9 +236,9 @@ class Server_AddOn_Form(FlaskForm):
     Used for generating QR Codes from Server_Addons table, or for storing values
     into the table itself.
     """
-    pid = StringField('PID')
-    make = StringField('Make')
-    model = StringField('Model')
+    pid = StringField('PID', validators=[DataRequired()])
+    make = StringField('Make', validators=[DataRequired()])
+    model = StringField('Model', validators=[DataRequired()])
     qty = StringField('Qty')
     submit = SubmitField('Submit')
     clear = SubmitField('Clear')

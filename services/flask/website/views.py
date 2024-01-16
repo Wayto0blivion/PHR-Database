@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 # from sqlalchemy import create_engine
 from .models import (Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units,
-                     Units_Devices, UnitsDevicesSearch, Server_AddOns)
+                     Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons)
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -474,16 +474,18 @@ def search_server_addon():
 
     if form.validate_on_submit():
         # if session 'selected_items' exists, print the contents.
-        if 'selected_items' in session:
-            print('Validated Session:', session['selected_items'])
-        else:
-            print('No data in session variable')
+        # if 'selected_items' in session:
+        #     print('Validated Session:', session['selected_items'])
+        # else:
+        #     print('No data in session variable')
 
+        # If the clear button is pressed, removed selected_items from the session.
         if form.clear.data:
             if 'selected_items' in session:
                 session.pop('selected_items')
             return redirect(url_for('views.search_server_addon'))
 
+        # If the generate button is pressed, generate QR codes from the session variable.
         if form.generate.data:
             return redirect(url_for('views.generate_qr_addon'))
 
@@ -552,7 +554,6 @@ def add_to_session():
     """
     Handle AJAX requests from server addons.
     """
-
     print('Called add-to-session')
     data = request.json  # Get JSON data from the request object
     print(f'Received Data: {data}')
@@ -571,6 +572,11 @@ def add_to_session():
 
     # Add the string to the session.
     session[session_key] += f'({quantity}) {pid} {make} {model}, '
+
+    # Add the selected result to the database as a search.
+    entry = Searches_Addons(user=current_user.email, date=datetime.now(), pid=pid, make=make, model=model)
+    db.session.add(entry)
+    db.session.commit()
 
     # Return a message to the user.
     return jsonify({"message": "Item added to session"})

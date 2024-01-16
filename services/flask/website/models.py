@@ -485,6 +485,16 @@ class PC_Tech(db.Model):
     sheet_id = db.Column('sheet_id', db.Integer, db.ForeignKey('PC_Imported_Sheets.sheetID'))
 
 
+class Searches_Addons(db.Model):
+    __tablename__ = 'searches_addons'
+    autoID = db.Column('autoID', db.Integer, primary_key=True)
+    user = db.Column('user', db.String(40))
+    date = db.Column('date', db.DateTime)
+    pid = db.Column('pid', db.String(64), nullable=True)
+    make = db.Column('make', db.String(64), nullable=True)
+    model = db.Column('model', db.String(64), nullable=True)
+
+
 # === Aiken Models ===
 
 
