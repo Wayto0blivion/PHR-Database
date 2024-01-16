@@ -1,6 +1,11 @@
 function deleteNote(noteId) {
+    let csrf_token = $('input[name="csrf_token"]').val();
+    console.log('CSRF_TOKEN:', csrf_token)
     fetch("/delete-note", {
       method: "POST",
+      headers: {
+                  'X-CSRFToken': csrf_token
+                },
       body: JSON.stringify({ noteId: noteId }),
     }).then((_res) => {
       window.location.href = "/";
