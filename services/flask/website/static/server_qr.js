@@ -66,6 +66,9 @@ $(document).ready(function(){
                     console.error('Response:', xhr.responseText);
                 }
             });
+
+        //     Add the selected addon to the database.
+
         }
     });
 });
