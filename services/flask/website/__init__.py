@@ -70,7 +70,7 @@ def create_app():
     class UserView(ModelView):
         column_display_pk = True
         create_modal = True
-        column_editable_list = ['active_status', 'pc_status', 'processing_status',
+        column_editable_list = ['active_status', 'pc_status', 'server_status', 'processing_status',
                                 'hdd_status', 'validation_status', 'qr_generation', 'admin_status']
 
     class DiskView(ModelView):
