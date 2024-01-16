@@ -17,7 +17,8 @@
             <div class="container-fluid d-flex justify-content-center">
                 <div class="d-flex justify-content-center form-floating" style="margin-top: 20px;">
                     <form method="POST">
-                        <label for="note"></label><textarea name="note" id="note" class="note" style="justify-content; width: 300px;"></textarea>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <label for="note"></label><textarea name="note" id="note" class="note" style="justify-content: center; width: 300px;"></textarea>
                         <br />
                         <button type="submit" class="login-button text-center">Add Note</button>
                     </form>

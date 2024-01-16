@@ -559,8 +559,6 @@ def add_to_session():
     print(f'Received Data: {data}')
     quantity = data['quantity']  # Store quantity data
     pid = data['pid']  # Store PID data
-    if pid is None:
-        return jsonify({'error': 'PID is missing'}), 400
     make = data['make']  # Store Make data
     model = data['model']  # Store Model data
 
