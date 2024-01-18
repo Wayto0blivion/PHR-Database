@@ -577,7 +577,7 @@ def add_to_session():
     db.session.commit()
 
     # Return a message to the user.
-    return jsonify({"message": "Item added to session"})
+    return jsonify({"message": session[session_key]})
 
 
 # === End of Views ===

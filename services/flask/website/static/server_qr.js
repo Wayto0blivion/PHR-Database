@@ -58,6 +58,10 @@ $(document).ready(function(){
                 success: function(response) {
                     // Handle Response
                     console.log(response.message);
+                    // Print the contents of the session variable, which
+                    // contains all selected addons, and print it to the div.
+                    let sessionDiv = $('#sessionDiv');
+                    sessionDiv.text(response.message);
                 },
                 error: function(xhr, status, error) {
                     // Handle error
