@@ -2,7 +2,7 @@ from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 from datetime import datetime, date
-from sqlalchemy.dialects.mysql import TINYTEXT, TEXT, LONGTEXT, LONGBLOB, BIGINT
+from sqlalchemy.dialects.mysql import TINYTEXT, TEXT, LONGTEXT, LONGBLOB, BIGINT, DECIMAL
 
 
 # Note homepage
@@ -514,8 +514,23 @@ class Searches_Addons(db.Model):
     model = db.Column('model', db.String(64), nullable=True)
 
 
+class Network_Price_Data(db.Model):
+    __tablename__ = 'Network_Price_Data'
+    mfg = db.Column('MFG', db.String(64))
+    model = db.Column('Model', db.String(128))
+    price = db.Column('Price', DECIMAL(7, 2))
+    serial = db.Column('Serial', db.String(64))
+    addons = db.Column('Add-Ons', db.String(256))
+    psu_info = db.Column('Power Supply Info', db.String(256))
+    fans = db.Column('Fans', db.String(256))
+    year = db.Column('Year', db.Integer)
+    test_result_codes = db.Column('Test Result Codes', db.String(64))
+    winning_bid = db.Column('Winning Bid', db.Boolean, default=False)
+    date = db.Column('Date', db.Date)
+    autoID = db.Column('autoID', db.Integer, primary_key=True)
 
-# === Aiken Models ===
+
+# ===================== Aiken Models =====================
 
 
 class Lots(db.Model):

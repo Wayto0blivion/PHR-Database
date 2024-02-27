@@ -51,6 +51,7 @@ def site_map():
     # print(links)
     return render_template('site_mapper.html', links=links, user=current_user)
 
+
 def has_no_empty_params(rule):
     """
     Function separated from site_map to handle functions that require parameters.
@@ -161,7 +162,6 @@ def safeimport():
             else:
                 shape = f'{sheetName} has imported successfully with {frame} rows'
                 table = df.replace(np.nan, 'N/A').to_html(classes='table table-light')
-
 
     return render_template('import_pandas.html', form=form, shape=shape, table=table, user=current_user)
 # -----------------------------------------------------------------------------------------------
