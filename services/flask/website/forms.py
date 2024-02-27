@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileField
-from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, TextAreaField, PasswordField
+from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, \
+    TextAreaField, PasswordField, FloatField
 # from wtforms import validators
 from wtforms.validators import DataRequired, Optional, EqualTo, InputRequired, Length
 from wtforms.widgets import TextArea, FileInput
@@ -262,6 +263,20 @@ class AikenDeviceSearchForm(FlaskForm):
     download = SubmitField('Download')
 
 
+class NetworkPricingSearchForm(FlaskForm):
+    """
+    Contains fields for searching the Network Price Data table.
+    """
+    mfg = StringField('Manufacturer')
+    model = StringField('Model')
+    addons = StringField('Add-Ons')
+    min_price = FloatField('Minimum Price')
+    max_price = FloatField('Maximum Price')
+    test_codes = StringField('Test Result Codes')
+    start_date = DateField('Start Date', [Optional()], format='%Y-%m-%d')
+    end_date = DateField('End Date', [Optional()], format='%Y-%m-%d')
+    winning_bid = BooleanField('Winning Bid')
+    submit = SubmitField('Submit')
 
 
 

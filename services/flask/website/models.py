@@ -526,7 +526,7 @@ class Network_Price_Data(db.Model):
     year = db.Column('Year', db.Integer)
     test_result_codes = db.Column('Test Result Codes', db.String(64))
     winning_bid = db.Column('Winning Bid', db.Boolean, default=False)
-    date = db.Column('Date', db.Date)
+    date = db.Column('Date', db.Date, default=date.today)
     autoID = db.Column('autoID', db.Integer, primary_key=True)
 
 

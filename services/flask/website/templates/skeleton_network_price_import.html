@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block title %}Import to Pandas{% endblock %} {% block content %}
+<div>
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <table>
+            {% for field in form %}
+                <tr>
+                    <td>{{ field.label }}</td>
+                    <td>{{ field }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </form>
+</div>
+{% endblock %}
+

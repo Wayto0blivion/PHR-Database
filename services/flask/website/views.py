@@ -1,12 +1,12 @@
 from flask import (Flask, Blueprint, render_template, flash, request, jsonify, session,
                    url_for, Response, send_file, redirect)
 from flask_login import login_required, current_user
-from sqlalchemy import exc, desc, func, and_
+from sqlalchemy import exc, desc, func, and_, inspect
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 # from sqlalchemy import create_engine
 from .models import (Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units,
-                     Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons)
+                     Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons, Network_Price_Data)
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # import pymysql as pms
 from .forms import (ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm,
                     AikenDeviceSearchForm, Server_AddOn_Form)
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
 from werkzeug.utils import secure_filename
@@ -257,6 +257,7 @@ def validation_import():
 
 # -----------------------------------------------------------------------------------------------------
 
+
 @views.route('/servers', methods=['GET'])
 @login_required
 @hf.user_permissions('Admin')
@@ -289,6 +290,7 @@ def servers():
     print(most_recent_results)
 
     return render_template('servers.html', results=most_recent_results, user=current_user)
+
 
 @views.route('/servers/<host>', methods=['GET'])
 @login_required
@@ -580,6 +582,51 @@ def add_to_session():
     return jsonify({"message": session[session_key]})
 
 
+@views.route('/network-price-import', methods=['GET', 'POST'])
+def network_price_import():
+    """
+    View function to import Price Data for Network Objects as provided by Brett
+    """
+    # Create an instance of the import form
+    form = ImportForm()
+
+    if form.validate_on_submit():  # After the form has been submitted
+        try:
+            # Get a reference to the uploaded file
+            file = form.file.data
+
+            # Get a list of the column names from the table itself.
+            # noinspection PyTypeChecker
+            column_names = get_column_names(Network_Price_Data)
+            column_names.remove('autoID')  # Remove autoID from the column list
+            column_names.remove('date')  # Date removed temporarily so file can be loaded into pandas
+
+            # Convert the file data into a pandas dataframe.
+            df = pandas.read_excel(file,
+                                   names=column_names,
+                                   index_col=None)
+            # Replace NaN values in 'Winning Bid' column with False
+            df['winning_bid'] = df['winning_bid'].fillna(False)
+            # convert the dataframe to a dictionary with the keyword 'records'
+            records = df.to_dict('records')
+
+            # Iterate over each record and insert it using SQLAlchemy
+            for record in records:
+                # Set 'Date' explicitly
+                record['date'] = date.today()
+                # Create a new SQLAlchemy object with the record information
+                new_record = Network_Price_Data(**record)
+                # add the new record to the database
+                db.session.add(new_record)
+            db.session.commit()
+        # Handle exceptions, and rollback database commit
+        except Exception as e:
+            db.session.rollback()
+            print(e)
+
+    return render_template('skeleton_network_price_import.html', form=form, user=current_user)
+
+
 # === End of Views ===
 
 # === Functions ===
@@ -736,4 +783,13 @@ def character_count_for_qr(session_string):
 
     print('qr_code_strings:', qr_code_strings)
     return qr_code_strings
+
+
+def get_column_names(model):
+    """
+    :param model: The model to get column names for
+    :return: list of column names from the model
+    """
+    # return [column.key for column in model.__table__.columns]
+    return [column.key for column in inspect(model).mapper.column_attrs]
 
