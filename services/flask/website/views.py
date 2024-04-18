@@ -6,7 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 # from sqlalchemy import create_engine
 from .models import (Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units,
-                     Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons, Network_Price_Data)
+                     Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons, Network_Price_Data,
+                     Mobile_Boxes, Mobile_Pallets, Mobile_Box_Devices, Mobile_Weights)
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -15,7 +16,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 # import pymysql as pms
 from .forms import (ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm,
-                    AikenDeviceSearchForm, Server_AddOn_Form)
+                    AikenDeviceSearchForm, Server_AddOn_Form, NetworkPricingSearchForm)
 from datetime import date, datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
@@ -26,7 +27,7 @@ from io import BytesIO
 
 views = Blueprint('views', __name__)
 
-
+ROWS_PER_PAGE = 50
 # --------------------------------------------------------------------------------------
 
 
@@ -589,6 +590,7 @@ def network_price_import():
     """
     # Create an instance of the import form
     form = ImportForm()
+    message = ''
 
     if form.validate_on_submit():  # After the form has been submitted
         try:
@@ -605,6 +607,21 @@ def network_price_import():
             df = pandas.read_excel(file,
                                    names=column_names,
                                    index_col=None)
+            df = df.fillna({
+                'mfg': '',
+                'model': '',
+                'serial': '',
+                'addons': '',
+                'psu_info': '',
+                'fans': '',
+                'test_result_codes': '',
+            })
+            # Replace NaN values in 'Fans' column with False
+            df['price'] = df['price'].fillna(False)
+            # Replace NaN values in 'Fans' column with False
+            df['addons'] = df['addons'].fillna(False)
+            # Replace NaN values in 'Fans' column with False
+            df['year'] = df['year'].fillna(False)
             # Replace NaN values in 'Winning Bid' column with False
             df['winning_bid'] = df['winning_bid'].fillna(False)
             # convert the dataframe to a dictionary with the keyword 'records'
@@ -622,9 +639,71 @@ def network_price_import():
         # Handle exceptions, and rollback database commit
         except Exception as e:
             db.session.rollback()
+            message = e
             print(e)
 
-    return render_template('skeleton_network_price_import.html', form=form, user=current_user)
+    return render_template('skeleton_network_price_import.html', form=form, message=message, user=current_user)
+
+
+@views.route('/network-price-search', methods=['GET', 'POST'])
+def network_price_search():
+    # Create a new instance of the search form.
+    form = NetworkPricingSearchForm()
+
+    # Get the page number from pagination widget
+    page = request.args.get('page', 1, type=int)
+
+    if form.validate_on_submit():  # Handle a submitted form
+
+        if form.clear.data:
+            return redirect(url_for(request.endpoint))
+
+        query = Network_Price_Data.query  # Create a query object.
+        filters = []  # Create an empty filter list
+        if form.mfg.data:  # Use MFG Search
+            like_string = "%{}%".format(form.mfg.data)  # Create a search string
+            filters.append(Network_Price_Data.mfg.like(like_string))
+        if form.model.data:  # Use Model Search
+            like_string = "%{}%".format(form.model.data)  # Create a search string
+            filters.append(Network_Price_Data.model.like(like_string))
+        if form.addons.data:  # Use Add-On Search
+            like_string = "%{}%".format(form.addons.data)  # Create a search string
+            filters.append(Network_Price_Data.addons.like(like_string))
+        if form.min_price.data and form.max_price.data:  # Handle both min and max prices entered
+            filters.append(Network_Price_Data.price.between(form.min_price.data, form.max_price.data))
+        elif form.min_price.data:  # Handle just a minimum price
+            filters.append(Network_Price_Data.price >= form.min_price.data)
+        elif form.max_price.data:  # Handle just a maximum price
+            filters.append(Network_Price_Data.price <= form.max_price.data)
+        if form.test_codes.data:  # Handle a test code string
+            like_string = "%{}%".format(form.test_codes.data)  # Create a search string
+            filters.append(Network_Price_Data.test_codes.like(like_string))
+        if form.start_date.data and form.end_date.data:  # Handle both start and end dates
+            # Add a time to the dates so that it starts at the beginning of the day? May not be necessary
+            start_date = datetime.combine(form.start_date.data, datetime.min.time())
+            end_date = datetime.combine(form.end_date.data, datetime.max.time())
+            filters.append(Network_Price_Data.date.between(start_date, end_date))
+        elif form.start_date.data:  # Handle just a start date
+            start_date = datetime.combine(form.start_date.data, datetime.min.time())
+            filters.append(Network_Price_Data.date >= start_date)
+        elif form.end_date.data:  # Handle just an end date
+            end_date = datetime.combine(form.end_date.data, datetime.max.time())
+            filters.append(Network_Price_Data.date <= end_date)
+        if form.winning_bid.data:  # Check if the user only wants winning bids
+            filters.append(Network_Price_Data.winning_bid == form.winning_bid.data)
+
+        if filters:  # Handle all filters that have been submitted by user
+            query = query.filter(and_(*filters))
+
+        # Paginate the search results so it doesn't overload the database
+        results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
+
+        # Handle the return if the form has been submitted
+        return render_template('skeleton_network_price_search.html', form=form,
+                               columns=get_column_names(Network_Price_Data), pagination=results, user=current_user)
+
+    # Handle the return for a new instance.
+    return render_template('skeleton_network_price_search.html', form=form, user=current_user)
 
 
 # === End of Views ===

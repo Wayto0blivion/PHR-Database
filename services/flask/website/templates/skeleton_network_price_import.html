@@ -5,12 +5,14 @@
         <table>
             {% for field in form %}
                 <tr>
-                    <td>{{ field.label }}</td>
                     <td>{{ field }}</td>
                 </tr>
             {% endfor %}
         </table>
     </form>
+    {% if message %}
+        <p style="background-color: whitesmoke">{{ message }}</p>
+    {% endif %}
 </div>
 {% endblock %}
 

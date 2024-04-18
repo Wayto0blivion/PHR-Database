@@ -93,7 +93,8 @@ def user_account():
 
     return render_template('profile.html', form=form, user=current_user)
 
-@auth.route('/profile', methods=['GET', 'POST'])
+
+@auth.route('/profile-test', methods=['GET', 'POST'])
 @login_required
 def profile():
     user = User.query.get(current_user.id)

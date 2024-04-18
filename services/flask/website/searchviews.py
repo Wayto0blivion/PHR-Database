@@ -61,7 +61,7 @@ def hdd_search():
             filters.append(DISKS.Finished.between(start_date, end_date))
 
         if filters:
-            query=query.filter(*filters)
+            query = query.filter(*filters)
 
         results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
         count = query.count()

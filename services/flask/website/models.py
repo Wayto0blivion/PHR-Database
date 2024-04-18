@@ -322,6 +322,7 @@ class MasterVerificationLog(db.Model):
     Department = db.Column('Department', db.String(64))
     autoID = db.Column('autoID', db.Integer, primary_key=True)
 
+
 '''
 class R2_Equipment_Checklist(db.Model):
     """
@@ -430,7 +431,7 @@ class PC_Imported_Sheets(db.Model):
 
 
 class PC_Tech(db.Model):
-    __tablename__='PC_Tech'
+    __tablename__ = 'PC_Tech'
     orderNo = db.Column('Order Number', db.String(25), nullable=False)
     unit = db.Column('Unit #', db.String(255), nullable=True)
     product = db.Column('Product Name', db.String(50), nullable=False)
@@ -528,6 +529,43 @@ class Network_Price_Data(db.Model):
     winning_bid = db.Column('Winning Bid', db.Boolean, default=False)
     date = db.Column('Date', db.Date, default=date.today)
     autoID = db.Column('autoID', db.Integer, primary_key=True)
+
+
+class Mobile_Boxes(db.Model):
+    __tablename__ = 'Mobile_Boxes'
+    autoID = db.Column('autoID', db.Integer, primary_key=True)
+    is_active = db.Column('isActive', db.Boolean)
+    box_number = db.Column('boxNumber', db.Integer, nullable=False)
+    palletID = db.Column('palletID', db.Integer, db.ForeignKey('Mobile_Pallets.autoID'))
+    timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
+    user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
+
+
+class Mobile_Pallets(db.Model):
+    __tablename__ = 'Mobile_Pallets'
+    autoID = db.Column('autoID', db.Integer, primary_key=True)
+    is_active = db.Column('isActive', db.Boolean)
+    timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
+    user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
+
+
+class Mobile_Box_Devices(db.Model):
+    __tablename__ = 'Mobile_Box_Devices'
+    autoID = db.Column('autoID', db.Integer, primary_key=True)
+    boxID = db.Column('boxID', db.Integer, db.ForeignKey('Mobile_Boxes.autoID'))
+    modelID = db.Column('modelID', db.Integer, db.ForeignKey('Mobile_Weights.autoID'))
+    qty = db.Column('quantity', db.Integer)
+    timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
+    user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
+
+
+class Mobile_Weights(db.Model):
+    __tablename__ = 'Mobile_Weights'
+    autoID = db.Column('autoID', db.Integer, primary_key=True)
+    model = db.Column('Model', db.String(64))
+    weight = db.Column('Weight', DECIMAL(5, 4))
+    timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
+    user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
 
 
 # ===================== Aiken Models =====================

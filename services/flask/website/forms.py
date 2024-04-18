@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired, FileField
 from wtforms import StringField, SelectField, DateField, SubmitField, RadioField, BooleanField, IntegerField, \
-    TextAreaField, PasswordField, FloatField
+    TextAreaField, PasswordField, FloatField, DecimalField
 # from wtforms import validators
 from wtforms.validators import DataRequired, Optional, EqualTo, InputRequired, Length
 from wtforms.widgets import TextArea, FileInput
@@ -270,13 +270,53 @@ class NetworkPricingSearchForm(FlaskForm):
     mfg = StringField('Manufacturer')
     model = StringField('Model')
     addons = StringField('Add-Ons')
-    min_price = FloatField('Minimum Price')
-    max_price = FloatField('Maximum Price')
+    min_price = FloatField('Minimum Price', [Optional()],)
+    max_price = FloatField('Maximum Price', [Optional()],)
     test_codes = StringField('Test Result Codes')
     start_date = DateField('Start Date', [Optional()], format='%Y-%m-%d')
     end_date = DateField('End Date', [Optional()], format='%Y-%m-%d')
-    winning_bid = BooleanField('Winning Bid')
+    winning_bid = BooleanField('Only Winning Bids?')
     submit = SubmitField('Submit')
+    clear = SubmitField('Clear')
+
+
+class MobileDeviceForm(FlaskForm):
+    """
+    Handles adding mobile devices to the currently active box.
+    """
+    model = StringField('Model', validators=[DataRequired()])
+    quantity = IntegerField('Quantity')
+    add_button = SubmitField('Add')
+
+
+class MobileClosingForm(FlaskForm):
+    """
+    Handles closing the current pallet and/or box
+    """
+    close_box_button = SubmitField('Close Box')
+    close_pallet_button = SubmitField('Close Pallet')
+
+
+class MobileNewWeightForm(FlaskForm):
+    """
+    Handles adding new weights to the Mobile_Weights table
+    """
+    model = StringField('Model', validators=[DataRequired()])
+    weight = DecimalField('Weight', validators=[DataRequired()])
+    submit = SubmitField('Add New Weight')
+
+
+# class MobileWeightDeviceForm(FlaskForm):
+#     model = StringField('Model')
+#     quantity = IntegerField('Quantity')
+#     add = SubmitField('Add')
+#
+#
+# class MobileWeightNewForm(FlaskForm):
+#     model = StringField('Model')
+#     quantity = IntegerField('Quantity')
+#     weight = FloatField('Weight')
+#     submit = SubmitField('Submit')
 
 
 

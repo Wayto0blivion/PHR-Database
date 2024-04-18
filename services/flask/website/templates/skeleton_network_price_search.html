@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}HDD Search{% endblock %}
+{% block content %}
+<div>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <table style="background-color: whitesmoke">
+            {% for field in form %}
+                {% if field.type != 'CSRFTokenField' %}
+                <tr>
+                    <td>{{ field.label }}</td>
+                    <td>{{ field }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    </form>
+    {% if pagination %}
+    <table class="table table-light">
+        <thead>
+            <tr>
+            {% for column in columns %}
+                <td>{{ column }}</td>
+            {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in pagination.items %}
+                <tr>
+                    {% for column in columns %}
+                        <td>{{ row[column] }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if pagination %}
+        <div class="row" style="background: rgb(255,255,255);">
+            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255); margin-top: 10px;">
+                {{ macros.pagination_widget(pagination, 'views.network_price_search') }}
+            </div>
+        </div>
+        <div class="row" style="background: rgb(255,255,255);">
+            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255);">
+                <span style="margin-bottom: 10px;">Showing page {{ pagination.page }} of {{ pagination.pages }}</span>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

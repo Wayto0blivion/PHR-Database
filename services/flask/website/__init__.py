@@ -112,11 +112,13 @@ def create_app():
     from .auth import auth
     from .testviews import testviews
     from .searchviews import searchviews
+    from .mobileviews import mobileviews
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(testviews, url_prefix='/test')
     app.register_blueprint(searchviews, url_prefix='/search')
+    app.register_blueprint(mobileviews, url_prefix='/mobile')
 
     from .models import User, Note, Request
 
