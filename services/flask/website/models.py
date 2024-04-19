@@ -30,6 +30,10 @@ class User(db.Model, UserMixin):
     sheets = db.relationship('imported_sheets')
     B2B_sheets = db.relationship('B2B_Imported_Sheets')
     avatar_id = db.relationship('UserData')
+    mobile_weights = db.relationship('Mobile_Weights')
+    mobile_boxes = db.relationship('Mobile_Boxes')
+    mobile_pallets = db.relationship("Mobile_Pallets")
+    mobile_devices = db.relationship("Mobile_Box_Devices")
     # equip_check = db.relationship('R2_Equipment_Checklist')
 
 
@@ -539,6 +543,8 @@ class Mobile_Boxes(db.Model):
     palletID = db.Column('palletID', db.Integer, db.ForeignKey('Mobile_Pallets.autoID'))
     timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
     user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
+    devices = db.relationship('Mobile_Box_Devices')
+    pallet = db.relationship('Mobile_Pallets', back_populates='boxes')
 
 
 class Mobile_Pallets(db.Model):
@@ -547,6 +553,7 @@ class Mobile_Pallets(db.Model):
     is_active = db.Column('isActive', db.Boolean)
     timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
     user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
+    boxes = db.relationship('Mobile_Boxes', back_populates='pallet')
 
 
 class Mobile_Box_Devices(db.Model):
@@ -557,6 +564,7 @@ class Mobile_Box_Devices(db.Model):
     qty = db.Column('quantity', db.Integer)
     timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
     user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
+    model = db.relationship('Mobile_Weights')
 
 
 class Mobile_Weights(db.Model):
@@ -566,6 +574,7 @@ class Mobile_Weights(db.Model):
     weight = db.Column('Weight', DECIMAL(5, 4))
     timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
     user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
+    devices = db.relationship('Mobile_Box_Devices')
 
 
 # ===================== Aiken Models =====================

@@ -58,16 +58,47 @@ def mobile_pallet(pallet_id):
     while len(boxes) < 24:
         boxes.append(Mobile_Boxes(is_active=False))
 
-    return render_template('skeleton_mobile_weight_sheet.html', boxes=boxes, user=current_user)
+    return render_template('skeleton_mobile_box_list.html', boxes=boxes, user=current_user)
 
 
+@mobileviews.route('/box/<int:box_id>', methods=['GET', 'POST'])
+@login_required
+def mobile_box(box_id):
+    """
+    Displays the current contents of the box.
+    Allows user to add new devices to a box.
+    """
+    # Get references to the two forms needed to read from.
+    device_form = MobileDeviceForm()
+    close_form = MobileClosingForm()
+    # Empty dictionary variable to store information needed to display
+    data = {}
 
+    # Get the current pallet by finding it based on box_id
+    pallet = Mobile_Pallets.query.filter_by(autoID=Mobile_Boxes.query.filter_by(autoID=box_id).first().palletID).first()
 
+    # Get data points from pallet to display to user.
+    data['palletID'] = pallet.autoID
+    data['timestamp'] = pallet.timestamp
+    data['closed_box_count'] = Mobile_Boxes.query.filter_by(palletID=data['palletID'], is_active=False).count()
 
+    # Get a list of devices in the current box, joined with the model and weight.
+    devices = (db.session.query(Mobile_Box_Devices, Mobile_Weights.model, Mobile_Weights.weight)
+               .join(Mobile_Weights, Mobile_Weights.autoID == Mobile_Box_Devices.modelID)
+               .filter(Mobile_Box_Devices.boxID == box_id)
+               .all())
 
+    if device_form.validate_on_submit():  # What to do if user tries to add a device to the box
+        pass
 
+    if close_form.validate_on_submit():  # What to do if the user tries to close box or pallet
+        pass
 
+    # DEBUG
+    devices = [[device.model, str(device.weight)] for device in devices]
 
+    return render_template('skeleton_mobile_weight_sheet.html', device_form=device_form,
+                           close_form=close_form, data=data, user=current_user)
 
 
 
