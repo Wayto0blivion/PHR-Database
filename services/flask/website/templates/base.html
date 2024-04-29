@@ -109,6 +109,30 @@
       </li>
     </ul>
       {% endif %}
+      {% if user.network_status %}
+    <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Network
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/network-price-import">Import Price Data</a>
+            <a class="dropdown-item" href="/network-price-search">Search Price Data</a>
+        </div>
+      </li>
+    </ul>
+      {% endif %}
+      {% if user.mobile_status %}
+    <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Mobile
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/mobile">Weightsheets</a>
+            <a class="dropdown-item" href="/mobile/import">Bulk Import Weights</a>
+        </div>
+      </li>
+    </ul>
+      {% endif %}
       {% if user.processing_status %}
     <ul class="navbar-nav">
         <li class="nav-item dropdown">

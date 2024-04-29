@@ -285,7 +285,7 @@ class MobileDeviceForm(FlaskForm):
     Handles adding mobile devices to the currently active box.
     """
     model = StringField('Model', validators=[DataRequired()])
-    quantity = IntegerField('Quantity')
+    quantity = IntegerField('Quantity', default=1)
     add_button = SubmitField('Add')
 
 
@@ -301,8 +301,7 @@ class MobileNewWeightForm(FlaskForm):
     """
     Handles adding new weights to the Mobile_Weights table
     """
-    model = StringField('Model', validators=[DataRequired()])
-    weight = DecimalField('Weight', validators=[DataRequired()])
+    weight = DecimalField('Weight (lbs)', validators=[DataRequired()])
     submit = SubmitField('Add New Weight')
 
 

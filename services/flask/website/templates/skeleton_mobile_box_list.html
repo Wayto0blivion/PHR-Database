@@ -18,10 +18,9 @@
     </style>
 {% endblock %}
 
-{% block title %}Mobile Weight Sheet{% endblock %}
+{% block title %}Mobile Box List{% endblock %}
 
 {% block content %}
-    <h1>Device Weight Form</h1>
     <div class="container">
         <h1>Pallet Boxes</h1>
         <div class="row">
@@ -40,5 +39,11 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <div id="closePalletDiv" style="text-align: center; margin: 15px">
+        <form method="POST">
+            {{ close_form.hidden_tag() }}
+            {{ close_form.close_pallet_button (style="background-color: red") }}
+        </form>
+    </div>
 
 {% endblock %}

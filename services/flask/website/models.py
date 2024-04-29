@@ -20,6 +20,8 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     active_status = db.Column('Active', db.Boolean, default=False)
     pc_status = db.Column('PC Tech', db.Boolean, default=False)
+    network_status = db.Column('Network', db.Boolean, default=False)
+    mobile_status = db.Column('Mobile', db.Boolean, default=False)
     server_status = db.Column('Servers', db.Boolean, default=False)
     processing_status = db.Column('Processing', db.Boolean, default=False)
     hdd_status = db.Column('HDD', db.Boolean, default=False)
@@ -574,7 +576,7 @@ class Mobile_Weights(db.Model):
     weight = db.Column('Weight', DECIMAL(5, 4))
     timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
     user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
-    devices = db.relationship('Mobile_Box_Devices')
+    devices = db.relationship('Mobile_Box_Devices', back_populates='model', overlaps='model')
 
 
 # ===================== Aiken Models =====================

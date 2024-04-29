@@ -4,6 +4,7 @@
         <div class="row" style="margin: 15px;">
             <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
                 <form action="" method=post enctype=multipart/form-data style="padding-top:100px">
+                    {{ form.hidden_tag() }}
                     {{ form.csrf_token }}
                     {{ form.file (style="background: #dddddd;") }}
                 </form>

@@ -695,7 +695,7 @@ def network_price_search():
         if filters:  # Handle all filters that have been submitted by user
             query = query.filter(and_(*filters))
 
-        # Paginate the search results so it doesn't overload the database
+        # Paginate the search results, so it doesn't overload the database
         results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
 
         # Handle the return if the form has been submitted
