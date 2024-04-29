@@ -156,7 +156,7 @@ def mobile_box(box_id):
             else:
                 print(f"The model found was {check_model.autoID}")
                 # Check if the selected model already exists in the current box.
-                current_model = Mobile_Box_Devices.query.filter_by(model=device_form.model.data, boxID=box_id).first()
+                current_model = Mobile_Box_Devices.query.filter_by(modelID=check_model.autoID, boxID=box_id).first()
                 if not current_model:  # IF the model doesn't already exist in the current box, add it.
                     new_device = Mobile_Box_Devices(boxID=box_id, modelID=check_model.autoID, qty=device_form.quantity.data,
                                                     user=current_user.id)
