@@ -7,13 +7,14 @@
                     {{ form.hidden_tag() }}
                     {{ form.csrf_token }}
                     {{ form.file (style="background: #dddddd;") }}
+
+                    <div class="row d-xxl-flex justify-content-xxl-center align-items-xxl-center" style="margin: 15px;">
+                        <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                            {{ form.new_sheet_import (class="login-button") }}
+                        </div>
+                    </div>
                 </form>
             </div>
-        </div>
-    </div>
-    <div class="row d-xxl-flex justify-content-xxl-center align-items-xxl-center" style="margin: 15px;">
-        <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-        {{ form.new_sheet_import (class="login-button") }}
         </div>
     </div>
     {% if shape %}

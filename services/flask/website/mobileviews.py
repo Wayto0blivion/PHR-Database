@@ -115,7 +115,7 @@ def mobile_box(box_id):
     # Calculate the total weight for the current box and add it to data.
     total_box_weight = Decimal(0.0)
     for device in data['devices']:
-        total_box_weight += device[1]
+        total_box_weight += (device[1] * device[2])
     data['total_box_weight'] = total_box_weight
 
     if weight_form.validate_on_submit():
