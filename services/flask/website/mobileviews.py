@@ -121,6 +121,7 @@ def mobile_box(box_id):
     devices = (db.session.query(Mobile_Box_Devices, Mobile_Weights.model, Mobile_Weights.weight)
                .join(Mobile_Weights, Mobile_Weights.autoID == Mobile_Box_Devices.modelID)
                .filter(Mobile_Box_Devices.boxID == box_id)
+               .order_by(Mobile_Box_Devices.timestamp.desc())
                .all())
     # Add basic device info to data dictionary
     data['devices'] = [[device.model, device.weight, device[0].qty] for device in devices]
