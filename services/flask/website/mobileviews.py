@@ -114,6 +114,7 @@ def mobile_box(box_id):
     # Get data points from pallet to display to user.
     data['palletID'] = pallet.autoID
     data['timestamp'] = pallet.timestamp
+    data['current_box_status'] = Mobile_Boxes.query.filter_by(autoID=box_id).first().is_active
     data['closed_box_count'] = Mobile_Boxes.query.filter_by(palletID=data['palletID'], is_active=False).count()
 
     # Get a list of devices in the current box, joined with the model and weight.

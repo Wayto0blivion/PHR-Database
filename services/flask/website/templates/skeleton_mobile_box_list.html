@@ -27,7 +27,7 @@
             {% for box in boxes %}
                 <div class="col-2">
                     <button class="btn box-button {{ 'inactive' if not box.is_active else 'btn-primary' }}"
-                            onclick="if ({{ 'false' if not box.is_active else 'true' }}) location.href='{{ url_for('mobileviews.mobile_box', box_id=box.autoID) }}'">
+                            onclick="location.href='{{ url_for('mobileviews.mobile_box', box_id=box.autoID) }}'">
                         Box {{ box.box_number }} <br />
                         Weight: {{ weights[box.box_number] }}
                     </button>

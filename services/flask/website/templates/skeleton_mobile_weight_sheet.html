@@ -19,6 +19,7 @@
             Started: {{ data['timestamp'] }}
         </div>
     </div>
+    {% if data['current_box_status'] %}
     <div style="display: flex; justify-content: space-evenly;">
         <div id="deviceFormDiv" style="margin: auto">
             <form id="deviceForm" method="POST">
@@ -45,6 +46,7 @@
             </form>
         </div>
     </div>
+    {% endif %}
     <div id="weightFormDiv" style="display: none">
         <form method="POST">
             {{ data['weight_form'].hidden_tag() }}
