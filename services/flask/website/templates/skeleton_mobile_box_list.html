@@ -28,7 +28,8 @@
                 <div class="col-2">
                     <button class="btn box-button {{ 'inactive' if not box.is_active else 'btn-primary' }}"
                             onclick="if ({{ 'false' if not box.is_active else 'true' }}) location.href='{{ url_for('mobileviews.mobile_box', box_id=box.autoID) }}'">
-                        Box {{ loop.index }}
+                        Box {{ box.box_number }} <br />
+                        Weight: {{ weights[box.box_number] }}
                     </button>
                 </div>
                 {% if loop.index % 6 == 0 and not loop.last %}

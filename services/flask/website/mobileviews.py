@@ -61,6 +61,18 @@ def mobile_pallet(pallet_id):
     while len(boxes) < 24:
         boxes.append(Mobile_Boxes(is_active=False))
 
+    # Create a dictionary for all weights of open boxes
+    weights = {}
+    for box in boxes:
+        devices = (db.session.query(Mobile_Box_Devices, Mobile_Weights.model, Mobile_Weights.weight)
+                   .join(Mobile_Weights, Mobile_Weights.autoID == Mobile_Box_Devices.modelID)
+                   .filter(Mobile_Box_Devices.boxID == box.autoID)
+                   .all())
+        total_box_weight = Decimal(0.0)
+        for device in devices:
+            total_box_weight += (device.weight * device[0].qty)
+        weights[box.box_number] = total_box_weight
+
     # Handle the closing of the pallet and all boxes tied to it.
     if close_form.validate_on_submit():
         print('Validating Close Form')
@@ -76,7 +88,7 @@ def mobile_pallet(pallet_id):
         # Reload the page so the user starts a new pallet.
         return redirect(url_for('mobileviews.mobile_home', user=current_user))
 
-    return render_template('skeleton_mobile_box_list.html', boxes=boxes,
+    return render_template('skeleton_mobile_box_list.html', boxes=boxes, weights=weights,
                            close_form=close_form, user=current_user)
 
 
