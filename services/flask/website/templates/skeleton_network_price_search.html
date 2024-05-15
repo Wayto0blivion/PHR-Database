@@ -25,7 +25,39 @@
                 </form>
             </div>
         </div>
+        {% if pagination %}
+            <table class="table table-light">
+                <thead>
+                <tr>
+                    {% for column in columns %}
+                        <td>{{ column }}</td>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in pagination.items %}
+                    <tr>
+                        {% for column in columns %}
+                            <td>{{ row[column] }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        {% if pagination %}
+            <div class="row" style="background: rgb(255,255,255);">
+                <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255); margin-top: 10px;">
+                    {{ macros.pagination_widget(pagination, 'views.network_price_search') }}
+                </div>
+            </div>
+            <div class="row" style="background: rgb(255,255,255);">
+                <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255);">
+                    <span style="margin-bottom: 10px;">Showing page {{ pagination.page }} of {{ pagination.pages }}</span>
+                </div>
+            </div>
+        {% endif %}
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 {% endblock %}
