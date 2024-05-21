@@ -90,7 +90,8 @@ def hdd_search():
             '''
             return hf.download_search(query, 'hddEngine')
 
-        return render_template('hdd_search.html', form=form, pagination=results, count=count, quality_count=quality_count, user=current_user)
+        return render_template('hdd_search.html', form=form, pagination=results, count=count,
+                               quality_count=quality_count, user=current_user)
 
     return render_template('hdd_search.html', form=form, user=current_user)
 
