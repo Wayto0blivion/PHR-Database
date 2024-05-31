@@ -86,7 +86,6 @@ def hdd_search():
                            search=search, start_date=start_date, end_date=end_date)
 
 
-
 @searchviews.route('/pandas_search', methods=['GET', 'POST'])
 @login_required
 @hf.user_permissions('Processing')
