@@ -35,65 +35,56 @@ def hdd_search():
         session.clear()
         return redirect(url_for(request.endpoint))
 
+    results = None
+    count = None
+    quality_count = None
+
     if form.validate_on_submit():
+        session['select'] = form.select.data
+        session['search'] = form.search.data
+        session['start_date'] = str(form.startdate.data) if form.startdate.data else None
+        session['end_date'] = str(form.enddate.data) if form.enddate.data else None
 
-        # session['start_date'] = str(form.startdate.data)
-        # session['end_date'] = str(form.enddate.data)
+    select = session.get('select')
+    search = session.get('search')
+    start_date = session.get('start_date')
+    end_date = session.get('end_date')
 
-        select = form.select.data
-        search = form.search.data
-        start_date = form.startdate.data
-        end_date = form.enddate.data
+    query = DISKS.query
+    filters = []
 
-        query = DISKS.query
-        filters = []
-        if form.select.data and form.search.data:
-            if select == 'OrderNo':
-                filters.append(DISKS.OrderNo.contains(search))
-            if select == 'DiskSerial':
-                filters.append(DISKS.DiskSerial.contains(search))
-            if select == 'Host':
-                filters.append(DISKS.Host.contains(search))
+    if start_date and end_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        start_date = datetime.combine(start_date, datetime.min.time())
+        end_date = datetime.combine(end_date, datetime.max.time())
+        filters.append(DISKS.Finished.between(start_date, end_date))
 
-        if start_date and end_date:
-            start_date = datetime.combine(start_date, datetime.min.time())
-            end_date = datetime.combine(end_date, datetime.max.time())
-            filters.append(DISKS.Finished.between(start_date, end_date))
+    if select and search:
+        if select == 'OrderNo':
+            filters.append(DISKS.OrderNo.contains(search))
+        if select == 'DiskSerial':
+            filters.append(DISKS.DiskSerial.contains(search))
+        if select == 'Host':
+            filters.append(DISKS.Host.contains(search))
 
-        if filters:
-            query = query.filter(*filters)
+    if filters:
+        query = query.filter(*filters)
 
-        results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
-        count = query.count()
-        quality_count = query.filter(DISKS.Success == '1', DISKS.Passes == '1', DISKS.Progress == '100').count()
+    results = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
+    count = query.count()
+    quality_count = query.filter(DISKS.Success == '1', DISKS.Passes == '1', DISKS.Progress == '100').count()
 
+    if form.downl.data and results:
+        return hf.download_search(query, 'hddEngine')
 
-    # if session.get('start_date'):
-    #     result_query = DISKS.query.filter(DISKS.BatchStarted.between(session['start_date'], session['end_date']))\
-    #         .order_by(DISKS.BatchStarted)
-    #     cur_result = result_query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
-    #     count = result_query.count()
+    if not form.validate_on_submit() and not (select or start_date or end_date):
+        return render_template('hdd_search.html', form=form, user=current_user)
 
-        # quality_count = result_query.filter(DISKS.Success == '1', DISKS.Passes == '1', DISKS.Progress == '100').count()
+    return render_template('hdd_search.html', form=form, pagination=results, count=count,
+                           quality_count=quality_count, user=current_user, select=select,
+                           search=search, start_date=start_date, end_date=end_date)
 
-        if form.downl.data:
-            '''
-            For some reason, the "OS" column was used as the first column.
-            Skipped first column(OS) with [1:]. Doesn't display in download.
-            
-            FUTURE EDIT: The download function works by matching variable names to the 
-            names of the SQL columns. Therefore, model variable names must match its corresponding
-            column in the SQL table. The "OS" column must be skipped bc it is impossible to match that
-            column name in python (OS is a reserved variable). Luckily, it moved the problem column
-            to the front, so it can easily be skipped.
-            
-            '''
-            return hf.download_search(query, 'hddEngine')
-
-        return render_template('hdd_search.html', form=form, pagination=results, count=count,
-                               quality_count=quality_count, user=current_user)
-
-    return render_template('hdd_search.html', form=form, user=current_user)
 
 
 @searchviews.route('/pandas_search', methods=['GET', 'POST'])
