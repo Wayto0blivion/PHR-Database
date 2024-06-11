@@ -653,57 +653,78 @@ def network_price_search():
     # Get the page number from pagination widget
     page = request.args.get('page', 1, type=int)
 
-    if form.validate_on_submit():  # Handle a submitted form
+    if form.clear.data:
+        session.clear()
+        return redirect(url_for(request.endpoint))
 
-        if form.clear.data:
-            return redirect(url_for(request.endpoint))
+    results = None
 
-        query = Network_Price_Data.query  # Create a query object.
-        filters = []  # Create an empty filter list
-        if form.mfg.data:  # Use MFG Search
-            like_string = "%{}%".format(form.mfg.data)  # Create a search string
-            filters.append(Network_Price_Data.mfg.like(like_string))
-        if form.model.data:  # Use Model Search
-            like_string = "%{}%".format(form.model.data)  # Create a search string
-            filters.append(Network_Price_Data.model.like(like_string))
-        if form.addons.data:  # Use Add-On Search
-            like_string = "%{}%".format(form.addons.data)  # Create a search string
-            filters.append(Network_Price_Data.addons.like(like_string))
-        if form.min_price.data and form.max_price.data:  # Handle both min and max prices entered
-            filters.append(Network_Price_Data.price.between(form.min_price.data, form.max_price.data))
-        elif form.min_price.data:  # Handle just a minimum price
-            filters.append(Network_Price_Data.price >= form.min_price.data)
-        elif form.max_price.data:  # Handle just a maximum price
-            filters.append(Network_Price_Data.price <= form.max_price.data)
-        if form.test_codes.data:  # Handle a test code string
-            like_string = "%{}%".format(form.test_codes.data)  # Create a search string
-            filters.append(Network_Price_Data.test_codes.like(like_string))
-        if form.start_date.data and form.end_date.data:  # Handle both start and end dates
-            # Add a time to the dates so that it starts at the beginning of the day? May not be necessary
-            start_date = datetime.combine(form.start_date.data, datetime.min.time())
-            end_date = datetime.combine(form.end_date.data, datetime.max.time())
-            filters.append(Network_Price_Data.date.between(start_date, end_date))
-        elif form.start_date.data:  # Handle just a start date
-            start_date = datetime.combine(form.start_date.data, datetime.min.time())
-            filters.append(Network_Price_Data.date >= start_date)
-        elif form.end_date.data:  # Handle just an end date
-            end_date = datetime.combine(form.end_date.data, datetime.max.time())
-            filters.append(Network_Price_Data.date <= end_date)
-        if form.winning_bid.data:  # Check if the user only wants winning bids
-            filters.append(Network_Price_Data.winning_bid == form.winning_bid.data)
+    if form.validate_on_submit():
+        session['manufacturer'] = form.mfg.data
+        session['model'] = form.model.data
+        session['addons'] = form.addons.data
+        session['min_price'] = form.min_price.data
+        session['max_price'] = form.max_price.data
+        session['test_codes'] = form.test_codes.data
+        session['start_date'] = form.start_date.data
+        session['end_date'] = form.end_date.data
+        session['winning_bid'] = form.winning_bid.data
 
-        if filters:  # Handle all filters that have been submitted by user
-            query = query.filter(and_(*filters))
+    manufacturer = session.get('manufacturer')
+    model = session.get('model')
+    addons = session.get('addons')
+    min_price = session.get('min_price')
+    max_price = session.get('max_price')
+    test_codes = session.get('test_codes')
+    start_date = session.get('start_date')
+    end_date = session.get('end_date')
+    winning_bid = session.get('winning_bid')
 
-        # Paginate the search results,   so it doesn't overload the database
-        results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
+    query = Network_Price_Data.query
+    filters = []
 
-        # Handle the return if the form has been submitted
-        return render_template('skeleton_network_price_search.html', form=form,
-                               columns=get_column_names(Network_Price_Data), pagination=results, user=current_user)
+    if form.mfg.data:  # Use MFG Search
+        like_string = "%{}%".format(form.mfg.data)  # Create a search string
+        filters.append(Network_Price_Data.mfg.like(like_string))
+    if form.model.data:  # Use Model Search
+        like_string = "%{}%".format(form.model.data)  # Create a search string
+        filters.append(Network_Price_Data.model.like(like_string))
+    if form.addons.data:  # Use Add-On Search
+        like_string = "%{}%".format(form.addons.data)  # Create a search string
+        filters.append(Network_Price_Data.addons.like(like_string))
+    if form.min_price.data and form.max_price.data:  # Handle both min and max prices entered
+        filters.append(Network_Price_Data.price.between(form.min_price.data, form.max_price.data))
+    elif form.min_price.data:  # Handle just a minimum price
+        filters.append(Network_Price_Data.price >= form.min_price.data)
+    elif form.max_price.data:  # Handle just a maximum price
+        filters.append(Network_Price_Data.price <= form.max_price.data)
+    if form.test_codes.data:  # Handle a test code string
+        like_string = "%{}%".format(form.test_codes.data)  # Create a search string
+        filters.append(Network_Price_Data.test_codes.like(like_string))
+    if form.start_date.data and form.end_date.data:  # Handle both start and end dates
+        # Add a time to the dates so that it starts at the beginning of the day? May not be necessary
+        start_date = datetime.combine(form.start_date.data, datetime.min.time())
+        end_date = datetime.combine(form.end_date.data, datetime.max.time())
+        filters.append(Network_Price_Data.date.between(start_date, end_date))
+    elif form.start_date.data:  # Handle just a start date
+        start_date = datetime.combine(form.start_date.data, datetime.min.time())
+        filters.append(Network_Price_Data.date >= start_date)
+    elif form.end_date.data:  # Handle just an end date
+        end_date = datetime.combine(form.end_date.data, datetime.max.time())
+        filters.append(Network_Price_Data.date <= end_date)
+    if form.winning_bid.data:  # Check if the user only wants winning bids
+        filters.append(Network_Price_Data.winning_bid == form.winning_bid.data)
 
-    # Handle the return for a new instance.
-    return render_template('skeleton_network_price_search.html', form=form, user=current_user)
+    if filters:
+        query = query.filter(and_(*filters))
+
+    results = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
+
+    if not form.validate_on_submit() and not (manufacturer or model or addons or min_price or max_price or test_codes or start_date or end_date or winning_bid):
+        return render_template('skeleton_network_price_search.html', form=form, user=current_user)
+
+    return render_template('skeleton_network_price_search.html', form=form, pagination=results, user=current_user,
+                           columns=get_column_names(Network_Price_Data))
 
 
 # === End of Views ===
