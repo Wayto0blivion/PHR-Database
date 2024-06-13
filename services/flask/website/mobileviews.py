@@ -3,7 +3,8 @@ from .forms import MobileDeviceForm, MobileClosingForm, MobileNewWeightForm, Imp
 from .models import Mobile_Weights, Mobile_Pallets, Mobile_Boxes, Mobile_Box_Devices
 from datetime import datetime
 from decimal import Decimal
-from flask import Flask, Blueprint, render_template, render_template_string, request, session, redirect, url_for, flash, jsonify
+from flask import (Flask, Blueprint, render_template, render_template_string, request, session, redirect, url_for,
+                   flash, jsonify, send_file, make_response)
 from flask_login import login_required, current_user
 import website.helper_functions as hf
 import numpy as np
@@ -215,6 +216,73 @@ def mobile_import():
             print(f'Error! : {str(e)}')
 
     return render_template('skeleton_import_weights.html', form=form, user=current_user)
+
+
+@mobileviews.route('/export/<pallet_id>', methods=['GET', 'POST'])
+def mobile_pallet_export(pallet_id=None):
+    """
+    Exports a list of models and weights into an Excel spreadsheet.
+    palletID : The pallet ID to export
+    """
+    # If no pallet ID was provided, return a jsonify message with an error.
+    if pallet_id is None:
+        return jsonify({'error': 'No pallet ID'})
+
+    # Get a list of boxes in the pallet_id parameter.
+    boxes = Mobile_Boxes.query.filter_by(palletID=pallet_id).order_by(Mobile_Boxes.box_number).all()
+
+    df = pd.DataFrame(columns=['Box', 'Item', 'Battery Weight', 'Quantity', 'Total Battery Weight'])
+
+    # Get all devices in each box.
+    for box in boxes:
+        devices = (db.session.query(Mobile_Box_Devices, Mobile_Weights.model, Mobile_Weights.weight)
+                   .join(Mobile_Weights, Mobile_Weights.autoID == Mobile_Box_Devices.modelID)
+                   .filter(Mobile_Box_Devices.boxID == box.autoID)
+                   .all())
+
+        for device, model, weight in devices:
+            device_data = {
+                "Box": box.box_number,
+                "Item": model,
+                "Battery Weight": weight,
+                "Quantity": device.qty,
+                "Total Battery Weight": weight * device.qty
+            }
+            df = df.append(device_data, ignore_index=True)
+
+    resp = make_response(df.to_csv(index=False))
+    resp.headers['Content-Type'] = 'text/csv'
+    resp.headers['Content-Disposition'] = 'attachment; filename=Mobile_Export.csv'
+    return resp
+
+
+    # file_path = 'Mobile_Export.csv'
+    # df.to_csv(file_path, index=False)
+
+    # return send_file(file_path, as_attachment=True, download_name="Mobile_Export.csv", mimetype='text/csv')
+
+    # df.to_excel('Mobile_Export.xlsx', index=False)
+
+    # return jsonify({"message": "Export successful"})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
