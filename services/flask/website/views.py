@@ -24,10 +24,11 @@ from werkzeug.utils import secure_filename
 import flask_qrcode
 from io import BytesIO
 
-
 views = Blueprint('views', __name__)
 
 ROWS_PER_PAGE = 50
+
+
 # --------------------------------------------------------------------------------------
 
 
@@ -60,6 +61,8 @@ def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
     return len(defaults) >= len(arguments)
+
+
 # ----------------------------------------------------------------------------------------
 
 
@@ -94,7 +97,7 @@ def delete_note():
         if note.user_id == current_user.id:
             db.session.delete(note)
             db.session.commit()
-    
+
     return jsonify({})
 
 
@@ -104,7 +107,6 @@ def delete_note():
 @login_required
 @hf.user_permissions('Processing')
 def safeimport():
-
     form = ImportForm()
 
     frame = None
@@ -165,6 +167,8 @@ def safeimport():
                 table = df.replace(np.nan, 'N/A').to_html(classes='table table-light')
 
     return render_template('import_pandas.html', form=form, shape=shape, table=table, user=current_user)
+
+
 # -----------------------------------------------------------------------------------------------
 
 
@@ -213,6 +217,7 @@ def validation_addition():
 
     return render_template('validate_new.html', form=form, user=current_user)
 
+
 # ------------------------------------------------------------------------------------------------------
 
 
@@ -256,6 +261,7 @@ def validation_import():
 
     return render_template('import_pandas.html', form=form, shape=shape, table=table, user=current_user)
 
+
 # -----------------------------------------------------------------------------------------------------
 
 
@@ -263,7 +269,6 @@ def validation_import():
 @login_required
 @hf.user_permissions('Admin')
 def servers():
-
     hosts = []
     most_recent_results = []
 
@@ -311,6 +316,7 @@ def server_details(host):
         # Handle the case where the recent batch information is not found for the specified server
         # For example, you can display an error message or redirect the user back to the servers page
         return render_template('servers.html', error_message='Recent batch information not found.', user=current_user)
+
 
 # @views.route('/servers/<finished>', methods=['GET'])
 # @login_required
@@ -377,6 +383,42 @@ def generate_qr_code(customer_name):
     return qrcode(customer_name, mode="raw")
 
 
+def aiken_query(form):
+    AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
+    session = AikenSession()
+
+    filters = []
+
+    if form.start_date.data and form.end_date.data:
+        start_date = datetime.combine(form.start_date.data, datetime.min.time())
+        end_date = datetime.combine(form.end_date.data, datetime.max.time())
+        filters.append(Units.Audited.between(start_date, end_date))
+    elif form.start_date.data:
+        start_date = datetime.combine(form.start_date.data, datetime.min.time())
+        filters.append(Units.Audited >= start_date)
+    elif form.end_date.data:
+        end_date = datetime.combine(form.end_date.data, datetime.max.time())
+        filters.append(Units.Audited <= end_date)
+    if form.active_lots.data:
+        filters.append(Lots.Status == 0)
+
+    query = (
+        session.query(
+            Units.User,
+            func.date(Units.Audited).label('AuditedDate'),
+            func.count(Units.UnitID).label('UnitsCount')
+        )
+        .join(Lots, Units.LotID == Lots.LotID)
+        .filter(and_(*filters))
+        .group_by(Units.User, func.date(Units.Audited))
+        .order_by(func.date(Units.Audited).desc(), Units.User)
+    )
+
+    session.close()
+
+    return query
+
+
 @views.route('/aiken-production', methods=['GET', 'POST'])
 @login_required
 def aiken_daily_production():
@@ -412,9 +454,36 @@ def aiken_daily_production():
                 df.to_excel(writer, sheet_name='Aiken Production', index=False)
 
             output.seek(0)
-            return send_file(output, download_name=f"Aiken Production { datetime.today().strftime('%Y-%m-%d') }.xlsx", as_attachment=True)
+            return send_file(output, download_name=f"Aiken Production { datetime.today().strftime('%Y-%m-%d') }.xlsx",
+                             as_attachment=True)
 
     return render_template('aiken_daily_production.html', form=form, user=current_user)
+
+
+def aiken_bol_query(form):
+    AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
+    session = AikenSession()
+
+    search_string = form.search.data.strip()
+    # print(search_string)
+
+    # Set the @search_string variable needed by the p2() function in MySQL
+    session.execute(text('SET @search_string = :search'), {'search': search_string})
+    session.commit()
+
+    # Test to make sure the @search_string mysql variable is being set.
+    # test_result = session.execute(text('SELECT @search_string')).fetchone()
+    # print(f"@search_string is set to: {test_result[0]}")
+
+    # Test that the p2() mysql function is functional and returning the @search_string variable.
+    # p2_result = session.execute(text('SELECT p2()')).fetchone()
+    # print(f'p2() returned: {p2_result[0]}')
+
+    results = session.query(UnitsDevicesSearch).all()
+
+    session.close()
+
+    return results
 
 
 @views.route('/aiken-unit-search', methods=['GET', 'POST'])
@@ -653,57 +722,78 @@ def network_price_search():
     # Get the page number from pagination widget
     page = request.args.get('page', 1, type=int)
 
-    if form.validate_on_submit():  # Handle a submitted form
+    if form.clear.data:
+        session.clear()
+        return redirect(url_for(request.endpoint))
 
-        if form.clear.data:
-            return redirect(url_for(request.endpoint))
+    results = None
 
-        query = Network_Price_Data.query  # Create a query object.
-        filters = []  # Create an empty filter list
-        if form.mfg.data:  # Use MFG Search
-            like_string = "%{}%".format(form.mfg.data)  # Create a search string
-            filters.append(Network_Price_Data.mfg.like(like_string))
-        if form.model.data:  # Use Model Search
-            like_string = "%{}%".format(form.model.data)  # Create a search string
-            filters.append(Network_Price_Data.model.like(like_string))
-        if form.addons.data:  # Use Add-On Search
-            like_string = "%{}%".format(form.addons.data)  # Create a search string
-            filters.append(Network_Price_Data.addons.like(like_string))
-        if form.min_price.data and form.max_price.data:  # Handle both min and max prices entered
-            filters.append(Network_Price_Data.price.between(form.min_price.data, form.max_price.data))
-        elif form.min_price.data:  # Handle just a minimum price
-            filters.append(Network_Price_Data.price >= form.min_price.data)
-        elif form.max_price.data:  # Handle just a maximum price
-            filters.append(Network_Price_Data.price <= form.max_price.data)
-        if form.test_codes.data:  # Handle a test code string
-            like_string = "%{}%".format(form.test_codes.data)  # Create a search string
-            filters.append(Network_Price_Data.test_codes.like(like_string))
-        if form.start_date.data and form.end_date.data:  # Handle both start and end dates
-            # Add a time to the dates so that it starts at the beginning of the day? May not be necessary
-            start_date = datetime.combine(form.start_date.data, datetime.min.time())
-            end_date = datetime.combine(form.end_date.data, datetime.max.time())
-            filters.append(Network_Price_Data.date.between(start_date, end_date))
-        elif form.start_date.data:  # Handle just a start date
-            start_date = datetime.combine(form.start_date.data, datetime.min.time())
-            filters.append(Network_Price_Data.date >= start_date)
-        elif form.end_date.data:  # Handle just an end date
-            end_date = datetime.combine(form.end_date.data, datetime.max.time())
-            filters.append(Network_Price_Data.date <= end_date)
-        if form.winning_bid.data:  # Check if the user only wants winning bids
-            filters.append(Network_Price_Data.winning_bid == form.winning_bid.data)
+    if form.validate_on_submit():
+        session['manufacturer'] = form.mfg.data
+        session['model'] = form.model.data
+        session['addons'] = form.addons.data
+        session['min_price'] = form.min_price.data
+        session['max_price'] = form.max_price.data
+        session['test_codes'] = form.test_codes.data
+        session['start_date'] = form.start_date.data
+        session['end_date'] = form.end_date.data
+        session['winning_bid'] = form.winning_bid.data
 
-        if filters:  # Handle all filters that have been submitted by user
-            query = query.filter(and_(*filters))
+    manufacturer = session.get('manufacturer')
+    model = session.get('model')
+    addons = session.get('addons')
+    min_price = session.get('min_price')
+    max_price = session.get('max_price')
+    test_codes = session.get('test_codes')
+    start_date = session.get('start_date')
+    end_date = session.get('end_date')
+    winning_bid = session.get('winning_bid')
 
-        # Paginate the search results,   so it doesn't overload the database
-        results = query.paginate(per_page=ROWS_PER_PAGE, error_out=False)
+    query = Network_Price_Data.query
+    filters = []
 
-        # Handle the return if the form has been submitted
-        return render_template('skeleton_network_price_search.html', form=form,
-                               columns=get_column_names(Network_Price_Data), pagination=results, user=current_user)
+    if form.mfg.data:  # Use MFG Search
+        like_string = "%{}%".format(form.mfg.data)  # Create a search string
+        filters.append(Network_Price_Data.mfg.like(like_string))
+    if form.model.data:  # Use Model Search
+        like_string = "%{}%".format(form.model.data)  # Create a search string
+        filters.append(Network_Price_Data.model.like(like_string))
+    if form.addons.data:  # Use Add-On Search
+        like_string = "%{}%".format(form.addons.data)  # Create a search string
+        filters.append(Network_Price_Data.addons.like(like_string))
+    if form.min_price.data and form.max_price.data:  # Handle both min and max prices entered
+        filters.append(Network_Price_Data.price.between(form.min_price.data, form.max_price.data))
+    elif form.min_price.data:  # Handle just a minimum price
+        filters.append(Network_Price_Data.price >= form.min_price.data)
+    elif form.max_price.data:  # Handle just a maximum price
+        filters.append(Network_Price_Data.price <= form.max_price.data)
+    if form.test_codes.data:  # Handle a test code string
+        like_string = "%{}%".format(form.test_codes.data)  # Create a search string
+        filters.append(Network_Price_Data.test_codes.like(like_string))
+    if form.start_date.data and form.end_date.data:  # Handle both start and end dates
+        # Add a time to the dates so that it starts at the beginning of the day? May not be necessary
+        start_date = datetime.combine(form.start_date.data, datetime.min.time())
+        end_date = datetime.combine(form.end_date.data, datetime.max.time())
+        filters.append(Network_Price_Data.date.between(start_date, end_date))
+    elif form.start_date.data:  # Handle just a start date
+        start_date = datetime.combine(form.start_date.data, datetime.min.time())
+        filters.append(Network_Price_Data.date >= start_date)
+    elif form.end_date.data:  # Handle just an end date
+        end_date = datetime.combine(form.end_date.data, datetime.max.time())
+        filters.append(Network_Price_Data.date <= end_date)
+    if form.winning_bid.data:  # Check if the user only wants winning bids
+        filters.append(Network_Price_Data.winning_bid == form.winning_bid.data)
 
-    # Handle the return for a new instance.
-    return render_template('skeleton_network_price_search.html', form=form, user=current_user)
+    if filters:
+        query = query.filter(and_(*filters))
+
+    results = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
+
+    if not form.validate_on_submit() and not (manufacturer or model or addons or min_price or max_price or test_codes or start_date or end_date or winning_bid):
+        return render_template('skeleton_network_price_search.html', form=form, user=current_user)
+
+    return render_template('skeleton_network_price_search.html', form=form, pagination=results, user=current_user,
+                           columns=get_column_names(Network_Price_Data))
 
 
 # === End of Views ===
@@ -734,70 +824,6 @@ def production_graph(query):
     img_stream.seek(0)
 
     return img_stream
-
-
-def aiken_query(form):
-
-    AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
-    session = AikenSession()
-
-    filters = []
-
-    if form.start_date.data and form.end_date.data:
-        start_date = datetime.combine(form.start_date.data, datetime.min.time())
-        end_date = datetime.combine(form.end_date.data, datetime.max.time())
-        filters.append(Units.Audited.between(start_date, end_date))
-    elif form.start_date.data:
-        start_date = datetime.combine(form.start_date.data, datetime.min.time())
-        filters.append(Units.Audited >= start_date)
-    elif form.end_date.data:
-        end_date = datetime.combine(form.end_date.data, datetime.max.time())
-        filters.append(Units.Audited <= end_date)
-    if form.active_lots.data:
-        filters.append(Lots.Status == 0)
-
-    # noinspection PyTypeChecker
-    query = (
-        session.query(
-            Units.User,
-            func.date(Units.Audited).label('AuditedDate'),
-            func.count(Units.UnitID).label('UnitsCount')
-        )
-        .join(Lots, Units.LotID == Lots.LotID)
-        .filter(and_(*filters))
-        .group_by(Units.User, func.date(Units.Audited))
-        .order_by(func.date(Units.Audited).desc(), Units.User)
-    )
-
-    session.close()
-
-    return query
-
-
-def aiken_bol_query(form):
-    AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
-    session = AikenSession()
-
-    search_string = form.search.data.strip()
-    # print(search_string)
-
-    # Set the @search_string variable needed by the p2() function in MySQL
-    session.execute(text('SET @search_string = :search'), {'search': search_string})
-    session.commit()
-
-    # Test to make sure the @search_string mysql variable is being set.
-    # test_result = session.execute(text('SELECT @search_string')).fetchone()
-    # print(f"@search_string is set to: {test_result[0]}")
-
-    # Test that the p2() mysql function is functional and returning the @search_string variable.
-    # p2_result = session.execute(text('SELECT p2()')).fetchone()
-    # print(f'p2() returned: {p2_result[0]}')
-
-    results = session.query(UnitsDevicesSearch).all()
-
-    session.close()
-
-    return results
 
 
 def download_results(results):
@@ -872,3 +898,6 @@ def get_column_names(model):
     # return [column.key for column in model.__table__.columns]
     return [column.key for column in inspect(model).mapper.column_attrs]
 
+# === End of Views ===
+
+# === Functions ===
