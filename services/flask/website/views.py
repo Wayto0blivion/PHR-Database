@@ -1,6 +1,7 @@
 from flask import (Flask, Blueprint, render_template, flash, request, jsonify, session,
                    url_for, Response, send_file, redirect)
 from flask_login import login_required, current_user
+from flask_sqlalchemy import Pagination
 from sqlalchemy import exc, desc, func, and_, inspect
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
@@ -432,15 +433,19 @@ def aiken_daily_production():
 
     if form.validate_on_submit():
 
+        # Renders the form to select filters
         query = aiken_query(form)
 
+        # Graph Data for query
         if form.graph.data:
             img_stream = production_graph(query.all())
             return Response(img_stream.getvalue(), content_type='image/png')
 
-        if form.table.data:
+        # Table Data for query
+        if form.table.data and request.method == 'GET':
             return render_template('aiken_daily_production.html', query=query.all(), form=form, user=current_user)
 
+        # Download query results
         if form.download.data:
 
             results = query.all()
