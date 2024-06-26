@@ -404,7 +404,7 @@ def aiken_query(form):
         filters.append(Lots.Status == 0)
 
     query = (
-        session.query(
+        db.session.query(
             Units.User,
             func.date(Units.Audited).label('AuditedDate'),
             func.count(Units.UnitID).label('UnitsCount')
@@ -414,8 +414,6 @@ def aiken_query(form):
         .group_by(Units.User, func.date(Units.Audited))
         .order_by(func.date(Units.Audited).desc(), Units.User)
     )
-
-    session.close()
 
     return query
 
@@ -430,24 +428,22 @@ def aiken_daily_production():
     """
 
     form = AikenProductionForm()
+    page = request.args.get('page', 1, type=int)
 
     if form.validate_on_submit():
-
-        # Renders the form to select filters
         query = aiken_query(form)
 
-        # Graph Data for query
         if form.graph.data:
             img_stream = production_graph(query.all())
             return Response(img_stream.getvalue(), content_type='image/png')
 
-        # Table Data for query
-        if form.table.data and request.method == 'GET':
-            return render_template('aiken_daily_production.html', query=query.all(), form=form, user=current_user)
+        if form.table.data:
+            results = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
 
-        # Download query results
+            return render_template('aiken_daily_production.html', query=results.items, form=form, user=current_user,
+                                   pagination=results)
+
         if form.download.data:
-
             results = query.all()
 
             df = pandas.DataFrame(results, columns=['User', 'Audited Date', 'Units Count'])
