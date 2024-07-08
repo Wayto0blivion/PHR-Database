@@ -1,6 +1,7 @@
 from flask import (Flask, Blueprint, render_template, flash, request, jsonify, session,
                    url_for, Response, send_file, redirect)
 from flask_login import login_required, current_user
+from flask_sqlalchemy import Pagination
 from sqlalchemy import exc, desc, func, and_, inspect
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
@@ -403,7 +404,7 @@ def aiken_query(form):
         filters.append(Lots.Status == 0)
 
     query = (
-        session.query(
+        db.session.query(
             Units.User,
             func.date(Units.Audited).label('AuditedDate'),
             func.count(Units.UnitID).label('UnitsCount')
@@ -413,8 +414,6 @@ def aiken_query(form):
         .group_by(Units.User, func.date(Units.Audited))
         .order_by(func.date(Units.Audited).desc(), Units.User)
     )
-
-    session.close()
 
     return query
 
@@ -429,9 +428,9 @@ def aiken_daily_production():
     """
 
     form = AikenProductionForm()
+    page = request.args.get('page', 1, type=int)
 
     if form.validate_on_submit():
-
         query = aiken_query(form)
 
         if form.graph.data:
@@ -439,10 +438,12 @@ def aiken_daily_production():
             return Response(img_stream.getvalue(), content_type='image/png')
 
         if form.table.data:
-            return render_template('aiken_daily_production.html', query=query.all(), form=form, user=current_user)
+            results = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
+
+            return render_template('aiken_daily_production.html', query=results.items, form=form, user=current_user,
+                                   pagination=results)
 
         if form.download.data:
-
             results = query.all()
 
             df = pandas.DataFrame(results, columns=['User', 'Audited Date', 'Units Count'])

@@ -67,12 +67,12 @@
         {% if pagination %}
         <div class="row d-flex d-xl-flex d-xxl-flex justify-content-center align-items-center justify-content-xl-center align-items-xl-center" style="width: 100%;">
             <div class="col d-flex d-xl-flex d-xxl-flex justify-content-center align-items-center justify-content-xl-center align-items-xl-center" style="background: white;">
-                {{ macros.pagination_widget(pagination, 'views.aiken_daily_production') }}
+                {{ macros.pagination_widget(pagination, 'views.aiken_daily_production', start_date=start_date, end_date=end_date, active_lots=active_lots) }}
             </div>
         </div>
         <div class="row d-flex d-xl-flex d-xxl-flex justify-content-center align-items-center justify-content-xl-center align-items-xl-center" style="width: 100%;">
             <div class="col d-flex d-xl-flex d-xxl-flex justify-content-center align-items-center justify-content-xl-center align-items-xl-center" style="background: white;">
-                <span style="margin-bottom: 10px;">Showing page {{ pagination.page }} of {{ pagination.total_pages }}</span>
+                <span style="margin-bottom: 10px;">Showing page {{ pagination.page }} of {{ pagination.pages }}</span>
             </div>
         </div>
         {% endif %}
