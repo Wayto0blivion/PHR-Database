@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Edit Mobile Boxes{% endblock %}
+
+{% block content %}
+    <form method="POST">
+        {{ forms["search_form"].hidden_tag() }}
+        {{ forms["search_form"].box }}
+        {{ forms["search_form"].model }}
+        {{ forms["search_form"].submit }}
+    </form>
+
+    {% if data %}
+        <p>
+            Box: {{ data.box }}
+            <br>
+            Model: {{ data.model }}
+            <br>
+            Current Qty: {{ data.qty }}
+        </p>
+        <form method="POST">
+        {{ forms["quantity_form"].hidden_tag() }}
+            {{ forms["quantity_form"].quantity }}
+            {{ forms["quantity_form"].submit }}
+        </form>
+    {% endif %}
+
+{% endblock %}

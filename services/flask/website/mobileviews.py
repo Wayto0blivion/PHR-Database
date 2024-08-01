@@ -1,5 +1,6 @@
 from . import db, sqlEngine, app, qrcode
-from .forms import MobileDeviceForm, MobileClosingForm, MobileNewWeightForm, ImportForm
+from .forms import (MobileDeviceForm, MobileClosingForm, MobileNewWeightForm, MobileBoxSearchForm,
+                    MobileBoxModificationForm, ImportForm)
 from .models import Mobile_Weights, Mobile_Pallets, Mobile_Boxes, Mobile_Box_Devices
 from datetime import datetime
 from decimal import Decimal
@@ -266,7 +267,56 @@ def mobile_pallet_export(pallet_id=None):
     # return jsonify({"message": "Export successful"})
 
 
+@mobileviews.route('/modify-qty', methods=['GET', 'POST'])
+def modify_qty():
+    """
+    Allow modification of entries in the Mobile_Boxes table, handling Auto-ID's as necessary.
+    """
+    forms = {
+        'quantity_form': MobileBoxModificationForm(),
+        "search_form": MobileBoxSearchForm()
+    }
+    # Get a reference to the currently active pallet.
+    pallet = Mobile_Pallets.query.filter_by(is_active=True).first()
 
+    if forms["quantity_form"].validate_on_submit():
+        # Handle modifying quantities first if this form is active.
+        box = session.get('box_number')
+        model = session.get('model_number')
+
+        qty = forms["quantity_form"].quantity.data
+
+        entry = Mobile_Box_Devices.query.filter_by(boxID=box, modelID=model).first()
+
+        if qty == 0:
+            db.session.delete(entry)
+        elif qty:
+            entry.qty = qty
+
+        db.session.commit()
+
+        session.pop('box_number')
+        session.pop('model_number')
+
+    if forms["search_form"].validate_on_submit():
+        # Get references to the data submitted by user.
+        box_search = forms["search_form"].box.data
+        model_search = forms["search_form"].model.data
+
+        # Find the corresponding entries for both box and model. Get their autoIDs.
+        box_number = Mobile_Boxes.query.filter_by(palletID=pallet.autoID, box_number=box_search).first().autoID
+        model_number = Mobile_Weights.query.filter_by(model=model_search).first().autoID
+        session["box_number"] = box_number
+        session["model_number"] = model_number
+        data = {
+            "box": box_number,
+            "model": model_number,
+            "qty": Mobile_Box_Devices.query.filter_by(boxID=box_number, modelID=model_number).first().qty
+        }
+
+        return render_template("skeleton_mobile_edits.html", forms=forms, data=data, user=current_user)
+
+    return render_template("skeleton_mobile_edits.html", forms=forms, user=current_user)
 
 
 
