@@ -7,13 +7,15 @@
 {% block content %}
     <form method="POST">
         {{ forms["search_form"].hidden_tag() }}
+        {{ forms["search_form"].box.label }}
         {{ forms["search_form"].box }}
+        {{ forms["search_form"].model.label }}
         {{ forms["search_form"].model }}
         {{ forms["search_form"].submit }}
     </form>
 
     {% if data %}
-        <p>
+        <p style="background-color: whitesmoke">
             Box: {{ data.box }}
             <br>
             Model: {{ data.model }}
@@ -22,6 +24,7 @@
         </p>
         <form method="POST">
         {{ forms["quantity_form"].hidden_tag() }}
+            {{ forms["quantity_form"].quantity.label }}
             {{ forms["quantity_form"].quantity }}
             {{ forms["quantity_form"].submit }}
         </form>

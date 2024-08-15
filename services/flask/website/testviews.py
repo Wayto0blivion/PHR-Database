@@ -2114,7 +2114,10 @@ def validation_sampling():
     import_form = ImportForm()
 
     if import_form.validate_on_submit():
-        return sample_sheet(import_form.file.data)
+        try:
+            return sample_sheet(import_form.file.data)
+        except Exception as e:
+            print(f"Error: {e}")
     else:
         for field, errors in import_form.errors.items():
             for error in errors:
