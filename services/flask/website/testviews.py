@@ -2181,7 +2181,7 @@ def transform_row(row):
         "Retest": 1,
         "StatusVerification": 1,
         "DataSanitizationVerified": 1,
-        "Date": (row["Audited"] + timedelta(days=1)).date(),
+        "Date": (pandas.to_datetime(row["Audited"], errors='coerce') + timedelta(days=1)).date(),
         "Initials": "DKB",
         "NonconformityNotes": "",
         "Department": check_department(row["ProductType"])

@@ -1,7 +1,7 @@
 from . import db, sqlEngine, app, qrcode
 from .forms import (MobileDeviceForm, MobileClosingForm, MobileNewWeightForm, MobileBoxSearchForm,
                     MobileBoxModificationForm, ImportForm)
-from .models import Mobile_Weights, Mobile_Pallets, Mobile_Boxes, Mobile_Box_Devices
+from .models import Mobile_Weights, Mobile_Pallets, Mobile_Boxes, Mobile_Box_Devices, User
 from datetime import datetime
 from decimal import Decimal
 from flask import (Flask, Blueprint, render_template, render_template_string, request, session, redirect, url_for,
@@ -26,8 +26,15 @@ def mobile_home():
     Starts a new pallet and opens boxes for it if no active pallet.
     Redirects user to view_pallet_boxes with the active pallet id
     """
-    # Check for an active pallet.
-    pallet = Mobile_Pallets.query.filter_by(is_active=True).first()
+
+    # Check if the current user has admin permissions for this page, and if so,
+    # forward them to the "all_pallets" page.
+    # TODO: Update the permission once the new one (permission set) is created.
+    if current_user.admin_status:
+        return redirect(url_for('mobileviews.all_open_pallets'))
+
+    # Check for an active pallet for the current user.
+    pallet = Mobile_Pallets.query.filter_by(is_active=True, user=current_user.id).first()
 
     if not pallet:  # Create a new pallet if an active one wasn't detected
         print('Creating new pallet.')
@@ -46,6 +53,24 @@ def mobile_home():
         pallet = new_pallet
 
     return redirect(url_for('mobileviews.mobile_pallet', pallet_id=pallet.autoID, user=current_user))
+
+
+@mobileviews.route("/all_pallets", methods=["GET", "POST"])
+@login_required
+def all_open_pallets():
+    """
+    Designed to show all open pallets and the user assigned to them.
+    Lets the user select which pallet they want to view.
+    """
+    # Get a dictionary of all open pallets with their respective users to display to admins
+    open_pallets = Mobile_Pallets.query.filter_by(is_active=True).all()
+    pallet_list = {}
+    # Return a list of pallet ids from the open pallets.
+    for open_pallet in open_pallets:
+        user = User.query.filter_by(id=open_pallet.user).first().first_name
+        pallet_list[user] = open_pallet.autoID
+
+    return render_template('skeleton_mobile_all_pallets.html', pallet_list=pallet_list, user=current_user)
 
 
 @mobileviews.route('/pallet/<int:pallet_id>', methods=['GET', 'POST'])
