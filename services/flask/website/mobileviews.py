@@ -113,7 +113,7 @@ def mobile_pallet(pallet_id):
         current_pallet.is_active = False
         db.session.commit()
         # Reload the page so the user starts a new pallet.
-        return redirect(url_for('mobileviews.mobile_home', user=current_user))
+        return mobile_pallet_export(pallet_id=pallet_id)
 
     return render_template('skeleton_mobile_box_list.html', boxes=boxes, weights=weights,
                            close_form=close_form, user=current_user)
