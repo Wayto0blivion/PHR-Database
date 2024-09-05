@@ -14,7 +14,7 @@ import pandas as pandas
 from .forms import ProductionSearchForm, SheetDeleteForm, TemplateDownloadForm, DateForm, ValidationEntryForm,\
     EquipmentChecklistForm, ImportForm, AvatarForm, CustomerSearchForm, CustomerEntryForm
 import os
-from datetime import date
+from datetime import date, timedelta
 import plotly
 import plotly.express as px
 import qrcode
@@ -22,6 +22,7 @@ import website.helper_functions as hf
 import numpy as np
 from datetime import datetime
 # from werkzeug.utils import secure_filename
+from io import BytesIO
 
 testviews = Blueprint('testviews', __name__)
 
@@ -2104,30 +2105,100 @@ def qr_search():
     return render_template("qr_search.html", form=form, results=results, user=current_user)
 
 
+@testviews.route('/validation-sampling', methods=["GET", "POST"])
+def validation_sampling():
+    """
+    Accept an Excel file from the user, and sample a certain amount of data from it.
+    """
+    # Get a reference to the Excel import form.
+    import_form = ImportForm()
+
+    if import_form.validate_on_submit():
+        try:
+            return sample_sheet(import_form.file.data)
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        for field, errors in import_form.errors.items():
+            for error in errors:
+                print(f"Error in the {getattr(import_form, field).label.text} field - {error}")
+
+    return render_template('skeleton_import_sheet.html', form=import_form, user=current_user)
 
 
+def sample_sheet(excel_file, columns=None, percentage=0.014):
+    """
+    Extract a randomly distributed sample from an excel file.
+    """
+    if columns is None:
+        columns = []
+
+    new_columns = ["ProductType", "SerialNumber", "VisualInspection", "Retest", "StatusVerification",
+                   "DataSanitizationVerified", "Date", "Initials", "NonconformityNotes", "Department"]
+
+    try:
+        file_df = pandas.read_excel(excel_file)
+
+        print(file_df.head())
+
+        # Sample the submitted data for a random percentage.
+        sampled_df = file_df.sample(frac=percentage)
+
+        new_df = pandas.DataFrame(columns=new_columns)
+
+        for index, row in sampled_df.iterrows():
+            new_row = transform_row(row)
+            # if new_row is None:
+            #     continue
+            new_df = new_df.append(new_row, ignore_index=True)
+
+        print("New DataFrame")
+        print(new_df.head())
+
+        output = BytesIO()
+
+        with pandas.ExcelWriter(output, engine="openpyxl") as writer:
+            new_df.to_excel(writer,"Validation", index=False)
+
+        output.seek(0)
+        return send_file(output, download_name=f"convert_{datetime.now()}.xlsx",  as_attachment=True)
+
+    except Exception as e:
+        print("Error:", e)
+
+    print("Checking...")
 
 
+def transform_row(row):
+    # if not row["Manufacturer"] or not row["Model"] or not row["SerialNumber"]:
+    #     print("Couldn't find it?")
+    #     return None
+
+    new_data = {
+        "ProductType": str(row["Manufacturer"]) + " " + str(row["Model"]),
+        "SerialNumber": row["SerialNumber"],
+        "VisualInspection": 1,
+        "Retest": 1,
+        "StatusVerification": 1,
+        "DataSanitizationVerified": 1,
+        "Date": (pandas.to_datetime(row["Audited"], errors='coerce') + timedelta(days=1)).date(),
+        "Initials": "DKB",
+        "NonconformityNotes": "",
+        "Department": check_department(row["ProductType"])
+    }
+
+    return new_data
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def check_department(product_type):
+    if product_type == "LAPTOP" or product_type == "WORKSTATION":
+        return "PC Tech (Laptops)"
+    elif product_type == "SERVER":
+        return "PC Tech (Servers)"
+    elif product_type == "DESKTOP" or product_type == "ALL IN ONE" or product_type == "TABLET PC":
+        return "PC Tech (Desktops)"
+    else:
+        return "UNKNOWN"
 
 
 

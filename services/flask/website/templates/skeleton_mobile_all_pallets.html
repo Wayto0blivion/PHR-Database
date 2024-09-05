@@ -18,18 +18,17 @@
     </style>
 {% endblock %}
 
-{% block title %}Mobile Box List{% endblock %}
+{% block title %}All Open Pallets{% endblock %}
 
 {% block content %}
     <div class="container">
-        <h1>Pallet Boxes</h1>
+        <h1 style="background-color: whitesmoke">Open Pallets</h1>
         <div class="row">
-            {% for box in boxes %}
+            {% for name, pallet in pallet_list.items() %}
                 <div class="col-2">
-                    <button class="btn box-button {{ 'inactive' if not box.is_active else 'btn-primary' }}"
-                            onclick="location.href='{{ url_for('mobileviews.mobile_box', box_id=box.autoID) }}'">
-                        Box {{ box.box_number }} <br />
-                        Weight: {{ weights[box.box_number] }}
+                    <button class="btn box-button btn-primary"
+                            onclick="location.href='{{ url_for('mobileviews.mobile_pallet', pallet_id=pallet) }}'">
+                        {{ name }} <br />
                     </button>
                 </div>
                 {% if loop.index % 6 == 0 and not loop.last %}
@@ -40,13 +39,5 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {% if user.admin_status %}
-    <div id="closePalletDiv" style="text-align: center; margin: 15px">
-        <form method="POST">
-            {{ close_form.hidden_tag() }}
-            {{ close_form.close_pallet_button (style="background-color: red") }}
-        </form>
-    </div>
-    {% endif %}
 
 {% endblock %}

@@ -305,6 +305,20 @@ class MobileNewWeightForm(FlaskForm):
     submit = SubmitField('Add New Weight')
 
 
+class MobileBoxSearchForm(FlaskForm):
+    """
+    Form designed to handle fields to modify the data that has been submitted by techs.
+    """
+    box = IntegerField('Box #', validators=[DataRequired()])
+    model = StringField('Model', validators=[DataRequired()])
+    submit = SubmitField("Search for Entries")
+
+
+class MobileBoxModificationForm(FlaskForm):
+    quantity = IntegerField('Quantity', validators=[DataRequired()])
+    submit = SubmitField("Modify Box")
+
+
 # class MobileWeightDeviceForm(FlaskForm):
 #     model = StringField('Model')
 #     quantity = IntegerField('Quantity')

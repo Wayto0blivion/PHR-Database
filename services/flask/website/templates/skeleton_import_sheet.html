@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Import Validation Data{% endblock %}
+
+{% block content %}
+
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ form.file }}
+        {{ form.new_sheet_import }}
+    </form>
+
+{% endblock %}
