@@ -21,6 +21,7 @@ import qrcode
 import website.helper_functions as hf
 import numpy as np
 from datetime import datetime
+import holidays
 # from werkzeug.utils import secure_filename
 from io import BytesIO
 
@@ -2197,8 +2198,156 @@ def check_department(product_type):
         return "PC Tech (Servers)"
     elif product_type == "DESKTOP" or product_type == "ALL IN ONE" or product_type == "TABLET PC":
         return "PC Tech (Desktops)"
+    elif product_type == "RAM" or product_type == "CPU" or product_type == "Processor":
+        return "RAM/CPU"
     else:
         return "UNKNOWN"
+
+
+@testviews.route('/ram-validation-sampling', methods=["GET", "POST"])
+def hdd_validation_sampling():
+    """
+    This is a variation of the regular sampling function to handle the unique nature of RAM/Processors
+    """
+    import_form = ImportForm()
+    date_form = DateForm()
+
+    if import_form.validate_on_submit():
+        try:
+            start = date_form.startdate.data if date_form.startdate.data is not None else None
+            end = date_form.startdate.data if date_form.startdate.data is not None else None
+            return sample_rampro_sheet(import_form.file.data, start, end)
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        for field, errors in import_form.errors.items():
+            for error in errors:
+                print(f"Error in the {getattr(import_form, field).label.text} field - {error}")
+    return render_template('skeleton_import_sheet.html', form=import_form, date_form=date_form, user=current_user)
+
+
+def sample_rampro_sheet(excel_file, start, end, columns=None, percentage=0.014):
+    if columns is None:
+        columns = []
+    # Sets the default columns for the new validation export.
+    new_columns = ["ProductType", "SerialNumber", "VisualInspection", "Retest", "StatusVerification",
+                   "DataSanitizationVerified", "Date", "Initials", "NonconformityNotes", "Department"]
+
+    try:
+        file_df = pandas.read_excel(excel_file)
+
+        print(file_df.head())
+
+        # Ensure the qty column exists
+        if "Total QTY" not in file_df.columns:
+            raise Exception("Couldn't find a quantity column in uploaded file")
+
+        # Convert the 'Total QTY' column to integers (handling NaN and float values)
+        file_df['Total QTY'] = pandas.to_numeric(file_df['Total QTY'], errors='coerce')  # Ensure numeric values
+        file_df['Total QTY'].fillna(0, inplace=True)  # Replace NaN with 0
+        file_df['Total QTY'] = file_df['Total QTY'].round(0).astype(int)  # Round and convert to integer
+
+        # Now you can proceed with summing and sampling the 'Total QTY' column
+        total_qty = file_df['Total QTY'].sum()
+
+        print("Got sum of columns")
+        # Calculate the target qty to sample
+        target_qty = total_qty * percentage
+
+        print(f"Total qty: {total_qty}, Target qty: {target_qty}")
+
+        # Prepare an empty dataframe for sampled rows.
+        new_df = pandas.DataFrame(columns=new_columns)
+
+        # Perform sampling based on 'quantity' columns.
+        sampled_rows = []
+        cumulative_qty = 0
+
+        # Sample rows repeatedly until the cumulative qty reaches the target qty.
+        while cumulative_qty < target_qty:
+            # Randomly select a row (allowing for duplicates)
+            sampled_row = file_df.sample(n=1, weights='Total QTY')
+            sampled_rows.append(sampled_row)
+
+            # Add the qty of the sampled row to the cumulative qty.
+            cumulative_qty += 1
+
+        # Concatenate the sampled rows into a single DataFrame.
+        sampled_df = pandas.concat(sampled_rows, ignore_index=True)
+
+        for index, row in sampled_df.iterrows():
+            new_row = transform_rampro_row(row)
+            new_df = new_df.append(new_row, ignore_index=True)
+
+        print("New DataFrame")
+        print(new_df.head())
+
+        output = BytesIO()
+
+        with pandas.ExcelWriter(output, engine="openpyxl") as writer:
+            new_df.to_excel(writer, "Validation", index=False)
+
+        output.seek(0)
+        return send_file(output, download_name=f"convert_{datetime.now()}.xlsx",  as_attachment=True)
+
+    except Exception as e:
+        print("Error:", e)
+
+    print("Checking...")
+
+
+def transform_rampro_row(row):
+    new_data = {
+        "ProductType": str(row["MFG"]) + " " + str(row["Model"]),
+        "SerialNumber": row["Order Number"],
+        "VisualInspection": 1,
+        "Retest": 1,
+        "StatusVerification": 1,
+        "DataSanitizationVerified": 1,
+        "Date": (pandas.to_datetime(row["Date"], errors='coerce') + timedelta(days=1)).date(),
+        "Initials": "DKB",
+        "NonconformityNotes": "",
+        "Department": check_department(row["Product Name"])
+    }
+
+    return new_data
+
+
+
+@testviews.route('/date-checking', methods=["GET"])
+def date_checking():
+    """
+    Check the dates of the validation database to ensure none of the validation dates fall on the weekend.
+    Easiest to run multiple times until no results are returned.
+    """
+    validations = MasterVerificationLog.query.all()
+
+    # Instantiate the BANK holidays for the last 5 years
+    us_holidays = holidays.US()
+
+    ids = []
+
+    print("List of bad validation dates:")
+    for validation in validations:
+        date_to_check = validation.Date
+        # Check if the day is a weekend
+        if date_to_check.weekday() >= 5:
+            print(f"Weekend: {validation.autoID}")
+            ids.append(validation.autoID)
+            validation.Date = validation.Date + timedelta(days=2)
+
+        if isinstance(date_to_check, datetime):
+            date_to_check = date_to_check.date()
+
+        if date_to_check in us_holidays:
+            print(f"Holiday: {validation.autoID}")
+            ids.append(validation.autoID)
+            validation.Date = validation.Date + timedelta(days=1)
+
+    db.session.commit()
+
+    return ids
+
 
 
 
