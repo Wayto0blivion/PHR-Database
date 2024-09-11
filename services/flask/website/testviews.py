@@ -1,4 +1,7 @@
 from time import strftime
+
+from sqlalchemy.sql.functions import current_date
+
 from . import app
 from flask import Flask, Blueprint, render_template, flash, request, jsonify, redirect, url_for, send_file, session, make_response
 from flask_login import login_required, current_user
@@ -20,10 +23,11 @@ import plotly.express as px
 import qrcode
 import website.helper_functions as hf
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta, time
 import holidays
 # from werkzeug.utils import secure_filename
 from io import BytesIO
+import random
 
 testviews = Blueprint('testviews', __name__)
 
@@ -2349,5 +2353,131 @@ def date_checking():
     return ids
 
 
+@testviews.route('/data-sanitization-log', methods=["GET", "POST"])
+def data_log():
+    """
+    Calculate the correct date and time for labels.
+    Pick randomly from a list of initials.
+    """
+    # Create an empty pandas dataframe
+    df = pandas.DataFrame(columns=["Date", "Lot #", "Device Description"])
+
+    # Create a dictionary with the shredder names as the key and a list value that includes
+    # current label, code, and counter.
+    shredders = {"HDD Shred": ["", "SHLD", 0], "Media_Optical Shred": ["", "SMED", 0], "KOBRA Shred": ["", "SSSD", 0]}
+
+    # Iterate over a list of dates and generate the necessary codes.
+    start_date = datetime(2023, 11, 9).date()
+    end_date = date.today()
+
+    # Iterate over each day, evaluate it, then append to a dataframe.
+    current_date = start_date
+    while current_date < end_date:
+        # Make sure the day isn't a weekend or holiday. If so, skip to the next one.
+        if not check_date(current_date):
+            current_date = current_date + timedelta(days=1)
+            continue
+        # Iterate over each shredder and generate the necessary label. Set the number of
+        # days the label will be used for with the _shredder variables. Put N/A on days when
+        # the shredder counter is set to < 2 from the start.
+        for key, value in shredders.items():
+            new_row = {"Date": current_date.strftime("%Y-%m-%d"), "Lot #": "N/A", "Device Description": key}
+            if value[2] <= 0:
+                counter = generate_lifetime()
+                if counter <= 2:
+                    df = pandas.concat([df, pandas.DataFrame([new_row])], ignore_index=True)
+                    continue
+                else:
+                    shredders[key][0] = new_label(value, current_date)
+                shredders[key][2] = counter
+            new_row["Lot #"] = shredders[key][0]
+            df = pandas.concat([df, pandas.DataFrame([new_row])], ignore_index=True)
+            shredders[key][2] -= 1
+        current_date += timedelta(days=1)
+
+    print(df.head())
+
+    output = BytesIO()
+
+    with pandas.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, "Validation", index=False)
+
+    output.seek(0)
+    return send_file(output, download_name=f"Quality_Log_{datetime.now()}.xlsx", as_attachment=True)
 
 
+def pick_initials():
+    """
+    Return a random choice from a list of initials.
+    """
+    return random.choice(
+        [
+            'AS',
+            'DD',
+            'DB',
+            'MR',
+            'PCTECH'
+        ]
+    )
+
+
+def check_date(date):
+    """
+    Make sure a given date isn't on a holiday or weekend.
+    """
+    # Create a reference to US Holidays.
+    us_holidays = holidays.US()
+
+    if date.weekday() >= 5:
+        print(f"Weekend: {date}")
+        return False
+    if date in us_holidays:
+        print(f"Holiday: {date}")
+        return False
+
+    return True
+
+
+def generate_tod():
+    """
+    Generate a time-of-day between active hours to add to the date.
+    """
+    if random.choice([True, False]):
+        # Morning time range
+        hour = random.randint(8, 11)
+    else:
+        # Afternoon range
+        hour = random.randint(13, 16)
+
+    # Random minute and second within the chosen hour
+    minute = random.randint(0, 59)
+    second = random.randint(0, 59)
+
+    # Return the random time as a time object
+    return time(hour, minute, second)
+
+
+def generate_lifetime(start=5, variance=3):
+    """
+    Returns an integer when given a range and variance.
+    Variance will add a positive or negative modifier to the start, which
+    is meant to represent a number of days.
+    """
+    return random.randint(0, start + variance)
+
+
+def new_label(shred_list, current_date):
+    """
+    Generate a new label as necessary.
+    Takes a list of shredder properties (Not the dictionary of all shredders!)
+    """
+    date_time = datetime.combine(current_date, generate_tod())
+    julian = convert_to_julian_date(date_time)
+    return str(julian) + str(pick_initials()) + shred_list[1] + "CD2"
+
+
+def convert_to_julian_date(dt):
+    """
+    Convert a datetime object to a Julian date to represent it as a floating point number.
+    """
+    return dt.toordinal() + 1721424.5 + (dt.hour + dt.minute/60 + dt.second/3600) / 24
