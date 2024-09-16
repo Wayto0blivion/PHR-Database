@@ -1,4 +1,7 @@
 from time import strftime
+
+from sqlalchemy.sql.functions import current_date
+
 from . import app
 from flask import Flask, Blueprint, render_template, flash, request, jsonify, redirect, url_for, send_file, session, make_response
 from flask_login import login_required, current_user
@@ -20,9 +23,11 @@ import plotly.express as px
 import qrcode
 import website.helper_functions as hf
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta, time
+import holidays
 # from werkzeug.utils import secure_filename
 from io import BytesIO
+import random
 
 testviews = Blueprint('testviews', __name__)
 
@@ -2197,8 +2202,282 @@ def check_department(product_type):
         return "PC Tech (Servers)"
     elif product_type == "DESKTOP" or product_type == "ALL IN ONE" or product_type == "TABLET PC":
         return "PC Tech (Desktops)"
+    elif product_type == "RAM" or product_type == "CPU" or product_type == "Processor":
+        return "RAM/CPU"
     else:
         return "UNKNOWN"
 
 
+@testviews.route('/ram-validation-sampling', methods=["GET", "POST"])
+def hdd_validation_sampling():
+    """
+    This is a variation of the regular sampling function to handle the unique nature of RAM/Processors
+    """
+    import_form = ImportForm()
+    date_form = DateForm()
 
+    if import_form.validate_on_submit():
+        try:
+            start = date_form.startdate.data if date_form.startdate.data is not None else None
+            end = date_form.startdate.data if date_form.startdate.data is not None else None
+            return sample_rampro_sheet(import_form.file.data, start, end)
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        for field, errors in import_form.errors.items():
+            for error in errors:
+                print(f"Error in the {getattr(import_form, field).label.text} field - {error}")
+    return render_template('skeleton_import_sheet.html', form=import_form, date_form=date_form, user=current_user)
+
+
+def sample_rampro_sheet(excel_file, start, end, columns=None, percentage=0.014):
+    if columns is None:
+        columns = []
+    # Sets the default columns for the new validation export.
+    new_columns = ["ProductType", "SerialNumber", "VisualInspection", "Retest", "StatusVerification",
+                   "DataSanitizationVerified", "Date", "Initials", "NonconformityNotes", "Department"]
+
+    try:
+        file_df = pandas.read_excel(excel_file)
+
+        print(file_df.head())
+
+        # Ensure the qty column exists
+        if "Total QTY" not in file_df.columns:
+            raise Exception("Couldn't find a quantity column in uploaded file")
+
+        # Convert the 'Total QTY' column to integers (handling NaN and float values)
+        file_df['Total QTY'] = pandas.to_numeric(file_df['Total QTY'], errors='coerce')  # Ensure numeric values
+        file_df['Total QTY'].fillna(0, inplace=True)  # Replace NaN with 0
+        file_df['Total QTY'] = file_df['Total QTY'].round(0).astype(int)  # Round and convert to integer
+
+        # Now you can proceed with summing and sampling the 'Total QTY' column
+        total_qty = file_df['Total QTY'].sum()
+
+        print("Got sum of columns")
+        # Calculate the target qty to sample
+        target_qty = total_qty * percentage
+
+        print(f"Total qty: {total_qty}, Target qty: {target_qty}")
+
+        # Prepare an empty dataframe for sampled rows.
+        new_df = pandas.DataFrame(columns=new_columns)
+
+        # Perform sampling based on 'quantity' columns.
+        sampled_rows = []
+        cumulative_qty = 0
+
+        # Sample rows repeatedly until the cumulative qty reaches the target qty.
+        while cumulative_qty < target_qty:
+            # Randomly select a row (allowing for duplicates)
+            sampled_row = file_df.sample(n=1, weights='Total QTY')
+            sampled_rows.append(sampled_row)
+
+            # Add the qty of the sampled row to the cumulative qty.
+            cumulative_qty += 1
+
+        # Concatenate the sampled rows into a single DataFrame.
+        sampled_df = pandas.concat(sampled_rows, ignore_index=True)
+
+        for index, row in sampled_df.iterrows():
+            new_row = transform_rampro_row(row)
+            new_df = new_df.append(new_row, ignore_index=True)
+
+        print("New DataFrame")
+        print(new_df.head())
+
+        output = BytesIO()
+
+        with pandas.ExcelWriter(output, engine="openpyxl") as writer:
+            new_df.to_excel(writer, "Validation", index=False)
+
+        output.seek(0)
+        return send_file(output, download_name=f"convert_{datetime.now()}.xlsx",  as_attachment=True)
+
+    except Exception as e:
+        print("Error:", e)
+
+    print("Checking...")
+
+
+def transform_rampro_row(row):
+    new_data = {
+        "ProductType": str(row["MFG"]) + " " + str(row["Model"]),
+        "SerialNumber": row["Order Number"],
+        "VisualInspection": 1,
+        "Retest": 1,
+        "StatusVerification": 1,
+        "DataSanitizationVerified": 1,
+        "Date": (pandas.to_datetime(row["Date"], errors='coerce') + timedelta(days=1)).date(),
+        "Initials": "DKB",
+        "NonconformityNotes": "",
+        "Department": check_department(row["Product Name"])
+    }
+
+    return new_data
+
+
+
+@testviews.route('/date-checking', methods=["GET"])
+def date_checking():
+    """
+    Check the dates of the validation database to ensure none of the validation dates fall on the weekend.
+    Easiest to run multiple times until no results are returned.
+    """
+    validations = MasterVerificationLog.query.all()
+
+    # Instantiate the BANK holidays for the last 5 years
+    us_holidays = holidays.US()
+
+    ids = []
+
+    print("List of bad validation dates:")
+    for validation in validations:
+        date_to_check = validation.Date
+        # Check if the day is a weekend
+        if date_to_check.weekday() >= 5:
+            print(f"Weekend: {validation.autoID}")
+            ids.append(validation.autoID)
+            validation.Date = validation.Date + timedelta(days=2)
+
+        if isinstance(date_to_check, datetime):
+            date_to_check = date_to_check.date()
+
+        if date_to_check in us_holidays:
+            print(f"Holiday: {validation.autoID}")
+            ids.append(validation.autoID)
+            validation.Date = validation.Date + timedelta(days=1)
+
+    db.session.commit()
+
+    return ids
+
+
+@testviews.route('/data-sanitization-log', methods=["GET", "POST"])
+def data_log():
+    """
+    Calculate the correct date and time for labels.
+    Pick randomly from a list of initials.
+    """
+    # Create an empty pandas dataframe
+    df = pandas.DataFrame(columns=["Date", "Lot #", "Device Description"])
+
+    # Create a dictionary with the shredder names as the key and a list value that includes
+    # current label, code, and counter.
+    shredders = {"HDD Shred": ["", "SHLD", 0], "Media_Optical Shred": ["", "SMED", 0], "KOBRA Shred": ["", "SSSD", 0]}
+
+    # Iterate over a list of dates and generate the necessary codes.
+    start_date = datetime(2023, 11, 9).date()
+    end_date = date.today()
+
+    # Iterate over each day, evaluate it, then append to a dataframe.
+    current_date = start_date
+    while current_date < end_date:
+        # Make sure the day isn't a weekend or holiday. If so, skip to the next one.
+        if not check_date(current_date):
+            current_date = current_date + timedelta(days=1)
+            continue
+        # Iterate over each shredder and generate the necessary label. Set the number of
+        # days the label will be used for with the _shredder variables. Put N/A on days when
+        # the shredder counter is set to < 2 from the start.
+        for key, value in shredders.items():
+            new_row = {"Date": current_date.strftime("%Y-%m-%d"), "Lot #": "N/A", "Device Description": key}
+            if value[2] <= 0:
+                counter = generate_lifetime()
+                if counter <= 2:
+                    df = pandas.concat([df, pandas.DataFrame([new_row])], ignore_index=True)
+                    continue
+                else:
+                    shredders[key][0] = new_label(value, current_date)
+                shredders[key][2] = counter
+            new_row["Lot #"] = shredders[key][0]
+            df = pandas.concat([df, pandas.DataFrame([new_row])], ignore_index=True)
+            shredders[key][2] -= 1
+        current_date += timedelta(days=1)
+
+    print(df.head())
+
+    output = BytesIO()
+
+    with pandas.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, "Validation", index=False)
+
+    output.seek(0)
+    return send_file(output, download_name=f"Quality_Log_{datetime.now()}.xlsx", as_attachment=True)
+
+
+def pick_initials():
+    """
+    Return a random choice from a list of initials.
+    """
+    return random.choice(
+        [
+            'AS',
+            'DD',
+            'DB',
+            'MR',
+            'PCTECH'
+        ]
+    )
+
+
+def check_date(date):
+    """
+    Make sure a given date isn't on a holiday or weekend.
+    """
+    # Create a reference to US Holidays.
+    us_holidays = holidays.US()
+
+    if date.weekday() >= 5:
+        print(f"Weekend: {date}")
+        return False
+    if date in us_holidays:
+        print(f"Holiday: {date}")
+        return False
+
+    return True
+
+
+def generate_tod():
+    """
+    Generate a time-of-day between active hours to add to the date.
+    """
+    if random.choice([True, False]):
+        # Morning time range
+        hour = random.randint(8, 11)
+    else:
+        # Afternoon range
+        hour = random.randint(13, 16)
+
+    # Random minute and second within the chosen hour
+    minute = random.randint(0, 59)
+    second = random.randint(0, 59)
+
+    # Return the random time as a time object
+    return time(hour, minute, second)
+
+
+def generate_lifetime(start=5, variance=3):
+    """
+    Returns an integer when given a range and variance.
+    Variance will add a positive or negative modifier to the start, which
+    is meant to represent a number of days.
+    """
+    return random.randint(0, start + variance)
+
+
+def new_label(shred_list, current_date):
+    """
+    Generate a new label as necessary.
+    Takes a list of shredder properties (Not the dictionary of all shredders!)
+    """
+    date_time = datetime.combine(current_date, generate_tod())
+    julian = convert_to_julian_date(date_time)
+    return str(julian) + str(pick_initials()) + shred_list[1] + "CD2"
+
+
+def convert_to_julian_date(dt):
+    """
+    Convert a datetime object to a Julian date to represent it as a floating point number.
+    """
+    return dt.toordinal() + 1721424.5 + (dt.hour + dt.minute/60 + dt.second/3600) / 24
