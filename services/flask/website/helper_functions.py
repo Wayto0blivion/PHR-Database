@@ -31,6 +31,10 @@ def download_search(search, bind):
     with engine.connect() as connection:
         df = pandas.read_sql(search.statement, con=connection)
 
+        # Drop the autoID column if it exists.
+        if 'autoID' in df.columns:
+            df = df.drop(columns=['autoID'])
+
         resp = make_response(df.to_csv(index=False))
         resp.headers["Content-Disposition"] = f"attachment; filename={ bind }_Export.csv"
         resp.headers["Content-Type"] = "text/csv"
