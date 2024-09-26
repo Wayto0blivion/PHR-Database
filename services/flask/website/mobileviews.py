@@ -151,7 +151,7 @@ def mobile_box(box_id):
                .order_by(Mobile_Box_Devices.timestamp.desc())
                .all())
     # Add basic device info to data dictionary
-    data['devices'] = [[device.model, device.weight, device[0].qty] for device in devices]
+    data['devices'] = [[device.model, device.weight, device[0].qty, device[0].good_device] for device in devices]
 
     # Calculate the total weight for the current box and add it to data.
     total_box_weight = Decimal(0.0)
@@ -182,12 +182,21 @@ def mobile_box(box_id):
             return redirect(url_for('mobileviews.mobile_box', box_id=box_id, user=current_user))
 
     if device_form.validate_on_submit():  # What to do if user tries to add a device to the box
-        if device_form.add_button.data:
+        status = None
+        # Check if the good button has been pressed, and set the status variable to match.
+        if device_form.good_button.data:
+            status = True
+        if device_form.bad_button.data:
+            status = False
+
+        # Make sure one of the two buttons have been pressed.
+        if device_form.good_button.data or device_form.bad_button.data:
+
             # Check if the model exists in the Mobile_Weights table.
             check_model = Mobile_Weights.query.filter_by(model=device_form.model.data).first()
             # If not, send the user to enter a new model.
             if not check_model:
-                print(f'Model not found: {device_form.model.data}')
+                flash(f'Model not found: {device_form.model.data}', category='error')
                 data['show_weight_form'] = True
                 # Adds data from device form to session so that weight form can access it.
                 session['device_model'] = device_form.model.data.upper()
@@ -195,15 +204,20 @@ def mobile_box(box_id):
                 return render_template('skeleton_mobile_weight_sheet.html', data=data, user=current_user)
             # If the model was found, add it to the box.
             else:
-                print(f"The model found was {check_model.autoID}")
+                # flash(f"The model found was {check_model.autoID}", category='success')
                 # Check if the selected model already exists in the current box.
-                current_model = Mobile_Box_Devices.query.filter_by(modelID=check_model.autoID, boxID=box_id).first()
+                current_model = Mobile_Box_Devices.query.filter_by(modelID=check_model.autoID, boxID=box_id,
+                                                                   good_device=status).first()
                 if not current_model:  # IF the model doesn't already exist in the current box, add it.
-                    new_device = Mobile_Box_Devices(boxID=box_id, modelID=check_model.autoID, qty=device_form.quantity.data,
-                                                    user=current_user.id)
+                    new_device = Mobile_Box_Devices(boxID=box_id, modelID=check_model.autoID,
+                                                    qty=device_form.quantity.data, user=current_user.id,
+                                                    good_device=status)
                     db.session.add(new_device)
                 else:  # If the model already exists, increase the quantity.
                     current_model.qty += device_form.quantity.data
+                    if current_model.qty == 0:
+                        db.session.delete(current_model)
+                    # flash(f'Removed {current_model.model}', category='success')
 
                 db.session.commit()
                 return redirect(url_for('mobileviews.mobile_box', box_id=box_id, user=current_user))
@@ -257,7 +271,7 @@ def mobile_pallet_export(pallet_id=None):
     # Get a list of boxes in the pallet_id parameter.
     boxes = Mobile_Boxes.query.filter_by(palletID=pallet_id).order_by(Mobile_Boxes.box_number).all()
 
-    df = pd.DataFrame(columns=['Box', 'Item', 'Battery Weight', 'Quantity', 'Total Battery Weight'])
+    df = pd.DataFrame(columns=['Box', 'Item', 'Battery Weight', 'Quantity', 'Status', 'Total Battery Weight'])
 
     # Get all devices in each box.
     for box in boxes:
@@ -272,6 +286,7 @@ def mobile_pallet_export(pallet_id=None):
                 "Item": model,
                 "Battery Weight": weight,
                 "Quantity": device.qty,
+                "Status": 'Good' if device.good_device else 'Bad',
                 "Total Battery Weight": weight * device.qty
             }
             df = df.append(device_data, ignore_index=True)
@@ -280,7 +295,6 @@ def mobile_pallet_export(pallet_id=None):
     resp.headers['Content-Type'] = 'text/csv'
     resp.headers['Content-Disposition'] = 'attachment; filename=Mobile_Export.csv'
     return resp
-
 
     # file_path = 'Mobile_Export.csv'
     # df.to_csv(file_path, index=False)

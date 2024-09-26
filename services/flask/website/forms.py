@@ -286,6 +286,8 @@ class MobileDeviceForm(FlaskForm):
     """
     model = StringField('Model', validators=[DataRequired()])
     quantity = IntegerField('Quantity', default=1)
+    good_button = SubmitField('Good')
+    bad_button = SubmitField('Bad')
     add_button = SubmitField('Add')
 
 
