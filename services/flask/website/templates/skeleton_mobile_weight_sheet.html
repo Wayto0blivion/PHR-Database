@@ -34,7 +34,8 @@
                         <td>{{ data['device_form'].quantity() }}</td>
                     </tr>
                     <tr>
-                        <td>{{ data['device_form'].add_button }}</td>
+                        <td>{{ data['device_form'].good_button }}</td>
+                        <td>{{ data['device_form'].bad_button }}</td>
                     </tr>
                 </table>
             </form>
@@ -62,6 +63,7 @@
                     <td>Model</td>
                     <td>Weight (kg)</td>
                     <td>Quantity</td>
+                    <td>Status</td>
                 </tr>
             </thead>
             <tbody>
@@ -70,6 +72,7 @@
                         <td>{{ device[0] }}</td>
                         <td>{{ device[1] }}</td>
                         <td>{{ device[2] }}</td>
+                        <td>{{ 'Good' if device[3] else 'Bad' }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

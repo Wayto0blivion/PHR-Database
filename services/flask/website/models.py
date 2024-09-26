@@ -537,6 +537,9 @@ class Network_Price_Data(db.Model):
     autoID = db.Column('autoID', db.Integer, primary_key=True)
 
 
+# ===================== Mobile Models =====================
+
+
 class Mobile_Boxes(db.Model):
     __tablename__ = 'Mobile_Boxes'
     autoID = db.Column('autoID', db.Integer, primary_key=True)
@@ -563,6 +566,7 @@ class Mobile_Box_Devices(db.Model):
     autoID = db.Column('autoID', db.Integer, primary_key=True)
     boxID = db.Column('boxID', db.Integer, db.ForeignKey('Mobile_Boxes.autoID'))
     modelID = db.Column('modelID', db.Integer, db.ForeignKey('Mobile_Weights.autoID'))
+    good_device = db.Column('good_device', db.Boolean)
     qty = db.Column('quantity', db.Integer)
     timestamp = db.Column('Timestamp', db.DateTime, default=datetime.now())
     user = db.Column('User', db.Integer, db.ForeignKey('user.id'))
