@@ -96,9 +96,16 @@ def mobile_pallet(pallet_id):
                    .filter(Mobile_Box_Devices.boxID == box.autoID)
                    .all())
         total_box_weight = Decimal(0.0)
+        good_count = 0
+        bad_count = 0
         for device in devices:
             total_box_weight += (device.weight * device[0].qty)
-        weights[box.box_number] = total_box_weight
+            if device[0].good_device:
+                good_count += 1
+            else:
+                bad_count += 1
+        weights[box.box_number] = [total_box_weight, good_count, bad_count]
+        # print(weights[box.box_number])
 
     # Handle the closing of the pallet and all boxes tied to it.
     if close_form.validate_on_submit():
