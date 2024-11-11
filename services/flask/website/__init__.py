@@ -10,7 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_statistics import Statistics
 from flask_login import LoginManager
 import flask_excel as excel
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap5
 from flask_wtf.csrf import CSRFProtect
 
 
@@ -36,7 +36,6 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Processing_Data'
     app.config['SQLALCHEMY_BINDS'] = {
         'hdd_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk',
-        # 'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.1.180/Ecommerce',
         'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Ecommerce',
         'validation_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation',
         'aiken_db': 'mysql+pymysql://manager:powerhouse@192.168.3.247/awbc_db',
@@ -52,12 +51,7 @@ def create_app():
     # Initialize csrf protection
     csrf.init_app(app)
 
-    # admin = Admin(name="Pandas")
-
-    # If the below encoder is used, date objects can no longer be serialized.
-    # app.json_encoder = JSONEncoder
-
-    bootstrap = Bootstrap(app)
+    bootstrap = Bootstrap5(app)
 
     db.init_app(app)
 

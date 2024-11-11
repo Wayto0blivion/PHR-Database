@@ -2122,7 +2122,9 @@ def validation_sampling():
         try:
             return sample_sheet(import_form.file.data)
         except Exception as e:
-            print(f"Error: {e}")
+            import traceback
+            traceback.print_exc()
+            print(f"Main Error: {e}")
     else:
         for field, errors in import_form.errors.items():
             for error in errors:
@@ -2169,9 +2171,11 @@ def sample_sheet(excel_file, columns=None, percentage=0.014):
         return send_file(output, download_name=f"convert_{datetime.now()}.xlsx",  as_attachment=True)
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print("Error:", e)
 
-    print("Checking...")
+    return render_template('skeleton_import_sheet.html', form=ImportForm(), user=current_user)
 
 
 def transform_row(row):
@@ -2222,6 +2226,8 @@ def hdd_validation_sampling():
             end = date_form.startdate.data if date_form.startdate.data is not None else None
             return sample_rampro_sheet(import_form.file.data, start, end)
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"Error: {e}")
     else:
         for field, errors in import_form.errors.items():
@@ -2295,6 +2301,8 @@ def sample_rampro_sheet(excel_file, start, end, columns=None, percentage=0.014):
         return send_file(output, download_name=f"convert_{datetime.now()}.xlsx",  as_attachment=True)
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print("Error:", e)
 
     print("Checking...")
@@ -2315,7 +2323,6 @@ def transform_rampro_row(row):
     }
 
     return new_data
-
 
 
 @testviews.route('/date-checking', methods=["GET"])
@@ -2367,7 +2374,7 @@ def data_log():
     shredders = {"HDD Shred": ["", "SHLD", 0], "Media_Optical Shred": ["", "SMED", 0], "KOBRA Shred": ["", "SSSD", 0]}
 
     # Iterate over a list of dates and generate the necessary codes.
-    start_date = datetime(2023, 11, 9).date()
+    start_date = datetime(2024, 9, 19).date()
     end_date = date.today()
 
     # Iterate over each day, evaluate it, then append to a dataframe.
