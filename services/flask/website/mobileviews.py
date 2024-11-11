@@ -15,6 +15,9 @@ import pandas as pd
 # noinspection SpellCheckingInspection
 mobileviews = Blueprint('mobileviews', __name__)
 
+# The total number of boxes to generate per pallet.
+total_boxes = 27
+
 # TODO: Add closing timestamp to boxes and pallets to track both when opened and closed.
 # TODO: Update user when pallet or box are closed.
 
@@ -43,7 +46,7 @@ def mobile_home():
         db.session.commit()
 
         # Create boxes 1-24 tied to the newly created pallet.
-        for box in range(1, 25):
+        for box in range(1, total_boxes + 1):
             print(f'Creating new box! {box}')
             new_box = Mobile_Boxes(is_active=True, box_number=box, palletID=new_pallet.autoID, user=current_user.id)
             db.session.add(new_box)
@@ -84,8 +87,8 @@ def mobile_pallet(pallet_id):
     # Query Mobile_Boxes table for all boxes associated with a given pallet id
     boxes = Mobile_Boxes.query.filter_by(palletID=pallet_id).order_by(Mobile_Boxes.box_number).all()
 
-    # Ensure there are always 24 boxes by appending dummy boxes. This should be irrelevant.
-    while len(boxes) < 24:
+    # Ensure there are always total_boxes number of boxes by appending dummy boxes. This should be irrelevant.
+    while len(boxes) < total_boxes:
         boxes.append(Mobile_Boxes(is_active=False))
 
     # Create a dictionary for all weights of open boxes
