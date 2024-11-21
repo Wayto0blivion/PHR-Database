@@ -22,7 +22,7 @@ UPLOAD_FOLDER = '/home/owner/avatars'
 sqlEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Processing_Data')
 validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation')
 hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk')
-aikenEngine = db.create_engine('mysql+pymysql://manager:powerhouse@192.168.3.247/awbc_db')
+aikenEngine = db.create_engine('mysql+pymysql://manager:powerhouse@192.168.3.224/awbc_db')
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
@@ -38,7 +38,7 @@ def create_app():
         'hdd_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk',
         'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Ecommerce',
         'validation_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation',
-        'aiken_db': 'mysql+pymysql://manager:powerhouse@192.168.3.247/awbc_db',
+        'aiken_db': 'mysql+pymysql://manager:powerhouse@192.168.3.224/awbc_db',
     }
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'
