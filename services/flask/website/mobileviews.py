@@ -337,7 +337,7 @@ def modify_qty():
 
         entry = Mobile_Box_Devices.query.filter_by(boxID=box, modelID=model).first()
 
-        if qty == 0:
+        if qty <= 0:
             db.session.delete(entry)
         elif qty:
             entry.qty = qty
