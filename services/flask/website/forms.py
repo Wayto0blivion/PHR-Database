@@ -304,7 +304,7 @@ class MobileNewWeightForm(FlaskForm):
     Handles adding new weights to the Mobile_Weights table
     """
     weight = DecimalField('Weight (lbs)', validators=[DataRequired()])
-    submit = SubmitField('Add New Weight')
+    submit = SubmitField('Change Weight')
 
 
 class MobileBoxSearchForm(FlaskForm):
@@ -319,6 +319,25 @@ class MobileBoxSearchForm(FlaskForm):
 class MobileBoxModificationForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired()])
     submit = SubmitField("Modify Box")
+
+
+class MobileWeightAdminSearchForm(FlaskForm):
+    """
+    Form to allow Mobile Weights to be added or modified by an Admin. This form will not be accessible
+    to regular users.
+    """
+    model = StringField('Model')
+    submit = SubmitField("Search Model")
+
+
+class MobileAdminAddWeightForm(FlaskForm):
+    """
+    Form to allow an admin to add a new weight.
+    """
+    model = StringField('Model', validators=[DataRequired()])
+    weight = DecimalField('Weight (lbs)', validators=[DataRequired()])
+    submit = SubmitField('Add New Weight')
+
 
 
 # class MobileWeightDeviceForm(FlaskForm):

@@ -130,7 +130,11 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
             <a class="dropdown-item" href="/mobile">Weightsheets</a>
-            <a class="dropdown-item" href="/mobile/import">Bulk Import Weights</a>
+{#            <a class="dropdown-item" href="/mobile/import">Bulk Import Weights</a>#}
+            {% if user.admin_status %}
+                <a class="dropdown-item" href="/mobile/search_weights">Modify Weights</a>
+                <a class="dropdown-item" href="/mobile/create_weight">New Weight</a>
+            {% endif %}
         </div>
       </li>
     </ul>
