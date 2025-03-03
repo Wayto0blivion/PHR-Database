@@ -418,7 +418,7 @@ def modify_weight(model):
 
     if form.validate_on_submit():
         try:
-            db_entry.weight = form.weight.data * Decimal(2.2)
+            db_entry.weight = form.weight.data / Decimal(2.2)
             db.session.commit()
             return redirect(url_for("mobileviews.search_weights", user=current_user))
         except Exception as e:
@@ -442,7 +442,7 @@ def create_weight():
         try:
             new_weight = Mobile_Weights()
             new_weight.model = form.model.data
-            new_weight.weight = form.weight.data * Decimal(2.2)
+            new_weight.weight = form.weight.data / Decimal(2.2)
             new_weight.user = current_user.id
             db.session.add(new_weight)
             db.session.commit()
