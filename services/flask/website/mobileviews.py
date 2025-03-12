@@ -225,6 +225,7 @@ def mobile_box(box_id):
                     db.session.add(new_device)
                 else:  # If the model already exists, increase the quantity.
                     current_model.qty += device_form.quantity.data
+                    current_model.timestamp = datetime.now()
                     if current_model.qty == 0:
                         db.session.delete(current_model)
                     # flash(f'Removed {current_model.model}', category='success')
