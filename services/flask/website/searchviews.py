@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, flash, request, redirect, url_for, session
 from sqlalchemy import desc
+from sqlalchemy.sql.expression import cast, text
+from sqlalchemy.types import Date
 from flask_login import login_required, current_user
 from .models import Production, DISKS, MasterVerificationLog, VALIDATION, SuperWiper_Drives
 from . import db
@@ -206,10 +208,10 @@ def hdd_validation():
 @login_required
 def superwiper_search():
     """
-    Allows the searching, display, and download of results from the Super Wiper database.
-    Returns:
-
+    Allows searching, displaying, and downloading results from the Super Wiper database.
     """
+
+    # Initialize search form and data dictionary
     data = {
         "form": SuperWiperForm(),
         "results": None,
@@ -222,44 +224,67 @@ def superwiper_search():
 
     page = request.args.get('page', 1, type=int)
 
+    # Clear session if "Clear" button is pressed
     if data['form'].clear.data:
         session.clear()
         return redirect(url_for(request.endpoint))
 
+    # Save search parameters to session on form submission
     if data['form'].validate_on_submit():
         session['search'] = data['form'].search.data
         session['start_date'] = str(data['form'].startdate.data) if data['form'].startdate.data else None
         session['end_date'] = str(data['form'].enddate.data) if data['form'].enddate.data else None
 
+    # Retrieve session values for searching
     data["search"] = session.get('search')
     data["start_date"] = session.get('start_date')
-    data['end_date'] = session.get('end_date')
+    data["end_date"] = session.get('end_date')
 
+    # Initialize query and filters
     query = SuperWiper_Drives.query
     filters = []
 
-    if data["start_date"] and data['end_date']:
-        data["start_date"] = datetime.strptime(data["start_date"], '%Y-%m-%d')
-        data['end_date'] = datetime.strptime(data['end_date'], '%Y-%m-%d')
-        data["start_date"] = datetime.combine(data["start_date"], datetime.min.time())
-        data['end_date'] = datetime.combine(data['end_date'], datetime.max.time())
-        filters.append(SuperWiper_Drives.driveerasedate.between(data["start_date"], data['end_date']))
+    # Convert stored VARCHAR dates to proper Date format and filter
+    if data["start_date"] and data["end_date"]:
+        try:
+            start_date = datetime.strptime(data["start_date"], '%Y-%m-%d')
+            end_date = datetime.strptime(data["end_date"], '%Y-%m-%d')
+            start_date = datetime.combine(start_date, datetime.min.time())
+            end_date = datetime.combine(end_date, datetime.max.time())
 
-    if data["search"]:
+            filters.append(
+                text(f"STR_TO_DATE(driveerasedate, '%a %b %d %H:%i:%s %Y') BETWEEN '{start_date}' AND '{end_date}'")
+            )
+
+            print(f"Filtering results between {start_date} and {end_date}")
+
+        except ValueError:
+            flash("Invalid date format. Please use YYYY-MM-DD.", "error")
+            return redirect(url_for(request.endpoint))
+
+    # Ignore serial number search if empty
+    if data["search"] and data["search"].strip():
         filters.append(SuperWiper_Drives.driveserial.contains(data["search"]))
 
+    # Apply filters if any exist
     if filters:
         query = query.filter(*filters)
 
-    data["results"] = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
+    # Count total results before pagination
     data["count"] = query.count()
+    print(f"Result count: {data['count']}")
 
-    if data['form'].downl.data and data["results"]:
+    # Paginate the query (✅ Fixed Pagination)
+    pagination = query.paginate(page=page, per_page=50, error_out=False)
+
+    # ✅ **Download Search Results When Button is Pressed**
+    if data['form'].downl.data and pagination.items:
         return hf.download_search(query, 'superWiperEngine')
 
-    if not data['form'].validate_on_submit() and not (data["start_date"] or data['end_date']):
-        return render_template('skeleton_superwiper_search.html', data=data, user=current_user)
-
-    return render_template('skeleton_superwiper_search.html', data=data, user=current_user)
-
-
+    # Ensure results display correctly in the template
+    return render_template(
+        'skeleton_superwiper_search.html',
+        data=data,
+        pagination=pagination,  # ✅ Fixed Pagination
+        user=current_user
+    )

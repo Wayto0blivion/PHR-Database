@@ -1,99 +1,108 @@
 {% extends "base.html" %}
-{% import "bootstrap5/form.html" as wtf %}
-{% import "_macros.html" as macros %}
+{% block title %}Super Wiper Search{% endblock %}
 
-{% block title %}HDD Search{% endblock %}
-{% block head %}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-{% endblock %}
 {% block content %}
-<body>
 <div class="container">
-    <form method="POST">
-    {{ data.form.hidden_tag() }}
-        <div class="row" style="margin-top: 50px;background: rgb(52,58,64);padding: 10px;">
-            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                <h4 style="color: white; margin: 10px">Start Date: </h4>
-                <span>{{ data.form.startdate }}</span>
+    <h2>Super Wiper Search</h2>
+
+    <form method="POST" style="background-color: whitesmoke">
+        {{ data.form.hidden_tag() }}
+        <div class="row">
+            <div class="col">
+                <label>Start Date:</label>
+                {{ data.form.startdate(class="form-control") }}
             </div>
-            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                <h4 style="color: white; margin: 10px">End Date: </h4>
-                {{ data.form.enddate }}
+            <div class="col">
+                <label>End Date:</label>
+                {{ data.form.enddate(class="form-control") }}
             </div>
-            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                <h4 style="color: white; margin: 10px">Serial: </h4>
-                {{ data.form.search (style="color: rgb(255,255,255);background: transparent;border-color: rgb(255,255,255);") }}
+            <div class="col">
+                <label>Serial:</label>
+                {{ data.form.search(class="form-control") }}
             </div>
         </div>
-        <div class="row" style="background: rgb(52,58,64);padding: 10px;">
-            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                {{ data.form.submit (class="login-button") }}
-            </div>
-            {% if pagination %}
-                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                    {{ data.form.downl(formnovalidate=True, class="login-button") }}
-                </div>
-            {% endif %}
-            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
-                {{ data.form.clear(formnovalidate=True, class="login-button") }}
+
+        <div class="row mt-3">
+            <div class="col">
+                {{ data.form.submit(class="btn btn-primary") }}
+                {{ data.form.downl(formnovalidate=True, class="btn btn-secondary") }}
+                {{ data.form.clear(formnovalidate=True, class="btn btn-danger") }}
             </div>
         </div>
     </form>
-    {% if data.count %}
-        <div class="row" style="margin-top: 15px;background: rgb(255,255,255);">
-            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255);">
-                <span>Search returned {{ data.count }} results.</span>
-            </div>
-        </div>
-    {% endif %}
-    {% if data.pagination %}
-        <div class="table-responsive" style="max-height: 450px;">
-        <table class="table">
-            <thead class="sticky-header" style="background: rgb(34,37,41);">
-            <tr style="background: rgb(34,37,41);">
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Process</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Finished</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Batch Started</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Batch</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Success</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Status</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Method</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Progress</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Disk Serial</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Disk Info</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">DiskSizeStr</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Provider</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">ProviderVer</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Host</th>
-                <th style="background: rgb(34,37,41);color: rgb(255,255,255);">Err Msg</th>
-            </tr>
+
+    {% if data.count > 0 %}
+    <p style="background-color: whitesmoke">Search returned {{ data.count }} results.</p>
+
+    <!-- ✅ Scrollable Container for Table -->
+    <div class="table-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; margin-top: 10px;">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Drive ID</th>
+                    <th>Model</th>
+                    <th>Serial</th>
+                    <th>Firmware</th>
+                    <th>Capacity</th>
+                    <th>Interface</th>
+                    <th>SMART Status</th>
+                    <th>Passed</th>
+                    <th>Erase Date</th>
+                    <th>Log PDF</th>
+                    <th>Certificate PDF</th>
+                    <th>Job Number</th>
+                </tr>
             </thead>
             <tbody>
-            {% for row in data.pagination.items %}
-                <tr style="border: 1px solid rgb(0,0,0);">
-                {% for item in row %}
-                    <td>{{ item }}</td>
-                {% endfor %}
+                {% for row in pagination.items %}
+                <tr>
+                    <td>{{ row.driveid }}</td>
+                    <td>{{ row.drivemodel }}</td>
+                    <td>{{ row.driveserial }}</td>
+                    <td>{{ row.drivefirmware }}</td>
+                    <td>{{ row.drivecapacity }}</td>
+                    <td>{{ row.driveinterface }}</td>
+                    <td>{{ row.drivesmartstatus }}</td>
+                    <td>{{ row.drivepassed }}</td>
+                    <td>{{ row.driveerasedate }}</td>
+                    <td>{{ row.drivelogpdf }}</td>
+                    <td>{{ row.drivecertificatepdf }}</td>
+                    <td>{{ row.drivejobnumber }}</td>
                 </tr>
-            {% endfor %}
+                {% endfor %}
             </tbody>
         </table>
     </div>
-    {% endif %}
-    {% if data.pagination %}
-        <div class="row" style="background: rgb(255,255,255);">
-            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255); margin-top: 10px;">
-                {{ macros.pagination_widget(data.pagination, 'searchviews.hdd_search', data=data) }}
-            </div>
-        </div>
-        <div class="row" style="background: rgb(255,255,255);">
-            <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="background: rgb(255,255,255);">
-                <span style="margin-bottom: 10px;">Showing page {{ data.pagination.page }} of {{ data.pagination.pages }}</span>
-            </div>
-        </div>
+
+    <!-- ✅ Pagination Controls -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-3">
+            {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('searchviews.superwiper_search', page=pagination.prev_num) }}">Previous</a>
+                </li>
+            {% endif %}
+
+            {% for num in pagination.iter_pages() %}
+                {% if num %}
+                    <li class="page-item {% if num == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('searchviews.superwiper_search', page=num) }}">{{ num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('searchviews.superwiper_search', page=pagination.next_num) }}">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% else %}
+    <p>No results found.</p>
     {% endif %}
 </div>
-
-</body>
 {% endblock %}
-
