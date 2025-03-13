@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, flash, request, redirect, url_for, session
 from sqlalchemy import desc
 from flask_login import login_required, current_user
-from .models import Production, DISKS, MasterVerificationLog, VALIDATION
+from .models import Production, DISKS, MasterVerificationLog, VALIDATION, SuperWiper_Drives
 from . import db
 # import pymysql as pms
-from .forms import ProductionSearchForm, DateForm, KilldiskForm
+from .forms import ProductionSearchForm, DateForm, KilldiskForm, SuperWiperForm
 # from flask_wtf import FlaskForm
 import website.helper_functions as hf
 from datetime import datetime
@@ -200,4 +200,66 @@ def hdd_validation():
         return render_template('validation_table.html', form=form, pagination=cur_result, count=count, user=current_user)
 
     return render_template('validation_table.html', form=form, user=current_user)
+
+
+@searchviews.route("/superwiper-search", methods=['GET', 'POST'])
+@login_required
+def superwiper_search():
+    """
+    Allows the searching, display, and download of results from the Super Wiper database.
+    Returns:
+
+    """
+    data = {
+        "form": SuperWiperForm(),
+        "results": None,
+        "count": None,
+        "pagination": None,
+        "search": None,
+        "start_date": None,
+        "end_date": None,
+    }
+
+    page = request.args.get('page', 1, type=int)
+
+    if data['form'].clear.data:
+        session.clear()
+        return redirect(url_for(request.endpoint))
+
+    if data['form'].validate_on_submit():
+        session['search'] = data['form'].search.data
+        session['start_date'] = str(data['form'].startdate.data) if data['form'].startdate.data else None
+        session['end_date'] = str(data['form'].enddate.data) if data['form'].enddate.data else None
+
+    data["search"] = session.get('search')
+    data["start_date"] = session.get('start_date')
+    data['end_date'] = session.get('end_date')
+
+    query = SuperWiper_Drives.query
+    filters = []
+
+    if data["start_date"] and data['end_date']:
+        data["start_date"] = datetime.strptime(data["start_date"], '%Y-%m-%d')
+        data['end_date'] = datetime.strptime(data['end_date'], '%Y-%m-%d')
+        data["start_date"] = datetime.combine(data["start_date"], datetime.min.time())
+        data['end_date'] = datetime.combine(data['end_date'], datetime.max.time())
+        filters.append(SuperWiper_Drives.driveerasedate.between(data["start_date"], data['end_date']))
+
+    if data["search"]:
+        filters.append(SuperWiper_Drives.driveserial.contains(data["search"]))
+
+    if filters:
+        query = query.filter(*filters)
+
+    data["results"] = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
+    data["count"] = query.count()
+
+    if data['form'].downl.data and data["results"]:
+        return hf.download_search(query, 'superWiperEngine')
+
+    if not data['form'].validate_on_submit() and not (data["start_date"] or data['end_date']):
+        return render_template('skeleton_superwiper_search.html', data=data, user=current_user)
+
+    return render_template('skeleton_superwiper_search.html', data=data, user=current_user)
+
 

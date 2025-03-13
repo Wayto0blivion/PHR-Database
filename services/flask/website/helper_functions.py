@@ -7,7 +7,7 @@ Im not sure the above is true? Download verification search works fine.
 
 import flask_excel as excel
 from flask import make_response, render_template, redirect, url_for
-from . import db, sqlEngine, hddEngine, validEngine, aikenEngine
+from . import db, sqlEngine, hddEngine, validEngine, aikenEngine, superWiperEngine
 import pandas
 from functools import wraps
 from .models import User
@@ -24,6 +24,8 @@ def download_search(search, bind):
         engine = validEngine
     elif bind == 'aikenEngine':
         engine = aikenEngine
+    elif bind == 'superWiperEngine':
+        engine = superWiperEngine
     else:
         print('No engine detected!')
         return

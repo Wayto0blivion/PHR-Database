@@ -23,6 +23,7 @@ sqlEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.
 validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation')
 hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk')
 aikenEngine = db.create_engine('mysql+pymysql://manager:powerhouse@192.168.3.224/awbc_db')
+superWiperEngine = db.create_engine("mysql+pymysql://user_queries:oldR%40in16@192.168.3.99/superwiper")
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
@@ -39,6 +40,7 @@ def create_app():
         'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Ecommerce',
         'validation_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation',
         'aiken_db': 'mysql+pymysql://manager:powerhouse@192.168.3.224/awbc_db',
+        'superwiper_db': "mysql+pymysql://user_queries:oldR%40in16@192.168.3.99/superwiper"
     }
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'

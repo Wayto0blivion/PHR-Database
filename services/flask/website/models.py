@@ -746,3 +746,62 @@ class UnitsDevicesSearch(db.Model):
 #    surname = db.Column(db.String(50))
 
 
+
+# ===================== SuperWiper Models =====================
+
+class SuperWiper_Drives(db.Model):
+    """
+    For querying individual disk results from the SuperWiper.
+    """
+    __bind_key__ = 'superwiper_db'
+    __tablename__ = "drives"
+    driveid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    drivemodel = db.Column(db.String(255), nullable=True, default=None)
+    driveserial = db.Column(db.String(255), nullable=True, default=None)
+    drivefirmware = db.Column(db.String(255), nullable=True, default=None)
+    drivecapacity = db.Column(db.String(255), nullable=True, default=None)
+    driveinterface = db.Column(db.String(255), nullable=True, default=None)
+    drivesmartstatus = db.Column(db.String(255), nullable=True, default=None)
+    drivepassed = db.Column(db.String(255), nullable=True, default=None)
+    driveerasedate = db.Column(db.String(255), nullable=True, default=None)
+    drivelogpdf = db.Column(db.String(255), nullable=True, default=None)
+    drivecertificatepdf = db.Column(db.String(255), nullable=True, default=None)
+    drivejobnumber = db.Column(db.String(255), nullable=True, default=None)
+
+
+class SuperWiper_Sessions(db.Model):
+    """
+    For querying group session results, which in our use case should correspond to individual drives.
+    """
+    __bind_key__ = 'superwiper_db'
+    __tablename__ = "sessions"
+    sessionid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    startdatetime = db.Column(db.String(255), nullable=True, default=None)
+    operation = db.Column(db.String(255), nullable=True, default=None)
+    load = db.Column(db.String(255), nullable=True, default=None)
+    timeleft = db.Column(db.String(255), nullable=True, default=None)
+    speed = db.Column(db.String(255), nullable=True, default=None)
+    progress = db.Column(db.String(255), nullable=True, default=None)
+    error = db.Column(db.String(255), nullable=True, default=None)
+    logfile = db.Column(db.String(255), nullable=True, default=None)
+
+
+class SuperWiper_SmartTests(db.Model):
+    """
+    For tracking SMART results of tests on drives through the SuperWiper. Generally not used by us.
+    """
+    __bind_key__ = 'superwiper_db'
+    __tablename__ = "smarttests"
+    driveid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    drivemodel = db.Column(db.String(255), nullable=True, default=None)
+    driveserial = db.Column(db.String(255), nullable=True, default=None)
+    drivefirmware = db.Column(db.String(255), nullable=True, default=None)
+    drivecapacity = db.Column(db.String(255), nullable=True, default=None)
+    driveinterface = db.Column(db.String(255), nullable=True, default=None)
+    drivesmartstatus = db.Column(db.String(255), nullable=True, default=None)
+    drivetest = db.Column(db.String(255), nullable=True, default=None)
+    drivepassed = db.Column(db.String(255), nullable=True, default=None)
+    drivetestdate = db.Column(db.String(255), nullable=True, default=None)
+    drivelogpdf = db.Column(db.String(255), nullable=True, default=None)
+
+

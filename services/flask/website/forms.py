@@ -339,6 +339,20 @@ class MobileAdminAddWeightForm(FlaskForm):
     submit = SubmitField('Add New Weight')
 
 
+class SuperWiperForm(FlaskForm):
+    # choices = [('OrderNo', 'Order Number'),
+    #            ('DiskSerial', 'Serial #'),
+    #            ('Host', 'Drawer')]
+    # select = SelectField('Search Field:', choices=choices)
+    search = StringField('')
+    # noinspection SpellCheckingInspection
+    startdate = DateField('Start Date', format='%Y-%m-%d', validators=[Optional()])
+    # noinspection SpellCheckingInspection
+    enddate = DateField('End Date', format='%Y-%m-%d', validators=[Optional()])
+    submit = SubmitField('Submit')
+    # noinspection SpellCheckingInspection
+    downl = SubmitField('Download', validators=[Optional()])
+    clear = SubmitField('Clear', validators=[Optional()])
 
 # class MobileWeightDeviceForm(FlaskForm):
 #     model = StringField('Model')
