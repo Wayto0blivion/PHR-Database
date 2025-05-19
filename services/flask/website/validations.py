@@ -2,15 +2,22 @@
 # import pandas as pd
 # from datetime import datetime, timedelta
 #
-# def pick_random_rows(file_path, validated_file_path, num_rows, output_file):
-#     df = pd.read_csv(file_path)  # Load the HDD export data
-#     validated_df = pd.read_csv(validated_file_path)  # Load the validated drives data
+# def pick_random_rows(hdd_file_path, superwiper_file_path, validated_file_path, num_rows, output_file):
+#     # Load both HDD and SuperWiper data
+#     hdd_df = pd.read_csv(hdd_file_path)
+#     superwiper_df = pd.read_csv(superwiper_file_path)
+#
+#     # Combine the two datasets into one
+#     combined_df = pd.concat([hdd_df, superwiper_df], ignore_index=True)
 #
 #     # Filter rows where "Success" column is 1
-#     sanitized_rows = df[df["Success"] == 1]
+#     sanitized_rows = combined_df[combined_df["Success"] == 1]
+#
+#     # Load validated serials
+#     validated_df = pd.read_csv(validated_file_path)
+#     validated_serials = validated_df["DiskSerial"].tolist()
 #
 #     # Exclude already validated drives
-#     validated_serials = validated_df["DiskSerial"].tolist()
 #     sanitized_rows = sanitized_rows[~sanitized_rows["DiskSerial"].isin(validated_serials)]
 #
 #     # Randomly sample rows
@@ -20,26 +27,20 @@
 #     selected_columns = ["DiskInfo", "DiskSerial"]
 #     selected_rows = random_rows[selected_columns].copy()
 #
-#     # Add Sanitized column with 1 since all filtered rows are successful
+#     # Add required columns
 #     selected_rows["Sanitized"] = 1
-#
-#     # Convert "Finished" column to datetime and add 1 day
 #     selected_rows["Date"] = pd.to_datetime(random_rows["Finished"]) + timedelta(days=1)
-#
-#     # Extract only the date part without the timestamp
 #     selected_rows["Date"] = selected_rows["Date"].dt.strftime("%Y-%m-%d")
-#
-#     # Add Verification column with initials "MDS"
 #     selected_rows["Verification"] = "MDS"
 #
-#     selected_rows.to_csv(output_file, index=False)  # Write to CSV file
+#     # Save to output CSV
+#     selected_rows.to_csv(output_file, index=False)
 #
 # if __name__ == "__main__":
-#     csv_file_path = "C:\\Users\\Mekayla\\Downloads\\hddEngine_Export.csv"  # Update with your CSV file path
-#     validated_file_path = "C:\\Users\\Mekayla\\Downloads\\validEngine_Export.csv"  # Path to the validated drives CSV
-#     num_random_rows = 400  # Number of random rows to pick
-#     output_file = "random_rows_output.csv"  # Output file name
+#     hdd_file_path = "C:\\Users\\Mekayla\\Downloads\\hddEngine_Export.csv"
+#     superwiper_file_path = "C:\\Users\\Mekayla\\Downloads\\superWiperEngine_Export.csv"
+#     validated_file_path = "C:\\Users\\Mekayla\\Downloads\\validEngine_Export.csv"
+#     num_random_rows = 2000
+#     output_file = "random_rows_output.csv"
 #
-#     pick_random_rows(csv_file_path, validated_file_path, num_random_rows, output_file)
-
-
+#     pick_random_rows(hdd_file_path, superwiper_file_path, validated_file_path, num_random_rows, output_file)
