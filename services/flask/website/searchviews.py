@@ -240,7 +240,7 @@ def superwiper_search():
     data["start_date"] = session.get('start_date')
     data["end_date"] = session.get('end_date')
 
-    # Initialize query and filters
+    # Initialize the query and filters
     query = SuperWiper_Drives.query
     filters = []
 
