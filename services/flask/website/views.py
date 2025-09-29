@@ -480,7 +480,19 @@ def aiken_bol_query(form):
     # p2_result = session.execute(text('SELECT p2()')).fetchone()
     # print(f'p2() returned: {p2_result[0]}')
 
-    results = session.query(UnitsDevicesSearch).all()
+    # Start with the view filtered by @search_string and optionally narrow by date range
+    query = session.query(UnitsDevicesSearch)
+
+    # Apply date range filters on the Audited timestamp if provided
+    if getattr(form, 'start_date', None) and form.start_date.data:
+        s_dt = datetime.combine(form.start_date.data, datetime.min.time())
+        query = query.filter(UnitsDevicesSearch.Audited >= s_dt)
+    if getattr(form, 'end_date', None) and form.end_date.data:
+        # make end boundary exclusive by advancing to the next day at midnight
+        e_dt_next = datetime.combine(form.end_date.data + timedelta(days=1), datetime.min.time())
+        query = query.filter(UnitsDevicesSearch.Audited < e_dt_next)
+
+    results = query.all()
 
     session.close()
 

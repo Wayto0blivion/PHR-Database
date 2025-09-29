@@ -7,10 +7,14 @@
     <div class="container" style="background: rgb(255,255,255); width: 90%;">
         <form method="POST">
             <div class="row" style="margin-top: 50px; margin-bottom: 10px;">
-                <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="margin-top: 5px;">
+                <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="margin-top: 5px; gap: 10px;">
                     {{ form.hidden_tag() }}
-                    <span style="margin-right: 10px">Search:</span>
+                    <span>Search:</span>
                     {{ form.search }}
+                    <span>Start:</span>
+                    {{ form.start_date }}
+                    <span>End:</span>
+                    {{ form.end_date }}
                 </div>
                 <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="margin-top: 5px;">
                     {{ form.table (class="login-button") }}

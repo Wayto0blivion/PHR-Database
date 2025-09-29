@@ -258,6 +258,8 @@ class AikenProductionForm(FlaskForm):
 class AikenDeviceSearchForm(FlaskForm):
     # select = SelectField('Category', choices=['BOL', 'CUSTOMER NAME', 'SALES REP'])
     search = StringField('Search')
+    start_date = DateField('Start Date', [Optional()], format='%Y-%m-%d')
+    end_date = DateField('End Date', [Optional()], format='%Y-%m-%d')
     # active_lots = BooleanField('Active Lots?')
     table = SubmitField('Table')
     download = SubmitField('Download')
