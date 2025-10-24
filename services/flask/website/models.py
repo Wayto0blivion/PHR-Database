@@ -705,6 +705,48 @@ class UnitsDevicesSearch(db.Model):
     SalesRep = db.Column(db.String(255))
 
 
+class RazorPCExport(db.Model):
+    """
+    For querying the view called Razor_PC_Export
+    """
+    __bind_key__ = 'aiken_db'
+    __tablename__ = 'Razor_PC_Export'
+    UnitID = db.Column(db.Integer, primary_key=True)
+    LotID = db.Column(db.Integer)
+    AssetTag = db.Column(db.String(50))
+    Created = db.Column(db.DateTime)
+    ProductType = db.Column(db.String(20))
+    Manufacturer = db.Column(db.String(60))
+    Model = db.Column(db.String(80))
+    Chassis = db.Column(db.String(16))
+    PartNumber = db.Column(db.String(60))
+    SerialNumber = db.Column(db.String(60))
+    BOL = db.Column(db.String(255))
+    Processor = db.Column(db.String(80))
+    ProcSpeed = db.Column(db.String(60))
+    RAM = db.Column(db.String(60))
+    Storage1Size = db.Column(db.String(60))
+    Storage1Type = db.Column(db.String(255))
+    Storage1Model = db.Column(db.String(80))
+    Storage1Serial = db.Column(db.String(60))
+    BatteryModel = db.Column(db.String(80))
+    Videocard = db.Column(db.String(80))
+    COA = db.Column(db.String(80))
+    OSRestored = db.Column(db.String(60))
+    COANumber = db.Column(db.String(255))
+    ObservCodes = db.Column(db.String(255))
+    Audited = db.Column(db.DateTime)
+    WarehLocation = db.Column(db.String(20))
+    User = db.Column(db.String(16))
+    BatteryDuration = db.Column(db.String(255))
+    R2Applicability = db.Column(db.String(255))
+    DataSanitization = db.Column(db.String(255))
+    NextProcess = db.Column(db.String(255))
+    Disposition = db.Column(db.String(255))
+    CustomerName = db.Column(db.String(255))
+    SalesRep = db.Column(db.String(255))
+    BinNumber = db.Column(db.String(255))
+
 # Flask-Excel Testing
 
 # class Post(db.Model):

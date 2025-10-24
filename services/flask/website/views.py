@@ -8,7 +8,7 @@ from sqlalchemy.sql import text
 # from sqlalchemy import create_engine
 from .models import (Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units,
                      Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons, Network_Price_Data,
-                     Mobile_Boxes, Mobile_Pallets, Mobile_Box_Devices, Mobile_Weights)
+                     Mobile_Boxes, Mobile_Pallets, Mobile_Box_Devices, Mobile_Weights, RazorPCExport)
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -481,7 +481,7 @@ def aiken_bol_query(form):
     # print(f'p2() returned: {p2_result[0]}')
 
     # Start with the view filtered by @search_string and optionally narrow by date range
-    query = session.query(UnitsDevicesSearch)
+    query = session.query(RazorPCExport)
 
     # Apply date range filters on the Audited timestamp if provided
     if getattr(form, 'start_date', None) and form.start_date.data:
@@ -846,7 +846,7 @@ def download_results(results):
     """
 
     # Extract column names from the model in the order they are described in.
-    column_order = [column.name for column in UnitsDevicesSearch.__table__.columns]
+    column_order = [column.name for column in RazorPCExport.__table__.columns]
 
     # Convert the SQLAlchemy objects to dictionaries
     results_as_dicts = [r.__dict__ for r in results]
