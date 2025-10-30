@@ -486,11 +486,11 @@ def aiken_bol_query(form):
     # Apply date range filters on the Audited timestamp if provided
     if getattr(form, 'start_date', None) and form.start_date.data:
         s_dt = datetime.combine(form.start_date.data, datetime.min.time())
-        query = query.filter(UnitsDevicesSearch.Audited >= s_dt)
+        query = query.filter(RazorPCExport.Audited >= s_dt)
     if getattr(form, 'end_date', None) and form.end_date.data:
         # make end boundary exclusive by advancing to the next day at midnight
         e_dt_next = datetime.combine(form.end_date.data + timedelta(days=1), datetime.min.time())
-        query = query.filter(UnitsDevicesSearch.Audited < e_dt_next)
+        query = query.filter(RazorPCExport.Audited < e_dt_next)
 
     results = query.all()
 
@@ -845,8 +845,8 @@ def download_results(results):
     :return: send_file Excel file of the passed results.
     """
 
-    # Extract column names from the model in the order they are described in.
-    column_order = [column.name for column in RazorPCExport.__table__.columns]
+    # Compute column order based on ORM attribute keys to ensure alignment with instance dicts
+    column_order = [attr.key for attr in inspect(RazorPCExport).mapper.column_attrs]
 
     # Convert the SQLAlchemy objects to dictionaries
     results_as_dicts = [r.__dict__ for r in results]
@@ -855,8 +855,12 @@ def download_results(results):
     results_as_dicts = [{key: value for key, value in r.items() if key != '_sa_instance_state'} for r in results_as_dicts]
 
     df = pandas.DataFrame(results_as_dicts)
-    # Reorder the DataFrame to match the columns
+    # Reorder the DataFrame to match the columns (by attribute keys)
     df = df[column_order]
+
+    # For nicer headers in Excel, replace attribute keys with the DB/view column labels
+    excel_headers = [column.name for column in RazorPCExport.__table__.columns]
+    df.columns = excel_headers
 
     output = BytesIO()
     with pandas.ExcelWriter(output, engine='openpyxl') as writer:

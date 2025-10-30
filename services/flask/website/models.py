@@ -737,6 +737,7 @@ class RazorPCExport(db.Model):
     ObservCodes = db.Column(db.String(255))
     Audited = db.Column(db.DateTime)
     WarehLocation = db.Column(db.String(20))
+    UsedOrScrap = db.Column(db.String(10))
     User = db.Column(db.String(16))
     BatteryDuration = db.Column(db.String(255))
     R2Applicability = db.Column(db.String(255))
@@ -746,6 +747,62 @@ class RazorPCExport(db.Model):
     CustomerName = db.Column(db.String(255))
     SalesRep = db.Column(db.String(255))
     BinNumber = db.Column(db.String(255))
+
+    # Extended fields based on the updated SQL view
+    DisplaySize = db.Column(db.String(60))
+    Resolution = db.Column(db.String(255))
+    ProcGen = db.Column(db.String(255))
+    ProcNumber = db.Column(db.Integer)
+
+    Storage2Size = db.Column(db.String(60))
+    Storage2Type = db.Column(db.String(255))
+    Storage2Model = db.Column(db.String(80))
+    Storage2Serial = db.Column(db.String(60))
+
+    Optical = db.Column(db.String(255))
+    Keyb = db.Column(db.String(255))
+    Webcam = db.Column(db.Integer)
+    NewCOANumber = db.Column(db.String(255))
+
+    ObservNotes = db.Column(db.String(255))
+    Grade = db.Column(db.String(10))
+    Exported = db.Column(db.Integer)
+    PictureID = db.Column(db.Integer)
+
+    MBmfg = db.Column(db.String(60))
+    MBmodel = db.Column(db.String(60))
+    MBserial = db.Column(db.String(60))
+    MBversion = db.Column(db.String(255))
+
+    CPUsocket = db.Column(db.String(255))
+
+    RAM1Model = db.Column(db.String(60))
+    RAM1Serial = db.Column(db.String(60))
+    RAM1Type = db.Column(db.String(255))
+    RAM1Size = db.Column(db.String(60))
+
+    RAM2Model = db.Column(db.String(60))
+    RAM2Serial = db.Column(db.String(60))
+    RAM2Type = db.Column(db.String(255))
+    RAM2Size = db.Column(db.String(60))
+
+    RAM3Model = db.Column(db.String(60))
+    RAM3Serial = db.Column(db.String(60))
+    RAM3Type = db.Column(db.String(255))
+    RAM3Size = db.Column(db.String(60))
+
+    RAM4Model = db.Column(db.String(60))
+    RAM4Serial = db.Column(db.String(60))
+    RAM4Type = db.Column(db.String(255))
+    RAM4Size = db.Column(db.String(60))
+
+    OpticalSN = db.Column(db.String(60))
+
+    Functional_Grade = db.Column('Functional Grade', db.String(255))
+    Cosmetic_Grade = db.Column('Cosmetic Grade', db.String(255))
+
+    IMEI = db.Column(db.String(255))
+    HwID = db.Column(db.String(30))
 
 # Flask-Excel Testing
 

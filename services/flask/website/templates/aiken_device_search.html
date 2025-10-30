@@ -41,7 +41,7 @@
                         <tr style="padding: 10px; margin: 10px;">
                             {# And then loop through each cell using the column order #}
                             {% for column in row.__table__.columns %}
-                                <td class="table_data" style="border: 1px solid black; margin: 25px;">{{ row[column.name] }}</td>
+                                <td class="table_data" style="border: 1px solid black; margin: 25px;">{{ row|attr(column.key) }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
