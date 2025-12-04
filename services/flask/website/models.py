@@ -729,6 +729,7 @@ class RazorPCExport(db.Model):
     Storage1Type = db.Column(db.String(255))
     Storage1Model = db.Column(db.String(80))
     Storage1Serial = db.Column(db.String(60))
+    Storage1Manufacturer = db.Column(db.String(60))
     BatteryModel = db.Column(db.String(80))
     Videocard = db.Column(db.String(80))
     COA = db.Column(db.String(80))
