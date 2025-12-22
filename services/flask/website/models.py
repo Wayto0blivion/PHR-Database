@@ -777,25 +777,53 @@ class RazorPCExport(db.Model):
 
     CPUsocket = db.Column(db.String(255))
 
+    RAM1Manufacturer = db.Column(db.String(128))
     RAM1Model = db.Column(db.String(60))
     RAM1Serial = db.Column(db.String(60))
     RAM1Type = db.Column(db.String(255))
     RAM1Size = db.Column(db.String(60))
 
+    RAM2Manufacturer = db.Column(db.String(128))
     RAM2Model = db.Column(db.String(60))
     RAM2Serial = db.Column(db.String(60))
     RAM2Type = db.Column(db.String(255))
     RAM2Size = db.Column(db.String(60))
 
+    RAM3Manufacturer = db.Column(db.String(128))
     RAM3Model = db.Column(db.String(60))
     RAM3Serial = db.Column(db.String(60))
     RAM3Type = db.Column(db.String(255))
     RAM3Size = db.Column(db.String(60))
 
+    RAM4Manufacturer = db.Column(db.String(128))
     RAM4Model = db.Column(db.String(60))
     RAM4Serial = db.Column(db.String(60))
     RAM4Type = db.Column(db.String(255))
     RAM4Size = db.Column(db.String(60))
+
+    RAM5Manufacturer = db.Column(db.String(128))
+    RAM5Model = db.Column(db.String(60))
+    RAM5Serial = db.Column(db.String(60))
+    RAM5Type = db.Column(db.String(255))
+    RAM5Size = db.Column(db.String(60))
+
+    RAM6Manufacturer = db.Column(db.String(128))
+    RAM6Model = db.Column(db.String(60))
+    RAM6Serial = db.Column(db.String(60))
+    RAM6Type = db.Column(db.String(255))
+    RAM6Size = db.Column(db.String(60))
+
+    RAM7Manufacturer = db.Column(db.String(128))
+    RAM7Model = db.Column(db.String(60))
+    RAM7Serial = db.Column(db.String(60))
+    RAM7Type = db.Column(db.String(255))
+    RAM7Size = db.Column(db.String(60))
+
+    RAM8Manufacturer = db.Column(db.String(128))
+    RAM8Model = db.Column(db.String(60))
+    RAM8Serial = db.Column(db.String(60))
+    RAM8Type = db.Column(db.String(255))
+    RAM8Size = db.Column(db.String(60))
 
     OpticalSN = db.Column(db.String(60))
 
