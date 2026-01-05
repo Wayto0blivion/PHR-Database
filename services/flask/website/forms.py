@@ -282,6 +282,18 @@ class NetworkPricingSearchForm(FlaskForm):
     clear = SubmitField('Clear')
 
 
+class RazorUnfilteredSearchForm(FlaskForm):
+    """
+    Search form for the Razor_Unfiltered view allowing filtering by
+    WarehLocation and/or Lot.
+    """
+    wareh_location = StringField('WarehLocation', validators=[Optional()])
+    lot_id = IntegerField('Lot', validators=[Optional()])
+    table = SubmitField('Table')
+    download = SubmitField('Download')
+    clear = SubmitField('Clear')
+
+
 class MobileDeviceForm(FlaskForm):
     """
     Handles adding mobile devices to the currently active box.

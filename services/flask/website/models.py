@@ -833,6 +833,136 @@ class RazorPCExport(db.Model):
     IMEI = db.Column(db.String(255))
     HwID = db.Column(db.String(30))
 
+
+class RazorUnfiltered(db.Model):
+    """
+    For querying the view called Razor_Unfiltered
+    """
+    __bind_key__ = 'aiken_db'
+    __tablename__ = 'Razor_Unfiltered'
+    UnitID = db.Column(db.Integer, primary_key=True)
+    LotID = db.Column(db.Integer)
+    AssetTag = db.Column(db.String(50))
+    Created = db.Column(db.DateTime)
+    ProductType = db.Column(db.String(20))
+    Manufacturer = db.Column(db.String(60))
+    Model = db.Column(db.String(80))
+    Chassis = db.Column(db.String(16))
+    PartNumber = db.Column(db.String(60))
+    SerialNumber = db.Column(db.String(60))
+    BOL = db.Column(db.String(255))
+    Processor = db.Column(db.String(80))
+    ProcSpeed = db.Column(db.String(60))
+    RAM = db.Column(db.String(60))
+    Storage1Size = db.Column(db.String(60))
+    Storage1Type = db.Column(db.String(255))
+    Storage1Model = db.Column(db.String(80))
+    Storage1Serial = db.Column(db.String(60))
+    Storage1Manufacturer = db.Column(db.String(60))
+    BatteryModel = db.Column(db.String(80))
+    Videocard = db.Column(db.String(80))
+    COA = db.Column(db.String(80))
+    OSRestored = db.Column(db.String(60))
+    COANumber = db.Column(db.String(255))
+    ObservCodes = db.Column(db.String(255))
+    Audited = db.Column(db.DateTime)
+    WarehLocation = db.Column(db.String(20))
+    UsedOrScrap = db.Column(db.String(10))
+    User = db.Column(db.String(16))
+    BatteryDuration = db.Column(db.String(255))
+    R2Applicability = db.Column(db.String(255))
+    DataSanitization = db.Column(db.String(255))
+    NextProcess = db.Column(db.String(255))
+    Disposition = db.Column(db.String(255))
+    CustomerName = db.Column(db.String(255))
+    SalesRep = db.Column(db.String(255))
+    BinNumber = db.Column(db.String(255))
+
+    # Extended fields based on the updated SQL view
+    DisplaySize = db.Column(db.String(60))
+    Resolution = db.Column(db.String(255))
+    ProcGen = db.Column(db.String(255))
+    ProcNumber = db.Column(db.Integer)
+
+    Storage2Size = db.Column(db.String(60))
+    Storage2Type = db.Column(db.String(255))
+    Storage2Model = db.Column(db.String(80))
+    Storage2Serial = db.Column(db.String(60))
+
+    Optical = db.Column(db.String(255))
+    Keyb = db.Column(db.String(255))
+    Webcam = db.Column(db.Integer)
+    NewCOANumber = db.Column(db.String(255))
+
+    ObservNotes = db.Column(db.String(255))
+    Grade = db.Column(db.String(10))
+    Exported = db.Column(db.Integer)
+    PictureID = db.Column(db.Integer)
+
+    MBmfg = db.Column(db.String(60))
+    MBmodel = db.Column(db.String(60))
+    MBserial = db.Column(db.String(60))
+    MBversion = db.Column(db.String(255))
+
+    CPUsocket = db.Column(db.String(255))
+
+    RAM1Manufacturer = db.Column(db.String(128))
+    RAM1Model = db.Column(db.String(60))
+    RAM1Serial = db.Column(db.String(60))
+    RAM1Type = db.Column(db.String(255))
+    RAM1Size = db.Column(db.String(60))
+
+    RAM2Manufacturer = db.Column(db.String(128))
+    RAM2Model = db.Column(db.String(60))
+    RAM2Serial = db.Column(db.String(60))
+    RAM2Type = db.Column(db.String(255))
+    RAM2Size = db.Column(db.String(60))
+
+    RAM3Manufacturer = db.Column(db.String(128))
+    RAM3Model = db.Column(db.String(60))
+    RAM3Serial = db.Column(db.String(60))
+    RAM3Type = db.Column(db.String(255))
+    RAM3Size = db.Column(db.String(60))
+
+    RAM4Manufacturer = db.Column(db.String(128))
+    RAM4Model = db.Column(db.String(60))
+    RAM4Serial = db.Column(db.String(60))
+    RAM4Type = db.Column(db.String(255))
+    RAM4Size = db.Column(db.String(60))
+
+    RAM5Manufacturer = db.Column(db.String(128))
+    RAM5Model = db.Column(db.String(60))
+    RAM5Serial = db.Column(db.String(60))
+    RAM5Type = db.Column(db.String(255))
+    RAM5Size = db.Column(db.String(60))
+
+    RAM6Manufacturer = db.Column(db.String(128))
+    RAM6Model = db.Column(db.String(60))
+    RAM6Serial = db.Column(db.String(60))
+    RAM6Type = db.Column(db.String(255))
+    RAM6Size = db.Column(db.String(60))
+
+    RAM7Manufacturer = db.Column(db.String(128))
+    RAM7Model = db.Column(db.String(60))
+    RAM7Serial = db.Column(db.String(60))
+    RAM7Type = db.Column(db.String(255))
+    RAM7Size = db.Column(db.String(60))
+
+    RAM8Manufacturer = db.Column(db.String(128))
+    RAM8Model = db.Column(db.String(60))
+    RAM8Serial = db.Column(db.String(60))
+    RAM8Type = db.Column(db.String(255))
+    RAM8Size = db.Column(db.String(60))
+
+    OpticalSN = db.Column(db.String(60))
+
+    Functional_Grade = db.Column('Functional Grade', db.String(255))
+    Cosmetic_Grade = db.Column('Cosmetic Grade', db.String(255))
+
+    IMEI = db.Column(db.String(255))
+    HDD_MFG = db.Column('HDD MFG', db.String(60))
+    HwID = db.Column(db.String(30))
+
 # Flask-Excel Testing
 
 # class Post(db.Model):

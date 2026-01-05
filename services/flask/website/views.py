@@ -8,7 +8,7 @@ from sqlalchemy.sql import text
 # from sqlalchemy import create_engine
 from .models import (Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units,
                      Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons, Network_Price_Data,
-                     Mobile_Boxes, Mobile_Pallets, Mobile_Box_Devices, Mobile_Weights, RazorPCExport)
+                     Mobile_Boxes, Mobile_Pallets, Mobile_Box_Devices, Mobile_Weights, RazorPCExport, RazorUnfiltered)
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -17,7 +17,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 # import pymysql as pms
 from .forms import (ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm,
-                    AikenDeviceSearchForm, Server_AddOn_Form, NetworkPricingSearchForm)
+                    AikenDeviceSearchForm, Server_AddOn_Form, NetworkPricingSearchForm, RazorUnfilteredSearchForm)
 from datetime import date, datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
@@ -522,6 +522,38 @@ def aiken_unit_search():
     return render_template('aiken_device_search.html', form=form, user=current_user)
 
 
+@views.route('/aiken-unfiltered-search', methods=['GET', 'POST'])
+@login_required
+def aiken_unfiltered_search():
+    """
+    Search page for the Razor_Unfiltered view. Allows searching by WarehLocation and/or Lot.
+    """
+    form = RazorUnfilteredSearchForm()
+    results = None
+
+    if form.validate_on_submit():
+        if form.clear.data:
+            return redirect(url_for('views.aiken_unfiltered_search'))
+
+        query = RazorUnfiltered.query
+
+        if form.wareh_location.data:
+            like = f"%{form.wareh_location.data.strip()}%"
+            query = query.filter(RazorUnfiltered.WarehLocation.ilike(like))
+
+        if form.lot_id.data is not None:
+            query = query.filter(RazorUnfiltered.LotID == form.lot_id.data)
+
+        results = query.all()
+
+        if form.download.data:
+            return download_results_for(RazorUnfiltered, results, 'Aiken Unfiltered Report')
+
+        return render_template('aiken_unfiltered_search.html', form=form, results=results, user=current_user)
+
+    return render_template('aiken_unfiltered_search.html', form=form, user=current_user)
+
+
 @views.route('/new-server-addon', methods=['GET', 'POST'])
 @login_required
 @hf.user_permissions('Servers')
@@ -868,6 +900,42 @@ def download_results(results):
 
     output.seek(0)
     return send_file(output, download_name=f"Aiken BOL Report {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
+
+
+def download_results_for(model, results, report_name='Report'):
+    """
+    Generic helper to create an Excel file from SQLAlchemy results for a given model.
+    """
+    if not results:
+        # Return an empty file gracefully
+        output = BytesIO()
+        with pandas.ExcelWriter(output, engine='openpyxl') as writer:
+            pandas.DataFrame([]).to_excel(writer, sheet_name=report_name, index=False)
+        output.seek(0)
+        return send_file(output, download_name=f"{report_name} {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
+
+    # Mirror the exact approach used by download_results for consistent alignment
+    column_order = [attr.key for attr in inspect(model).mapper.column_attrs]
+
+    # Convert the SQLAlchemy objects to dictionaries, excluding SA state
+    results_as_dicts = [
+        {key: value for key, value in r.__dict__.items() if key != '_sa_instance_state'}
+        for r in results
+    ]
+
+    # Build DataFrame with explicit column order to ensure alignment
+    df = pandas.DataFrame(results_as_dicts, columns=column_order)
+
+    # For nicer headers in Excel, replace attribute keys with the DB/view column labels
+    excel_headers = [column.name for column in model.__table__.columns]
+    df.columns = excel_headers
+
+    output = BytesIO()
+    with pandas.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name=report_name, index=False)
+
+    output.seek(0)
+    return send_file(output, download_name=f"{report_name} {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
 
 
 def character_count_for_qr(session_string):
