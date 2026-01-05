@@ -27,7 +27,7 @@
                 <table style="background-color: whitesmoke">
                     <tr>
                         <td><h4>{{ data['device_form'].model.label }}</h4></td>
-                        <td>{{ data['device_form'].model() }}</td>
+                        <td>{{ data['device_form'].model(autofocus=True) }}</td>
                     </tr>
                     <tr>
                         <td><h4>{{ data['device_form'].quantity.label }}</h4></td>
@@ -83,6 +83,17 @@
         <script>
         document.getElementById('weightFormDiv').style.display = 'block';
         </script>
+{#    {% elif not data['show_weight_form'] %}#}
+{#    <script>#}
+{#      document.addEventListener('DOMContentLoaded', function() {#}
+{#        // WTForms default id is the field name; we can reference it explicitly#}
+{#        const modelInput = document.getElementById('model');#}
+{#        if (modelInput) {#}
+{#          modelInput.focus();#}
+{#          modelInput.select(); // optional: highlights existing text#}
+{#        }#}
+{#      });#}
+{#    </script>#}
     {% endif %}
 
 
