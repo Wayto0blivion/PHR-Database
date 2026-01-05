@@ -538,7 +538,8 @@ def aiken_unfiltered_search():
         query = RazorUnfiltered.query
 
         if form.wareh_location.data:
-            like = f"%{form.wareh_location.data.strip()}%"
+            # Prefix-only match (right-anchored): case-insensitive
+            like = f"{form.wareh_location.data.strip()}%"
             query = query.filter(RazorUnfiltered.WarehLocation.ilike(like))
 
         if form.lot_id.data is not None:
