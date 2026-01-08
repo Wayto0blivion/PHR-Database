@@ -849,25 +849,56 @@ def network_price_search():
 
 def production_graph(query):
     """
-    Creates a graph based on a passed query for Aiken and stores it in memory.
+    Creates a horizontal bar chart based on a passed query for Aiken and stores it in memory.
     :return: A BytesIO object called img_stream for display in the browser.
     """
 
     df = pandas.DataFrame(query, columns=['User', 'AuditedDate', 'UnitsCount'])
-    agg_data = df.groupby('User').sum()['UnitsCount'].reset_index()
+    # Aggregate total units per user
+    agg_data = df.groupby('User', as_index=False)['UnitsCount'].sum()
 
-    plt.figure(figsize=(15, 6))
-    ax = sns.barplot(data=agg_data, x='User', y='UnitsCount')
-    plt.title('Total Units Count By User')
+    # Sort alphabetically by user label
+    agg_data = agg_data.sort_values('User', ascending=True)
 
-    for index, value in enumerate(agg_data['UnitsCount']):
-        ax.text(index, value + 0.5, str(value), ha='center', va='center')
+    # Dynamic figure height to ensure all labels are visible
+    n_labels = max(1, len(agg_data))
+    height = max(4, round(0.35 * n_labels, 2))
 
-    plt.tight_layout()
+    fig, ax = plt.subplots(figsize=(10, height), constrained_layout=True)
+    ax = sns.barplot(
+        data=agg_data,
+        y='User',
+        x='UnitsCount',
+        orient='h',
+        color='#4c78a8',
+        order=agg_data['User'].tolist()  # ensure alphabetical order on axis
+    )
+
+    ax.set_title('Total Units Count By User')
+    ax.set_xlabel('Units')
+    ax.set_ylabel('User')
+    ax.tick_params(axis='y', labelsize=9)
+
+    # Add value labels to the end of each bar
+    max_val = float(agg_data['UnitsCount'].max()) if n_labels > 0 else 0.0
+    offset = 0.01 * max_val if max_val > 0 else 0.5
+    for p in ax.patches:
+        width = p.get_width()
+        y = p.get_y() + p.get_height() / 2
+        # Display integers without decimal, otherwise round to 2 decimals
+        try:
+            label = f"{int(width) if float(width).is_integer() else round(float(width), 2)}"
+        except Exception:
+            label = f"{width}"
+        ax.text(width + offset, y, label, va='center', ha='left')
+
+    # Slight margins to avoid clipping
+    ax.margins(y=0.01)
 
     img_stream = BytesIO()
-    plt.savefig(img_stream, format='png')
+    fig.savefig(img_stream, format='png', dpi=150, bbox_inches='tight')
     img_stream.seek(0)
+    plt.close(fig)
 
     return img_stream
 
