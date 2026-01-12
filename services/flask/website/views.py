@@ -950,21 +950,70 @@ def download_results_for(model, results, report_name='Report'):
     column_order = [attr.key for attr in inspect(model).mapper.column_attrs]
 
     # Convert the SQLAlchemy objects to dictionaries, excluding SA state
-    results_as_dicts = [
+    raw_rows = [
         {key: value for key, value in r.__dict__.items() if key != '_sa_instance_state'}
         for r in results
     ]
 
-    # Build DataFrame with explicit column order to ensure alignment
-    df = pandas.DataFrame(results_as_dicts, columns=column_order)
+    # Prepare regex and helpers to detect and remove illegal Excel characters
+    import re
+    illegal_re = re.compile(r"[\x00-\x08\x0B\x0C\x0E-\x1F]")
 
-    # For nicer headers in Excel, replace attribute keys with the DB/view column labels
+    def has_illegal(s: str) -> bool:
+        return bool(illegal_re.search(s))
+
+    def sanitize(s: str) -> str:
+        # Replace illegal control chars with a space
+        return illegal_re.sub(' ', s)
+
+    # Scan for offending values and build a sanitized copy for export
+    flagged = []  # list of dicts with UnitID, column, preview, codepoints
+    sanitized_rows = []
+
+    # Map attribute keys to human-friendly Excel headers for reporting
+    attr_keys = column_order
     excel_headers = [column.name for column in model.__table__.columns]
+    header_map = {attr: header for attr, header in zip(attr_keys, excel_headers)}
+
+    for row in raw_rows:
+        sanitized_row = {}
+        # Try to fetch UnitID if present on this model
+        unit_id_val = row.get('UnitID')
+        for key in attr_keys:
+            val = row.get(key)
+            if isinstance(val, str):
+                if has_illegal(val):
+                    # Create a safe preview and codepoints string
+                    safe_preview = sanitize(val)[:255]
+                    cps = ','.join(str(ord(ch)) for ch in val[:50])
+                    flagged.append({
+                        'UnitID': unit_id_val,
+                        'Column': key,
+                        'Header': header_map.get(key, key),
+                        'OriginalPreview': safe_preview,
+                        'OriginalCodepoints': cps,
+                    })
+                    sanitized_row[key] = sanitize(val)
+                else:
+                    sanitized_row[key] = val
+            else:
+                sanitized_row[key] = val
+        sanitized_rows.append(sanitized_row)
+
+    # Build DataFrame with explicit column order to ensure alignment
+    df = pandas.DataFrame(sanitized_rows, columns=column_order)
+    # For nicer headers in Excel, replace attribute keys with the DB/view column labels
     df.columns = excel_headers
 
     output = BytesIO()
     with pandas.ExcelWriter(output, engine='openpyxl') as writer:
+        # Main sheet (sanitized values)
         df.to_excel(writer, sheet_name=report_name, index=False)
+        # If any offending cells were found, add a second sheet with details
+        if flagged:
+            flagged_df = pandas.DataFrame(flagged)
+            # Ensure safe headers and values (already sanitized previews)
+            flagged_df.to_excel(writer, sheet_name='Flagged Rows', index=False)
 
     output.seek(0)
     return send_file(output, download_name=f"{report_name} {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
