@@ -831,6 +831,7 @@ class RazorPCExport(db.Model):
     Cosmetic_Grade = db.Column('Cosmetic Grade', db.String(255))
 
     IMEI = db.Column(db.String(255))
+    HDD_MFG = db.Column('HDD MFG', db.String(60))
     HwID = db.Column(db.String(30))
 
 
