@@ -14,7 +14,7 @@
 <div class="container">
     <form method="POST">
         {{ form.hidden_tag() }}
-        <div class="row" style="margin-top: 50px;background: rgb(52,58,64);height: 80px;">
+        <div class="row" style="margin-top: 50px;padding-top: 10px;padding-bottom: 10px;background: rgb(52,58,64);height: 120px;">
             <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
                 <span style="color: rgb(255,255,255); white-space: nowrap;">BOL #:</span>
             </div>
@@ -32,6 +32,12 @@
             </div>
             <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
                 {{ form.sales_rep (style="margin-left: 10px;background: transparent;color: rgb(255,255,255);") }}
+            </div>
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                <span style="color: rgb(255,255,255); white-space: nowrap;">Lot #:</span>
+            </div>
+            <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
+                {{ form.lot_num (style="margin-left: 10px;background: transparent;color: rgb(255,255,255);") }}
             </div>
             <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center">
                 {{ form.submit (class="login-button", style="margin-left: 15px;") }}
@@ -63,7 +69,7 @@
             {% endfor %}
         </div>
     {% endif %}
-    {% if results or form.bol_number.data or form.sales_rep.data %}
+    {% if results or form.bol_number.data or form.sales_rep.data or form.lot_num.data %}
         <div class="row qr-display-div" style="padding: 15px; min-height: 150px;" id="qr-display">
             {% if form.bol_number.data %}
                 <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center qr-item" style="background: white; padding: 15px;">
@@ -75,6 +81,12 @@
                 <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center qr-item" style="background: white; padding: 15px;">
                     <img src="{{ qrcode(form.sales_rep.data) }}" alt="" width="100">
                     <span style="padding-left: 10px;">{{(form.sales_rep.data)}}</span>
+                </div>
+            {% endif %}
+            {% if form.lot_num.data %}
+                <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center qr-item" style="background: white; padding: 15px;">
+                    <img src="{{ qrcode(form.lot_num.data) }}" alt="" width="100">
+                    <span style="padding-left: 10px;">{{(form.lot_num.data)}}</span>
                 </div>
             {% endif %}
             <div class="col d-xxl-flex justify-content-xxl-center align-items-xxl-center qr-item" style="background: white; padding: 15px;">

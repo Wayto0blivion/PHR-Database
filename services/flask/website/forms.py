@@ -221,6 +221,7 @@ class CustomerSearchForm(FlaskForm):
     bol_number = StringField("")
     customer_name = StringField('')
     sales_rep = StringField("Sales Rep")
+    lot_num = StringField("Lot #")
     submit = SubmitField("Search")
 
 
