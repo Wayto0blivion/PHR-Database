@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template, flash, request, redirect, url_for, session
 from sqlalchemy import desc
+from sqlalchemy.sql.expression import cast, text
+from sqlalchemy.types import Date
 from flask_login import login_required, current_user
-from .models import Production, DISKS, MasterVerificationLog, VALIDATION
+from .models import Production, DISKS, MasterVerificationLog, VALIDATION, SuperWiper_Drives
 from . import db
 # import pymysql as pms
-from .forms import ProductionSearchForm, DateForm, KilldiskForm
+from .forms import ProductionSearchForm, DateForm, KilldiskForm, SuperWiperForm
 # from flask_wtf import FlaskForm
 import website.helper_functions as hf
 from datetime import datetime
@@ -201,3 +203,88 @@ def hdd_validation():
 
     return render_template('validation_table.html', form=form, user=current_user)
 
+
+@searchviews.route("/superwiper-search", methods=['GET', 'POST'])
+@login_required
+def superwiper_search():
+    """
+    Allows searching, displaying, and downloading results from the Super Wiper database.
+    """
+
+    # Initialize search form and data dictionary
+    data = {
+        "form": SuperWiperForm(),
+        "results": None,
+        "count": None,
+        "pagination": None,
+        "search": None,
+        "start_date": None,
+        "end_date": None,
+    }
+
+    page = request.args.get('page', 1, type=int)
+
+    # Clear session if "Clear" button is pressed
+    if data['form'].clear.data:
+        session.clear()
+        return redirect(url_for(request.endpoint))
+
+    # Save search parameters to session on form submission
+    if data['form'].validate_on_submit():
+        session['search'] = data['form'].search.data
+        session['start_date'] = str(data['form'].startdate.data) if data['form'].startdate.data else None
+        session['end_date'] = str(data['form'].enddate.data) if data['form'].enddate.data else None
+
+    # Retrieve session values for searching
+    data["search"] = session.get('search')
+    data["start_date"] = session.get('start_date')
+    data["end_date"] = session.get('end_date')
+
+    # Initialize the query and filters
+    query = SuperWiper_Drives.query
+    filters = []
+
+    # Convert stored VARCHAR dates to proper Date format and filter
+    if data["start_date"] and data["end_date"]:
+        try:
+            start_date = datetime.strptime(data["start_date"], '%Y-%m-%d')
+            end_date = datetime.strptime(data["end_date"], '%Y-%m-%d')
+            start_date = datetime.combine(start_date, datetime.min.time())
+            end_date = datetime.combine(end_date, datetime.max.time())
+
+            filters.append(
+                text(f"STR_TO_DATE(driveerasedate, '%a %b %d %H:%i:%s %Y') BETWEEN '{start_date}' AND '{end_date}'")
+            )
+
+            print(f"Filtering results between {start_date} and {end_date}")
+
+        except ValueError:
+            flash("Invalid date format. Please use YYYY-MM-DD.", "error")
+            return redirect(url_for(request.endpoint))
+
+    # Ignore serial number search if empty
+    if data["search"] and data["search"].strip():
+        filters.append(SuperWiper_Drives.driveserial.contains(data["search"]))
+
+    # Apply filters if any exist
+    if filters:
+        query = query.filter(*filters)
+
+    # Count total results before pagination
+    data["count"] = query.count()
+    print(f"Result count: {data['count']}")
+
+    # Paginate the query (✅ Fixed Pagination)
+    pagination = query.paginate(page=page, per_page=50, error_out=False)
+
+    # ✅ **Download Search Results When Button is Pressed**
+    if data['form'].downl.data and pagination.items:
+        return hf.download_search(query, 'superWiperEngine')
+
+    # Ensure results display correctly in the template
+    return render_template(
+        'skeleton_superwiper_search.html',
+        data=data,
+        pagination=pagination,  # ✅ Fixed Pagination
+        user=current_user
+    )

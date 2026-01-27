@@ -97,6 +97,7 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
             <a class="dropdown-item" href="/pandas_import">Import</a>
             <a class="dropdown-item" href="/search/hdd_search">Killdisk</a>
+            <a class="dropdown-item" href="/search/superwiper-search">SuperWiper</a>
         </div>
       </li>
     </ul>
@@ -107,6 +108,7 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
             <a class="dropdown-item" href="/aiken-production">Production</a>
             <a class="dropdown-item" href="/aiken-unit-search">BOL Search</a>
+            <a class="dropdown-item" href="/aiken-unfiltered-search">Location Search</a>
         </div>
       </li>
     </ul>
@@ -130,7 +132,11 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
             <a class="dropdown-item" href="/mobile">Weightsheets</a>
-            <a class="dropdown-item" href="/mobile/import">Bulk Import Weights</a>
+{#            <a class="dropdown-item" href="/mobile/import">Bulk Import Weights</a>#}
+            {% if user.admin_status %}
+                <a class="dropdown-item" href="/mobile/search_weights">Look Up</a>
+                <a class="dropdown-item" href="/mobile/create_weight">New Weight</a>
+            {% endif %}
         </div>
       </li>
     </ul>

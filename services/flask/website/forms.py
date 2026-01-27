@@ -258,6 +258,8 @@ class AikenProductionForm(FlaskForm):
 class AikenDeviceSearchForm(FlaskForm):
     # select = SelectField('Category', choices=['BOL', 'CUSTOMER NAME', 'SALES REP'])
     search = StringField('Search')
+    start_date = DateField('Start Date', [Optional()], format='%Y-%m-%d')
+    end_date = DateField('End Date', [Optional()], format='%Y-%m-%d')
     # active_lots = BooleanField('Active Lots?')
     table = SubmitField('Table')
     download = SubmitField('Download')
@@ -277,6 +279,18 @@ class NetworkPricingSearchForm(FlaskForm):
     end_date = DateField('End Date', [Optional()], format='%Y-%m-%d')
     winning_bid = BooleanField('Only Winning Bids?')
     submit = SubmitField('Submit')
+    clear = SubmitField('Clear')
+
+
+class RazorUnfilteredSearchForm(FlaskForm):
+    """
+    Search form for the Razor_Unfiltered view allowing filtering by
+    WarehLocation and/or Lot.
+    """
+    wareh_location = StringField('WarehLocation', validators=[Optional()])
+    lot_id = IntegerField('Lot', validators=[Optional()])
+    table = SubmitField('Table')
+    download = SubmitField('Download')
     clear = SubmitField('Clear')
 
 
@@ -304,7 +318,7 @@ class MobileNewWeightForm(FlaskForm):
     Handles adding new weights to the Mobile_Weights table
     """
     weight = DecimalField('Weight (lbs)', validators=[DataRequired()])
-    submit = SubmitField('Add New Weight')
+    submit = SubmitField('Change Weight')
 
 
 class MobileBoxSearchForm(FlaskForm):
@@ -320,6 +334,39 @@ class MobileBoxModificationForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired()])
     submit = SubmitField("Modify Box")
 
+
+class MobileWeightAdminSearchForm(FlaskForm):
+    """
+    Form to allow Mobile Weights to be added or modified by an Admin. This form will not be accessible
+    to regular users.
+    """
+    model = StringField('Model')
+    submit = SubmitField("Search Model")
+
+
+class MobileAdminAddWeightForm(FlaskForm):
+    """
+    Form to allow an admin to add a new weight.
+    """
+    model = StringField('Model', validators=[DataRequired()])
+    weight = DecimalField('Weight (lbs)', validators=[DataRequired()])
+    submit = SubmitField('Add New Weight')
+
+
+class SuperWiperForm(FlaskForm):
+    # choices = [('OrderNo', 'Order Number'),
+    #            ('DiskSerial', 'Serial #'),
+    #            ('Host', 'Drawer')]
+    # select = SelectField('Search Field:', choices=choices)
+    search = StringField('')
+    # noinspection SpellCheckingInspection
+    startdate = DateField('Start Date', format='%Y-%m-%d', validators=[Optional()])
+    # noinspection SpellCheckingInspection
+    enddate = DateField('End Date', format='%Y-%m-%d', validators=[Optional()])
+    submit = SubmitField('Submit')
+    # noinspection SpellCheckingInspection
+    downl = SubmitField('Download', validators=[Optional()])
+    clear = SubmitField('Clear', validators=[Optional()])
 
 # class MobileWeightDeviceForm(FlaskForm):
 #     model = StringField('Model')

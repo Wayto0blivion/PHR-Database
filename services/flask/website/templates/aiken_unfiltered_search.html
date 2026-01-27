@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap5/form.html" as wtf %}
-{% block title %}Aiken Unit Search{% endblock %}
+{% block title %}Aiken Unfiltered Search{% endblock %}
 {% block content %}
 
     <body>
@@ -9,18 +9,17 @@
             <div class="row" style="margin-top: 50px; margin-bottom: 10px;">
                 <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="margin-top: 5px; gap: 10px;">
                     {{ form.hidden_tag() }}
-                    <span>Search:</span>
-                    {{ form.search }}
-                    <span>Start:</span>
-                    {{ form.start_date }}
-                    <span>End:</span>
-                    {{ form.end_date }}
+                    <span>WarehLocation:</span>
+                    {{ form.wareh_location }}
+                    <span>Lot:</span>
+                    {{ form.lot_id }}
                 </div>
                 <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="margin-top: 5px;">
                     {{ form.table (class="login-button") }}
                     {% if results|length > 0 %}
                         {{ form.download (class="login-button", style="margin-left: 10px;") }}
                     {% endif %}
+                    {{ form.clear (class="login-button", style="margin-left: 10px;") }}
                 </div>
             </div>
         </form>
@@ -29,17 +28,14 @@
                 <table>
                     <thead>
                     <tr style="padding: 10px; margin: 10px;">
-                        {# Loop through each column in the model #}
                         {% for column in results[0].__table__.columns %}
                             <th style="border: 1px solid black; margin: 25px;">{{ column.name }}</th>
                         {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
-                    {# Now loop through the rows #}
                     {% for row in results %}
                         <tr style="padding: 10px; margin: 10px;">
-                            {# And then loop through each cell using the column order #}
                             {% for column in row.__table__.columns %}
                                 <td class="table_data" style="border: 1px solid black; margin: 25px;">{{ row|attr(column.key) }}</td>
                             {% endfor %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Super Wiper Search{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Super Wiper Search</h2>
+
+    <form method="POST" style="background-color: whitesmoke">
+        {{ data.form.hidden_tag() }}
+        <div class="row">
+            <div class="col">
+                <label>Start Date:</label>
+                {{ data.form.startdate(class="form-control") }}
+            </div>
+            <div class="col">
+                <label>End Date:</label>
+                {{ data.form.enddate(class="form-control") }}
+            </div>
+            <div class="col">
+                <label>Serial:</label>
+                {{ data.form.search(class="form-control") }}
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                {{ data.form.submit(class="btn btn-primary") }}
+                {{ data.form.downl(formnovalidate=True, class="btn btn-secondary") }}
+                {{ data.form.clear(formnovalidate=True, class="btn btn-danger") }}
+            </div>
+        </div>
+    </form>
+
+    {% if data.count > 0 %}
+    <p style="background-color: whitesmoke">Search returned {{ data.count }} results.</p>
+
+    <!-- ✅ Scrollable Container for Table -->
+    <div class="table-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; margin-top: 10px;">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Drive ID</th>
+                    <th>Model</th>
+                    <th>Serial</th>
+                    <th>Firmware</th>
+                    <th>Capacity</th>
+                    <th>Interface</th>
+                    <th>SMART Status</th>
+                    <th>Passed</th>
+                    <th>Erase Date</th>
+                    <th>Log PDF</th>
+                    <th>Certificate PDF</th>
+                    <th>Job Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in pagination.items %}
+                <tr>
+                    <td>{{ row.driveid }}</td>
+                    <td>{{ row.drivemodel }}</td>
+                    <td>{{ row.driveserial }}</td>
+                    <td>{{ row.drivefirmware }}</td>
+                    <td>{{ row.drivecapacity }}</td>
+                    <td>{{ row.driveinterface }}</td>
+                    <td>{{ row.drivesmartstatus }}</td>
+                    <td>{{ row.drivepassed }}</td>
+                    <td>{{ row.driveerasedate }}</td>
+                    <td>{{ row.drivelogpdf }}</td>
+                    <td>{{ row.drivecertificatepdf }}</td>
+                    <td>{{ row.drivejobnumber }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ✅ Pagination Controls -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-3">
+            {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('searchviews.superwiper_search', page=pagination.prev_num) }}">Previous</a>
+                </li>
+            {% endif %}
+
+            {% for num in pagination.iter_pages() %}
+                {% if num %}
+                    <li class="page-item {% if num == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('searchviews.superwiper_search', page=num) }}">{{ num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('searchviews.superwiper_search', page=pagination.next_num) }}">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% else %}
+    <p>No results found.</p>
+    {% endif %}
+</div>
+{% endblock %}

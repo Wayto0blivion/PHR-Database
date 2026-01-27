@@ -8,7 +8,7 @@ from sqlalchemy.sql import text
 # from sqlalchemy import create_engine
 from .models import (Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units,
                      Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons, Network_Price_Data,
-                     Mobile_Boxes, Mobile_Pallets, Mobile_Box_Devices, Mobile_Weights)
+                     Mobile_Boxes, Mobile_Pallets, Mobile_Box_Devices, Mobile_Weights, RazorPCExport, RazorUnfiltered)
 from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
 import json
 import flask_excel as excel
@@ -17,7 +17,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 # import pymysql as pms
 from .forms import (ValidationEntryForm, ImportForm, CustomerEntryForm, CustomerSearchForm, AikenProductionForm,
-                    AikenDeviceSearchForm, Server_AddOn_Form, NetworkPricingSearchForm)
+                    AikenDeviceSearchForm, Server_AddOn_Form, NetworkPricingSearchForm, RazorUnfilteredSearchForm)
 from datetime import date, datetime, timedelta
 import numpy as np
 import website.helper_functions as hf
@@ -480,7 +480,19 @@ def aiken_bol_query(form):
     # p2_result = session.execute(text('SELECT p2()')).fetchone()
     # print(f'p2() returned: {p2_result[0]}')
 
-    results = session.query(UnitsDevicesSearch).all()
+    # Start with the view filtered by @search_string and optionally narrow by date range
+    query = session.query(RazorPCExport)
+
+    # Apply date range filters on the Audited timestamp if provided
+    if getattr(form, 'start_date', None) and form.start_date.data:
+        s_dt = datetime.combine(form.start_date.data, datetime.min.time())
+        query = query.filter(RazorPCExport.Audited >= s_dt)
+    if getattr(form, 'end_date', None) and form.end_date.data:
+        # make end boundary exclusive by advancing to the next day at midnight
+        e_dt_next = datetime.combine(form.end_date.data + timedelta(days=1), datetime.min.time())
+        query = query.filter(RazorPCExport.Audited < e_dt_next)
+
+    results = query.all()
 
     session.close()
 
@@ -508,6 +520,39 @@ def aiken_unit_search():
         return render_template('aiken_device_search.html', form=form, results=results, user=current_user)
 
     return render_template('aiken_device_search.html', form=form, user=current_user)
+
+
+@views.route('/aiken-unfiltered-search', methods=['GET', 'POST'])
+@login_required
+def aiken_unfiltered_search():
+    """
+    Search page for the Razor_Unfiltered view. Allows searching by WarehLocation and/or Lot.
+    """
+    form = RazorUnfilteredSearchForm()
+    results = None
+
+    if form.validate_on_submit():
+        if form.clear.data:
+            return redirect(url_for('views.aiken_unfiltered_search'))
+
+        query = RazorUnfiltered.query
+
+        if form.wareh_location.data:
+            # Prefix-only match (right-anchored): case-insensitive
+            like = f"{form.wareh_location.data.strip()}%"
+            query = query.filter(RazorUnfiltered.WarehLocation.ilike(like))
+
+        if form.lot_id.data is not None:
+            query = query.filter(RazorUnfiltered.LotID == form.lot_id.data)
+
+        results = query.all()
+
+        if form.download.data:
+            return download_results_for(RazorUnfiltered, results, 'Aiken Unfiltered Report')
+
+        return render_template('aiken_unfiltered_search.html', form=form, results=results, user=current_user)
+
+    return render_template('aiken_unfiltered_search.html', form=form, user=current_user)
 
 
 @views.route('/new-server-addon', methods=['GET', 'POST'])
@@ -804,25 +849,56 @@ def network_price_search():
 
 def production_graph(query):
     """
-    Creates a graph based on a passed query for Aiken and stores it in memory.
+    Creates a horizontal bar chart based on a passed query for Aiken and stores it in memory.
     :return: A BytesIO object called img_stream for display in the browser.
     """
 
     df = pandas.DataFrame(query, columns=['User', 'AuditedDate', 'UnitsCount'])
-    agg_data = df.groupby('User').sum()['UnitsCount'].reset_index()
+    # Aggregate total units per user
+    agg_data = df.groupby('User', as_index=False)['UnitsCount'].sum()
 
-    plt.figure(figsize=(15, 6))
-    ax = sns.barplot(data=agg_data, x='User', y='UnitsCount')
-    plt.title('Total Units Count By User')
+    # Sort alphabetically by user label
+    agg_data = agg_data.sort_values('User', ascending=True)
 
-    for index, value in enumerate(agg_data['UnitsCount']):
-        ax.text(index, value + 0.5, str(value), ha='center', va='center')
+    # Dynamic figure height to ensure all labels are visible
+    n_labels = max(1, len(agg_data))
+    height = max(4, round(0.35 * n_labels, 2))
 
-    plt.tight_layout()
+    fig, ax = plt.subplots(figsize=(10, height), constrained_layout=True)
+    ax = sns.barplot(
+        data=agg_data,
+        y='User',
+        x='UnitsCount',
+        orient='h',
+        color='#4c78a8',
+        order=agg_data['User'].tolist()  # ensure alphabetical order on axis
+    )
+
+    ax.set_title('Total Units Count By User')
+    ax.set_xlabel('Units')
+    ax.set_ylabel('User')
+    ax.tick_params(axis='y', labelsize=9)
+
+    # Add value labels to the end of each bar
+    max_val = float(agg_data['UnitsCount'].max()) if n_labels > 0 else 0.0
+    offset = 0.01 * max_val if max_val > 0 else 0.5
+    for p in ax.patches:
+        width = p.get_width()
+        y = p.get_y() + p.get_height() / 2
+        # Display integers without decimal, otherwise round to 2 decimals
+        try:
+            label = f"{int(width) if float(width).is_integer() else round(float(width), 2)}"
+        except Exception:
+            label = f"{width}"
+        ax.text(width + offset, y, label, va='center', ha='left')
+
+    # Slight margins to avoid clipping
+    ax.margins(y=0.01)
 
     img_stream = BytesIO()
-    plt.savefig(img_stream, format='png')
+    fig.savefig(img_stream, format='png', dpi=150, bbox_inches='tight')
     img_stream.seek(0)
+    plt.close(fig)
 
     return img_stream
 
@@ -833,8 +909,8 @@ def download_results(results):
     :return: send_file Excel file of the passed results.
     """
 
-    # Extract column names from the model in the order they are described in.
-    column_order = [column.name for column in UnitsDevicesSearch.__table__.columns]
+    # Compute column order based on ORM attribute keys to ensure alignment with instance dicts
+    column_order = [attr.key for attr in inspect(RazorPCExport).mapper.column_attrs]
 
     # Convert the SQLAlchemy objects to dictionaries
     results_as_dicts = [r.__dict__ for r in results]
@@ -843,8 +919,12 @@ def download_results(results):
     results_as_dicts = [{key: value for key, value in r.items() if key != '_sa_instance_state'} for r in results_as_dicts]
 
     df = pandas.DataFrame(results_as_dicts)
-    # Reorder the DataFrame to match the columns
+    # Reorder the DataFrame to match the columns (by attribute keys)
     df = df[column_order]
+
+    # For nicer headers in Excel, replace attribute keys with the DB/view column labels
+    excel_headers = [column.name for column in RazorPCExport.__table__.columns]
+    df.columns = excel_headers
 
     output = BytesIO()
     with pandas.ExcelWriter(output, engine='openpyxl') as writer:
@@ -852,6 +932,91 @@ def download_results(results):
 
     output.seek(0)
     return send_file(output, download_name=f"Aiken BOL Report {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
+
+
+def download_results_for(model, results, report_name='Report'):
+    """
+    Generic helper to create an Excel file from SQLAlchemy results for a given model.
+    """
+    if not results:
+        # Return an empty file gracefully
+        output = BytesIO()
+        with pandas.ExcelWriter(output, engine='openpyxl') as writer:
+            pandas.DataFrame([]).to_excel(writer, sheet_name=report_name, index=False)
+        output.seek(0)
+        return send_file(output, download_name=f"{report_name} {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
+
+    # Mirror the exact approach used by download_results for consistent alignment
+    column_order = [attr.key for attr in inspect(model).mapper.column_attrs]
+
+    # Convert the SQLAlchemy objects to dictionaries, excluding SA state
+    raw_rows = [
+        {key: value for key, value in r.__dict__.items() if key != '_sa_instance_state'}
+        for r in results
+    ]
+
+    # Prepare regex and helpers to detect and remove illegal Excel characters
+    import re
+    illegal_re = re.compile(r"[\x00-\x08\x0B\x0C\x0E-\x1F]")
+
+    def has_illegal(s: str) -> bool:
+        return bool(illegal_re.search(s))
+
+    def sanitize(s: str) -> str:
+        # Replace illegal control chars with a space
+        return illegal_re.sub(' ', s)
+
+    # Scan for offending values and build a sanitized copy for export
+    flagged = []  # list of dicts with UnitID, column, preview, codepoints
+    sanitized_rows = []
+
+    # Map attribute keys to human-friendly Excel headers for reporting
+    attr_keys = column_order
+    excel_headers = [column.name for column in model.__table__.columns]
+    header_map = {attr: header for attr, header in zip(attr_keys, excel_headers)}
+
+    for row in raw_rows:
+        sanitized_row = {}
+        # Try to fetch UnitID if present on this model
+        unit_id_val = row.get('UnitID')
+        for key in attr_keys:
+            val = row.get(key)
+            if isinstance(val, str):
+                if has_illegal(val):
+                    # Create a safe preview and codepoints string
+                    safe_preview = sanitize(val)[:255]
+                    cps = ','.join(str(ord(ch)) for ch in val[:50])
+                    flagged.append({
+                        'UnitID': unit_id_val,
+                        'Column': key,
+                        'Header': header_map.get(key, key),
+                        'OriginalPreview': safe_preview,
+                        'OriginalCodepoints': cps,
+                    })
+                    sanitized_row[key] = sanitize(val)
+                else:
+                    sanitized_row[key] = val
+            else:
+                sanitized_row[key] = val
+        sanitized_rows.append(sanitized_row)
+
+    # Build DataFrame with explicit column order to ensure alignment
+    df = pandas.DataFrame(sanitized_rows, columns=column_order)
+    # For nicer headers in Excel, replace attribute keys with the DB/view column labels
+    df.columns = excel_headers
+
+    output = BytesIO()
+    with pandas.ExcelWriter(output, engine='openpyxl') as writer:
+        # Main sheet (sanitized values)
+        df.to_excel(writer, sheet_name=report_name, index=False)
+        # If any offending cells were found, add a second sheet with details
+        if flagged:
+            flagged_df = pandas.DataFrame(flagged)
+            # Ensure safe headers and values (already sanitized previews)
+            flagged_df.to_excel(writer, sheet_name='Flagged Rows', index=False)
+
+    output.seek(0)
+    return send_file(output, download_name=f"{report_name} {datetime.today().strftime('%Y-%m-%d')}.xlsx", as_attachment=True)
 
 
 def character_count_for_qr(session_string):

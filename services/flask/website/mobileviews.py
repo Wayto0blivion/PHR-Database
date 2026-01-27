@@ -1,6 +1,6 @@
 from . import db, sqlEngine, app, qrcode
 from .forms import (MobileDeviceForm, MobileClosingForm, MobileNewWeightForm, MobileBoxSearchForm,
-                    MobileBoxModificationForm, ImportForm)
+                    MobileBoxModificationForm, MobileWeightAdminSearchForm, ImportForm, MobileAdminAddWeightForm)
 from .models import Mobile_Weights, Mobile_Pallets, Mobile_Boxes, Mobile_Box_Devices, User
 from datetime import datetime
 from decimal import Decimal
@@ -178,13 +178,13 @@ def mobile_box(box_id):
                                         user=current_user.id)
             print(f'New Weight: {session.get("device_model")} - {new_weight.weight}')
             # Add and submit the new object
-            db.session.add(new_weight)
-            db.session.commit()
+            # db.session.add(new_weight)
+            # db.session.commit()
             # Add the new model to the current box.
             new_device = Mobile_Box_Devices(boxID=box_id, modelID=new_weight.autoID,
                                             qty=session.get('device_qty'), user=current_user.id)
-            db.session.add(new_device)
-            db.session.commit()
+            # db.session.add(new_device)
+            # db.session.commit()
 
             # Clear session variables now that they have been used.
             session.pop('device_model')
@@ -225,6 +225,7 @@ def mobile_box(box_id):
                     db.session.add(new_device)
                 else:  # If the model already exists, increase the quantity.
                     current_model.qty += device_form.quantity.data
+                    current_model.timestamp = datetime.now()
                     if current_model.qty == 0:
                         db.session.delete(current_model)
                     # flash(f'Removed {current_model.model}', category='success')
@@ -368,11 +369,95 @@ def modify_qty():
     return render_template("skeleton_mobile_edits.html", forms=forms, user=current_user)
 
 
+@mobileviews.route("/search_weights", methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions("Admin")
+def search_weights():
+    """
+    Allows an admin to search for an existing master weight and choose one to its value.
+    Returns:
+
+    """
+    form = MobileWeightAdminSearchForm()
+
+    if form.validate_on_submit():
+        if form.submit.data:  # Step One: Search for a model matching the user string.
+            matching_models = None
+            matching_models = Mobile_Weights.query.filter(Mobile_Weights.model.contains(form.model.data)).all()
+
+            return render_template("skeleton_admin_search_weights.html", form=form,
+                                   matching_models=matching_models, user=current_user)
+        # Check if a 'Choose Model' button was clicked. Value will be in POST data.
+        chose_model_id = request.form.get("choose_model")
+        if chose_model_id:
+            print(chose_model_id)
+            return redirect(url_for("mobileviews.modify_weight", model=chose_model_id, user=current_user))
+
+    return render_template("skeleton_admin_search_weights.html", form=form, user=current_user)
 
 
+@mobileviews.route("/modify_weight/<model>", methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions("Admin")
+def modify_weight(model):
+    """
+    Modify the weight of a specific model passed in.
+    Args:
+        model: The autoID of the model to modify.
+    Returns:
+
+    """
+    model_info= {}
+    form = MobileNewWeightForm()
+
+    db_entry = Mobile_Weights.query.filter_by(autoID=model).first()
+
+    if db_entry:
+        model_info["id"] = db_entry.autoID
+        model_info["model"] = db_entry.model
+        model_info["weight"] = db_entry.weight
+
+    if form.validate_on_submit():
+        try:
+            db_entry.weight = form.weight.data / Decimal(2.2)
+            db.session.commit()
+            return redirect(url_for("mobileviews.search_weights", user=current_user))
+        except Exception as e:
+            db.session.rollback()
+
+    return render_template("skeleton_admin_modify_weight.html", model_info=model_info, form=form,  user=current_user)
 
 
+@mobileviews.route("/create_weight", methods=['GET', 'POST'])
+@login_required
+@hf.user_permissions("Admin")
+def create_weight():
+    """
+    Allows the user to create a new master weight.
+    Returns:
 
+    """
+    form = MobileAdminAddWeightForm()
+
+    if form.validate_on_submit():
+        try:
+            new_weight = Mobile_Weights()
+            new_weight.model = form.model.data
+            new_weight.weight = form.weight.data / Decimal(2.2)
+            new_weight.user = current_user.id
+            db.session.add(new_weight)
+            db.session.commit()
+            print("Weight Added!")
+            flash("Weight Added!")
+        except Exception as e:
+            print("Rolling back create_weight")
+            print(e)
+            db.session.rollback()
+            flash("Couldn't add weight!")
+    else:
+        print(form.errors)
+
+    return render_template("skeleton_admin_new_weight.html", user=current_user, form=form)
 
 
 

@@ -1,0 +1,8 @@
+Allow user to search for a model using new form.
+IF entry similar to model already exists:
+    Display similar entries to user and allow them to choose the correct one.
+    Use user selection as the basis for modification.
+    Send to modification screen with model selected.
+ELSE if model doesn't already exist:
+    Display message to user that model doesn't exist.
+Show "Create New" button.

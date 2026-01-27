@@ -5,11 +5,11 @@ from sqlalchemy.sql.functions import current_date
 from . import app
 from flask import Flask, Blueprint, render_template, flash, request, jsonify, redirect, url_for, send_file, session, make_response
 from flask_login import login_required, current_user
-from sqlalchemy import create_engine, exc, desc, asc
+from sqlalchemy import create_engine, exc, desc, asc, text
 from sqlalchemy.sql import func
 from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist,\
     MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech, UserData, Customers
-from . import db, sqlEngine, validEngine, hddEngine
+from . import db, sqlEngine, validEngine, hddEngine, aikenEngine
 import json
 import flask_excel as excel
 import pandas as pandas
