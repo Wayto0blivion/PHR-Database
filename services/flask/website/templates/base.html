@@ -193,19 +193,19 @@
       </li>
     </ul>
       {% endif %}
-      {% if user.admin_status %}
           <ul class="navbar-nav">
               <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">
-                      IT Helpdesk
+                      Submit a Ticket
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                      <a class="dropdown-item" href="https://192.168.3.54/helpdesk/tickets" target="_blank">IT Ticket Submission</a>
-                      <a class="dropdown-item" href="https://192.168.3.54/app/helpdesk" target="_blank">Helpdesk Admin Panel</a>
+                      <a class="dropdown-item" href="https://powerhouserecycling.frappe.cloud/helpdesk/tickets" target="_blank">IT Ticket Submission</a>
+                      {% if user.admin_status %}
+                        <a class="dropdown-item" href="https://powerhouserecycling.frappe.cloud/app/helpdesk" target="_blank">Helpdesk Admin Panel</a>
+                      {% endif %}
                   </div>
               </li>
           </ul>
-      {% endif %}
   <div class="collapse navbar-collapse" id="navbar-list-4">
     <ul class="navbar-nav ml-md-auto">
         <li class="nav-item dropdown">
@@ -226,6 +226,15 @@
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                   <a class="dropdown-item" href="/qr-search">QR Search</a>
+              </div>
+          </li>
+      </ul>
+      <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Submit a Ticket
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                  <a class="dropdown-item" href="https://powerhouserecycling.frappe.cloud/helpdesk/tickets" target="_blank">IT Ticket Submission</a>
               </div>
           </li>
       </ul>
