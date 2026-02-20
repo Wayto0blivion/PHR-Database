@@ -87,6 +87,11 @@ def home():
     return render_template("home.html", user=current_user)
 
 
+@views.route('/passwords', methods=['GET', 'POST'])
+def passwords():
+    return render_template("passwords.html", user=current_user)
+
+
 # Testing. For removing custom notes
 @views.route('/delete-note', methods=['POST'])
 @login_required
