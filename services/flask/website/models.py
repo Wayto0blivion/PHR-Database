@@ -1064,3 +1064,11 @@ class SuperWiper_SmartTests(db.Model):
     drivelogpdf = db.Column(db.String(255), nullable=True, default=None)
 
 
+
+
+
+
+
+
+
+
