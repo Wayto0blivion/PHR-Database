@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, exc, desc, asc, text
 from sqlalchemy.sql import func
 from .models import Note, Production, imported_sheets, flask_test, DISKS, BATCHES, VALIDATION, R2_Equipment_Checklist,\
     MasterVerificationLog, B2B, B2B_Imported_Sheets, PC_Imported_Sheets, PC_Tech, UserData, Customers
-from . import db, sqlEngine, validEngine, hddEngine, aikenEngine
+from . import db, get_engine
 import json
 import flask_excel as excel
 import pandas as pandas
@@ -92,7 +92,7 @@ ROWS_PER_PAGE = 50
 @testviews.route('/autoimport', methods=['GET', 'POST'])
 def autoimport():
         
-    dbConnection = sqlEngine.connect()
+    dbConnection = get_engine('sqlEngine').connect()
 
     df = pandas.read_excel(importFolder, names=['Order Number', 'Unit #', 'Product Name', 'R2 Applicability', 'Data Sanitization Field', 'Next Process Field', 'HDD MFG', 'HDD Serial #', 'Manufacturer', 'Model', 'Serial Number', 'Asset', 'New/Used', 'Year Manufactured', 'Processor', 'Speed', 'RAM (GB)', 'HDD (GB)', 'Media', 'COA', 'Form Factor', 'Tech Initials', 'Date', 'Physical Condition/ Grade', 'AC Adapter Included', 'Screen Size', 'Test Result Codes', 'Battery Load Test', 'Original Design Battery Capacity', 'Battery Capacity @ Time of Test', 'Percent of Original Capacity', 'Battery Pass/Fail', 'DATA WIPE/ SANITIZE COMPLETE/ HDD FUNCTIONAL(PASS/FAIL)', 'Sale Category'])
     

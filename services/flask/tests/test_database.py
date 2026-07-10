@@ -23,32 +23,28 @@ class TestDatabaseConnection:
             except Exception as e:
                 pytest.fail(f"Database connection failed: {e}")
 
-    @pytest.mark.integration
     def test_all_engines_accessible(self, app):
-        """Test that all database engines are accessible.
+        """Test that every logical database engine is accessible.
 
-        This connects to the real production MySQL servers via the module-level
-        engines, which are NOT redirected to the test database. It is marked
-        ``integration`` and excluded from the default (pre-commit) run so the
-        committed suite stays isolated from production. Run it on demand with
-        ``pytest -m integration`` when you want to verify live connectivity.
+        The engines are resolved via ``get_engine()`` from the app's configured
+        binds, so in the test environment they point at the isolated SQLite
+        database rather than production. (Before the engines were made
+        config-driven, this test connected to the real production servers and
+        had to be excluded from the default run.)
         """
-        from website import sqlEngine, validEngine, hddEngine, aikenEngine, superWiperEngine
+        from website import get_engine
 
-        engines = {
-            'sqlEngine': sqlEngine,
-            'validEngine': validEngine,
-            'hddEngine': hddEngine,
-            'aikenEngine': aikenEngine,
-            'superWiperEngine': superWiperEngine
-        }
+        engine_names = [
+            'sqlEngine', 'validEngine', 'hddEngine', 'aikenEngine', 'superWiperEngine',
+        ]
 
-        for engine_name, engine in engines.items():
-            try:
-                with engine.connect() as conn:
-                    assert conn is not None
-            except Exception as e:
-                pytest.fail(f"{engine_name} connection failed: {e}")
+        with app.app_context():
+            for engine_name in engine_names:
+                try:
+                    with get_engine(engine_name).connect() as conn:
+                        assert conn is not None
+                except Exception as e:
+                    pytest.fail(f"{engine_name} connection failed: {e}")
 
 
 class TestUserModel:

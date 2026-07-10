@@ -1,3 +1,7 @@
+import os
+from pathlib import Path
+from urllib.parse import quote_plus
+
 from flask import Flask
 from sqlalchemy import inspect
 from flask_qrcode import QRcode
@@ -19,11 +23,33 @@ DB_NAME = 'Processing_Data'
 
 UPLOAD_FOLDER = '/home/owner/avatars'
 
-sqlEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Processing_Data')
-validEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation')
-hddEngine = db.create_engine('mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk')
-aikenEngine = db.create_engine('mysql+pymysql://manager:powerhouse@192.168.3.224/awbc_db')
-superWiperEngine = db.create_engine("mysql+pymysql://user_queries:oldR%40in16@192.168.3.99/superwiper")
+
+# Logical engine names (kept for backwards compatibility with existing call
+# sites) mapped to the Flask-SQLAlchemy bind they correspond to. ``None`` is the
+# default bind (Processing_Data). Code that used to import the module-level
+# ``sqlEngine`` / ``hddEngine`` / ... engines now calls ``get_engine(name)``
+# instead, which resolves the engine from the app's configured binds. These
+# connections therefore follow the same configuration as the ORM -- including
+# the test suite's isolated SQLite override -- instead of hardcoding production
+# servers and credentials.
+_ENGINE_BIND_KEYS = {
+    'sqlEngine': None,
+    'validEngine': 'validation_db',
+    'hddEngine': 'hdd_db',
+    'aikenEngine': 'aiken_db',
+    'superWiperEngine': 'superwiper_db',
+}
+
+
+def get_engine(name):
+    """Return the SQLAlchemy Engine for a logical connection name.
+
+    The engine is the one Flask-SQLAlchemy manages for the matching bind, so it
+    honors the active application configuration. Must be called within an
+    application context (every current call site runs inside a request).
+    """
+    return db.engines[_ENGINE_BIND_KEYS[name]]
+
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
@@ -32,28 +58,107 @@ qrcode = QRcode(app)
 app.config['FLASK_ADMIN_SWATCH'] = 'slate'
 
 
-def create_app(test_config=None):
-    app.config['SECRET_KEY'] = 'Secret!'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Processing_Data'
-    app.config['SQLALCHEMY_BINDS'] = {
-        'hdd_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/db_killdisk',
-        'r2_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Ecommerce',
-        'validation_db': 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Validation',
-        'aiken_db': 'mysql+pymysql://manager:powerhouse@192.168.3.224/awbc_db',
-        'superwiper_db': "mysql+pymysql://user_queries:oldR%40in16@192.168.3.99/superwiper"
+def _mysql_uri(user, password, host, database):
+    """Build a pymysql connection URL, URL-encoding the password so special
+    characters (``@``, ``!`` ...) survive the URL parsing."""
+    return f"mysql+pymysql://{user}:{quote_plus(password)}@{host}/{database}"
+
+
+def _load_local_env():
+    """Populate ``os.environ`` from the repository-root ``.env`` file.
+
+    This makes direct execution work (e.g. launching ``flask_site.py`` from an
+    IDE), where nothing else loads ``.env``. Under docker-compose the variables
+    are already injected via ``env_file``, so ``setdefault`` leaves those intact
+    and a missing file is simply ignored. The first ``.env`` found walking up
+    from this file is used, so the lookup does not depend on the current working
+    directory.
+    """
+    for parent in Path(__file__).resolve().parents:
+        env_path = parent / '.env'
+        if env_path.exists():
+            for line in env_path.read_text().splitlines():
+                line = line.strip()
+                if not line or line.startswith('#') or '=' not in line:
+                    continue
+                key, _, value = line.partition('=')
+                os.environ.setdefault(key.strip(), value.strip())
+            return
+
+
+def _require_env(*names):
+    """Raise a clear error if any required environment variable is missing."""
+    missing = [name for name in names if not os.environ.get(name)]
+    if missing:
+        raise RuntimeError(
+            "Missing required environment variable(s): "
+            + ", ".join(missing)
+            + ". Copy .env.example to .env and fill in the database credentials."
+        )
+
+
+def _production_db_config():
+    """Assemble the SQLAlchemy URIs for every database from environment
+    variables so that credentials are never stored in source. See .env.example.
+
+    Database (schema) names are not secrets and stay in code; only host, user
+    and password come from the environment. The primary server hosts four of
+    the schemas, so its credentials are reused across those binds.
+    """
+    _require_env(
+        'PHR_DB_HOST', 'PHR_DB_USER', 'PHR_DB_PASSWORD',
+        'PHR_AIKEN_DB_HOST', 'PHR_AIKEN_DB_USER', 'PHR_AIKEN_DB_PASSWORD',
+        'PHR_SUPERWIPER_DB_HOST', 'PHR_SUPERWIPER_DB_USER', 'PHR_SUPERWIPER_DB_PASSWORD',
+    )
+    primary = dict(
+        user=os.environ['PHR_DB_USER'],
+        password=os.environ['PHR_DB_PASSWORD'],
+        host=os.environ['PHR_DB_HOST'],
+    )
+    return {
+        'SQLALCHEMY_DATABASE_URI': _mysql_uri(database='Processing_Data', **primary),
+        'SQLALCHEMY_BINDS': {
+            'hdd_db': _mysql_uri(database='db_killdisk', **primary),
+            'r2_db': _mysql_uri(database='Ecommerce', **primary),
+            'validation_db': _mysql_uri(database='Validation', **primary),
+            'aiken_db': _mysql_uri(
+                os.environ['PHR_AIKEN_DB_USER'],
+                os.environ['PHR_AIKEN_DB_PASSWORD'],
+                os.environ['PHR_AIKEN_DB_HOST'],
+                'awbc_db',
+            ),
+            'superwiper_db': _mysql_uri(
+                os.environ['PHR_SUPERWIPER_DB_USER'],
+                os.environ['PHR_SUPERWIPER_DB_PASSWORD'],
+                os.environ['PHR_SUPERWIPER_DB_HOST'],
+                'superwiper',
+            ),
+        },
     }
+
+
+def create_app(test_config=None):
+    # When running outside Docker (e.g. launching flask_site.py from an IDE),
+    # load credentials from the repo-root .env. Under docker-compose these are
+    # already injected via env_file, so this is a harmless no-op there. Skipped
+    # for tests, which supply their own configuration.
+    if not test_config:
+        _load_local_env()
+
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'Secret!')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'
 
-    # Allow callers (notably the test suite) to override configuration before the
-    # SQLAlchemy engines are initialized. Tests pass a config that repoints the
-    # default bind and every named bind at an isolated SQLite database so the
-    # suite can never read from or write to the production MySQL servers.
-    # This must run before db.init_app(app) so the overridden URIs take effect.
+    # Database configuration must be set before db.init_app(app) so the engines
+    # pick it up. Callers such as the test suite provide their own config (an
+    # isolated in-memory SQLite database); that branch never touches the
+    # production credentials in the environment. Otherwise the real URIs are
+    # assembled from environment variables.
     if test_config:
         app.config.update(test_config)
-
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    else:
+        app.config.update(_production_db_config())
 
     # initialize the flask_excel package with the current app
     excel.init_excel(app)

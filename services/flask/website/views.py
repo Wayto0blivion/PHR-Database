@@ -9,7 +9,7 @@ from sqlalchemy.sql import text
 from .models import (Note, imported_sheets, VALIDATION, MasterVerificationLog, BATCHES, Customers, Lots, Units,
                      Units_Devices, UnitsDevicesSearch, Server_AddOns, Searches_Addons, Network_Price_Data,
                      Mobile_Boxes, Mobile_Pallets, Mobile_Box_Devices, Mobile_Weights, RazorPCExport, RazorUnfiltered)
-from . import db, sqlEngine, validEngine, aikenEngine, app, qrcode
+from . import db, get_engine, app, qrcode
 import json
 import flask_excel as excel
 import pandas as pandas
@@ -156,7 +156,7 @@ def safeimport():
 
                 df.loc[:, ['sheet_id']] = sheet_name_id
 
-                frame = df.to_sql("Production", sqlEngine, if_exists='append', index=False)
+                frame = df.to_sql("Production", get_engine('sqlEngine'), if_exists='append', index=False)
 
             except ValueError as vx:
                 sheet_name_query = imported_sheets.query.filter_by(sheetName=sheetName).first()
@@ -255,7 +255,7 @@ def validation_import():
                                    names=columnNames,
                                    index_col=None)
 
-            frame = df.to_sql("MasterVerificationLog", validEngine, if_exists='append', index=False)
+            frame = df.to_sql("MasterVerificationLog", get_engine('validEngine'), if_exists='append', index=False)
 
         except ValueError as vx:
             shape = vx

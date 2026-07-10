@@ -7,7 +7,7 @@ Im not sure the above is true? Download verification search works fine.
 
 import flask_excel as excel
 from flask import make_response, render_template, redirect, url_for
-from . import db, sqlEngine, hddEngine, validEngine, aikenEngine, superWiperEngine
+from . import db, get_engine
 import pandas
 from functools import wraps
 from .models import User
@@ -15,18 +15,12 @@ from flask_login import current_user
 
 
 def download_search(search, bind):
-    engine = ''
-    if bind == 'hddEngine':
-        engine = hddEngine
-    elif bind == 'sqlEngine':
-        engine = sqlEngine
-    elif bind == 'validEngine':
-        engine = validEngine
-    elif bind == 'aikenEngine':
-        engine = aikenEngine
-    elif bind == 'superWiperEngine':
-        engine = superWiperEngine
-    else:
+    # ``bind`` is a logical engine name ('hddEngine', 'sqlEngine', ...) resolved
+    # to the matching configured engine. In tests this is the isolated SQLite
+    # database rather than a production server.
+    try:
+        engine = get_engine(bind)
+    except KeyError:
         print('No engine detected!')
         return
 

@@ -9,14 +9,11 @@ production. The schema is built from the models with ``db.create_all()`` and a
 small set of test users is seeded so the authenticated fixtures have accounts
 to log in as.
 
-Known limitation (tracked as a follow-up): the module-level engines in
-``website/__init__.py`` (``sqlEngine``, ``aikenEngine``, etc.) are created at
-import time with hardcoded production credentials and are NOT affected by this
-override. The current tests do not exercise the GET code paths that use them,
-but any future test that submits an import/search/download could still reach
-production through those engines until they are made config-driven. The one
-test that connects to them directly (``test_all_engines_accessible``) is marked
-``integration`` and excluded from the default run for this reason.
+The former module-level engines (``sqlEngine``, ``aikenEngine``, etc.) are no
+longer separate hardcoded engines: ``website.get_engine(name)`` now resolves
+them from the app's configured binds, so the pandas import/search/download code
+paths that use them are covered by this same SQLite override and can never reach
+production during a test.
 """
 import pytest
 from sqlalchemy.ext.compiler import compiles

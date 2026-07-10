@@ -1,4 +1,4 @@
-from . import db, hddEngine
+from . import db
 from .models import DISKS, BATCHES
 from sqlalchemy import desc
 

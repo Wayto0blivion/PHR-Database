@@ -1,4 +1,4 @@
-from . import db, sqlEngine, app, qrcode
+from . import db, app, qrcode
 from .forms import (MobileDeviceForm, MobileClosingForm, MobileNewWeightForm, MobileBoxSearchForm,
                     MobileBoxModificationForm, MobileWeightAdminSearchForm, ImportForm, MobileAdminAddWeightForm)
 from .models import Mobile_Weights, Mobile_Pallets, Mobile_Boxes, Mobile_Box_Devices, User
