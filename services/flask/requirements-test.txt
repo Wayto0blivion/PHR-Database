@@ -1,0 +1,10 @@
+# Test dependencies for PHR Flask application
+# Install with: pip install -r requirements-test.txt
+
+# Testing framework
+pytest>=7.4.0
+pytest-flask>=1.2.0
+pytest-cov>=4.1.0
+
+# These are needed alongside your main requirements.txt
+# Install both with: pip install -r requirements.txt -r requirements-test.txt
