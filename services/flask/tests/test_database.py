@@ -23,8 +23,16 @@ class TestDatabaseConnection:
             except Exception as e:
                 pytest.fail(f"Database connection failed: {e}")
 
+    @pytest.mark.integration
     def test_all_engines_accessible(self, app):
-        """Test that all database engines are accessible."""
+        """Test that all database engines are accessible.
+
+        This connects to the real production MySQL servers via the module-level
+        engines, which are NOT redirected to the test database. It is marked
+        ``integration`` and excluded from the default (pre-commit) run so the
+        committed suite stays isolated from production. Run it on demand with
+        ``pytest -m integration`` when you want to verify live connectivity.
+        """
         from website import sqlEngine, validEngine, hddEngine, aikenEngine, superWiperEngine
 
         engines = {

@@ -32,7 +32,7 @@ qrcode = QRcode(app)
 app.config['FLASK_ADMIN_SWATCH'] = 'slate'
 
 
-def create_app():
+def create_app(test_config=None):
     app.config['SECRET_KEY'] = 'Secret!'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql_server:k!ndSilver83@192.168.3.243/Processing_Data'
     app.config['SQLALCHEMY_BINDS'] = {
@@ -44,6 +44,14 @@ def create_app():
     }
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'
+
+    # Allow callers (notably the test suite) to override configuration before the
+    # SQLAlchemy engines are initialized. Tests pass a config that repoints the
+    # default bind and every named bind at an isolated SQLite database so the
+    # suite can never read from or write to the production MySQL servers.
+    # This must run before db.init_app(app) so the overridden URIs take effect.
+    if test_config:
+        app.config.update(test_config)
 
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
