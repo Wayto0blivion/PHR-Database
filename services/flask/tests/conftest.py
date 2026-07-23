@@ -104,10 +104,12 @@ def _seed_users():
              network_status=True, mobile_status=True, server_status=True,
              processing_status=True, hdd_status=True, validation_status=True,
              qr_generation=True, mobile_admin_status=True),
-        # Mobile admin, but NOT a full admin -> mobile_admin_client. Proves the
-        # mobile-admin permission works on its own, independent of admin_status.
+        # Mobile admin, but NOT a full admin -> mobile_admin_client. Deliberately
+        # granted ONLY mobile_admin_status (no mobile_status): users are assigned
+        # either "Mobile" or "Mobile Admin", never both, so "Mobile Admin" must
+        # unlock the mobile section on its own -- including the navbar menu.
         User(email="mobileadmin@test.local", password=pw, first_name="MobileAdmin",
-             active_status=True, mobile_status=True, mobile_admin_status=True),
+             active_status=True, mobile_admin_status=True),
     ]
     db.session.add_all(users)
     db.session.commit()

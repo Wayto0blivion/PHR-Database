@@ -126,7 +126,7 @@
       </li>
     </ul>
       {% endif %}
-      {% if user.mobile_status %}
+      {% if user.mobile_status or user.mobile_admin_status or user.admin_status %}
     <ul class="navbar-nav">
         <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white">Mobile

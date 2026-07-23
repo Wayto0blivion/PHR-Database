@@ -210,6 +210,24 @@ class TestMobileRoutes:
         response = mobile_admin_client.get('/mobile/all_pallets')
         assert response.status_code == 200
 
+    def test_navbar_shows_mobile_menu_to_mobile_admin(self, mobile_admin_client):
+        """A user with ONLY the mobile-admin permission (no 'Mobile') must still
+        see the Mobile menu in the navbar -- the two flags are assigned
+        either/or, so mobile-admin has to unlock the section on its own.
+        """
+        response = mobile_admin_client.get('/')
+        assert response.status_code == 200
+        # The Weightsheets link (href="/mobile") and the admin sub-links only
+        # render when the Mobile dropdown is shown.
+        assert b'href="/mobile"' in response.data
+        assert b'/mobile/search_weights' in response.data
+
+    def test_navbar_hides_mobile_menu_from_plain_user(self, authenticated_client):
+        """A plain active user with no mobile permission sees no Mobile menu."""
+        response = authenticated_client.get('/')
+        assert response.status_code == 200
+        assert b'href="/mobile"' not in response.data
+
 
 class TestNetworkRoutes:
     """Test network-related routes."""
