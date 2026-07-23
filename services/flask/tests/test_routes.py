@@ -164,6 +164,52 @@ class TestMobileRoutes:
         response = authenticated_client.get('/mobile')
         assert response.status_code in [200, 302, 308, 403]
 
+    def test_mobile_admin_redirected_to_all_pallets(self, mobile_admin_client):
+        """A mobile-admin user oversees pallets instead of auto-starting one.
+
+        Requesting the canonical '/mobile/' URL runs mobile_home(); for a
+        mobile-admin it must redirect to the all-pallets overview WITHOUT
+        creating any pallet/box rows (unlike a regular user). This is the core
+        behavior the dedicated mobile-admin permission unlocks.
+        """
+        response = mobile_admin_client.get('/mobile/', follow_redirects=False)
+        assert response.status_code == 302
+        assert response.headers['Location'].endswith('/mobile/all_pallets')
+
+    def test_full_admin_still_redirected_to_all_pallets(self, admin_client):
+        """Full admins retain the mobile-admin overview without the new flag
+        having to be set explicitly (mobile_admin OR admin)."""
+        response = admin_client.get('/mobile/', follow_redirects=False)
+        assert response.status_code == 302
+        assert response.headers['Location'].endswith('/mobile/all_pallets')
+
+    def test_mobile_admin_can_access_weight_lookup(self, mobile_admin_client):
+        """The mobile weight Look Up route is unlocked by the mobile-admin
+        permission (previously it required full admin)."""
+        response = mobile_admin_client.get('/mobile/search_weights')
+        assert response.status_code == 200
+
+    def test_regular_user_denied_weight_lookup(self, authenticated_client):
+        """A plain active user without mobile-admin is redirected away from the
+        mobile weight admin routes rather than reaching them."""
+        response = authenticated_client.get('/mobile/search_weights',
+                                            follow_redirects=False)
+        assert response.status_code == 302
+        assert not response.headers['Location'].endswith('/mobile/search_weights')
+
+    def test_regular_user_denied_all_pallets(self, authenticated_client):
+        """The all-pallets overview is gated by the mobile-admin permission, so a
+        plain user cannot reach it directly (not just via a hidden nav link)."""
+        response = authenticated_client.get('/mobile/all_pallets',
+                                            follow_redirects=False)
+        assert response.status_code == 302
+        assert not response.headers['Location'].endswith('/mobile/all_pallets')
+
+    def test_mobile_admin_can_access_all_pallets(self, mobile_admin_client):
+        """A mobile-admin user can load the all-pallets overview directly."""
+        response = mobile_admin_client.get('/mobile/all_pallets')
+        assert response.status_code == 200
+
 
 class TestNetworkRoutes:
     """Test network-related routes."""

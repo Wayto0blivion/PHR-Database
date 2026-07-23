@@ -103,7 +103,11 @@ def _seed_users():
              active_status=True, admin_status=True, pc_status=True,
              network_status=True, mobile_status=True, server_status=True,
              processing_status=True, hdd_status=True, validation_status=True,
-             qr_generation=True),
+             qr_generation=True, mobile_admin_status=True),
+        # Mobile admin, but NOT a full admin -> mobile_admin_client. Proves the
+        # mobile-admin permission works on its own, independent of admin_status.
+        User(email="mobileadmin@test.local", password=pw, first_name="MobileAdmin",
+             active_status=True, mobile_status=True, mobile_admin_status=True),
     ]
     db.session.add_all(users)
     db.session.commit()
@@ -180,3 +184,15 @@ def admin_client(app):
 def pc_tech_client(app):
     """A test client logged in as an active PC Tech user."""
     return _login_as(app, pc_status=True, active_status=True)
+
+
+@pytest.fixture(scope="function")
+def mobile_admin_client(app):
+    """A test client logged in as a mobile-admin user who is NOT a full admin.
+
+    Filtering on ``admin_status=False`` is deliberate: it selects the dedicated
+    mobile-admin seed user rather than the full admin (who also has the flag),
+    so tests can assert the mobile-admin permission works on its own.
+    """
+    return _login_as(app, mobile_admin_status=True, admin_status=False,
+                     active_status=True)

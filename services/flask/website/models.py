@@ -22,6 +22,7 @@ class User(db.Model, UserMixin):
     pc_status = db.Column('PC Tech', db.Boolean, default=False)
     network_status = db.Column('Network', db.Boolean, default=False)
     mobile_status = db.Column('Mobile', db.Boolean, default=False)
+    mobile_admin_status = db.Column('Mobile Admin', db.Boolean, default=False)
     server_status = db.Column('Servers', db.Boolean, default=False)
     processing_status = db.Column('Processing', db.Boolean, default=False)
     hdd_status = db.Column('HDD', db.Boolean, default=False)

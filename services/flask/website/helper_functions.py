@@ -59,6 +59,9 @@ def user_permissions(permission):
                 return f(*args, **kwargs)
             elif permission_level == 'QR Generation' and current_user.qr_generation:
                 return f(*args, **kwargs)
+            elif permission_level == 'Mobile Admin' and (current_user.mobile_admin_status or current_user.admin_status):
+                # Full admins retain mobile-admin access without needing the flag set explicitly.
+                return f(*args, **kwargs)
             elif permission_level == 'Admin' and current_user.admin_status:
                 return f(*args, **kwargs)
             else:

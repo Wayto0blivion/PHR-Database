@@ -77,6 +77,8 @@ class TestUserModel:
                 assert hasattr(user, 'processing_status')
                 assert hasattr(user, 'validation_status')
                 assert hasattr(user, 'qr_generation')
+                assert hasattr(user, 'mobile_status')
+                assert hasattr(user, 'mobile_admin_status')
 
 
 class TestProductionModel:

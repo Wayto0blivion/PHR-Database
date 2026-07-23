@@ -180,7 +180,8 @@ def create_app(test_config=None):
         column_display_pk = True
         create_modal = True
         column_editable_list = ['active_status', 'pc_status', 'server_status', 'processing_status',
-                                'hdd_status', 'validation_status', 'qr_generation', 'admin_status']
+                                'hdd_status', 'validation_status', 'qr_generation', 'mobile_admin_status',
+                                'admin_status']
 
     class DiskView(ModelView):
         column_display_pk = True

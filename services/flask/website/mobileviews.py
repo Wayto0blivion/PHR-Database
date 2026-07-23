@@ -30,10 +30,10 @@ def mobile_home():
     Redirects user to view_pallet_boxes with the active pallet id
     """
 
-    # Check if the current user has admin permissions for this page, and if so,
-    # forward them to the "all_pallets" page.
-    # TODO: Update the permission once the new one (permission set) is created.
-    if current_user.admin_status:
+    # Users with the dedicated mobile-admin permission (or full admins) oversee
+    # pallets rather than run one: forward them to the "all_pallets" page instead
+    # of auto-starting a pallet for them.
+    if current_user.mobile_admin_status or current_user.admin_status:
         return redirect(url_for('mobileviews.all_open_pallets'))
 
     # Check for an active pallet for the current user.
@@ -60,6 +60,7 @@ def mobile_home():
 
 @mobileviews.route("/all_pallets", methods=["GET", "POST"])
 @login_required
+@hf.user_permissions("Mobile Admin")
 def all_open_pallets():
     """
     Designed to show all open pallets and the user assigned to them.
@@ -110,8 +111,10 @@ def mobile_pallet(pallet_id):
         weights[box.box_number] = [total_box_weight, good_count, bad_count]
         # print(weights[box.box_number])
 
-    # Handle the closing of the pallet and all boxes tied to it.
-    if close_form.validate_on_submit():
+    # Handle the closing of the pallet and all boxes tied to it. Closing a pallet
+    # is a mobile-admin action: the button is only shown to mobile admins, and we
+    # also enforce it here so a forged POST from a regular user is a safe no-op.
+    if close_form.validate_on_submit() and (current_user.mobile_admin_status or current_user.admin_status):
         print('Validating Close Form')
         # Handle closing all boxes tied to the pallet first.
         for box in boxes:
@@ -371,7 +374,7 @@ def modify_qty():
 
 @mobileviews.route("/search_weights", methods=['GET', 'POST'])
 @login_required
-@hf.user_permissions("Admin")
+@hf.user_permissions("Mobile Admin")
 def search_weights():
     """
     Allows an admin to search for an existing master weight and choose one to its value.
@@ -398,7 +401,7 @@ def search_weights():
 
 @mobileviews.route("/modify_weight/<model>", methods=['GET', 'POST'])
 @login_required
-@hf.user_permissions("Admin")
+@hf.user_permissions("Mobile Admin")
 def modify_weight(model):
     """
     Modify the weight of a specific model passed in.
@@ -430,7 +433,7 @@ def modify_weight(model):
 
 @mobileviews.route("/create_weight", methods=['GET', 'POST'])
 @login_required
-@hf.user_permissions("Admin")
+@hf.user_permissions("Mobile Admin")
 def create_weight():
     """
     Allows the user to create a new master weight.
