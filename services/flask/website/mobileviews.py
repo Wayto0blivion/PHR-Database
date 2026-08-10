@@ -1,6 +1,7 @@
 from . import db, app, qrcode
 from .forms import (MobileDeviceForm, MobileClosingForm, MobileNewWeightForm, MobileBoxSearchForm,
-                    MobileBoxModificationForm, MobileWeightAdminSearchForm, ImportForm, MobileAdminAddWeightForm)
+                    MobileBoxModificationForm, MobileWeightAdminSearchForm, ImportForm, MobileAdminAddWeightForm,
+                    MobileReopenBoxForm)
 from .models import Mobile_Weights, Mobile_Pallets, Mobile_Boxes, Mobile_Box_Devices, User
 from datetime import datetime
 from decimal import Decimal
@@ -85,6 +86,8 @@ def mobile_pallet(pallet_id):
     """
     # Create an instance of the closed form.
     close_form = MobileClosingForm()
+    # Form for the admin-only "reopen box" buttons rendered under closed boxes.
+    reopen_form = MobileReopenBoxForm()
     # Query Mobile_Boxes table for all boxes associated with a given pallet id
     boxes = Mobile_Boxes.query.filter_by(palletID=pallet_id).order_by(Mobile_Boxes.box_number).all()
 
@@ -129,7 +132,29 @@ def mobile_pallet(pallet_id):
         return mobile_pallet_export(pallet_id=pallet_id)
 
     return render_template('skeleton_mobile_box_list.html', boxes=boxes, weights=weights,
-                           close_form=close_form, user=current_user)
+                           close_form=close_form, reopen_form=reopen_form, user=current_user)
+
+
+@mobileviews.route('/reopen_box/<int:box_id>', methods=['POST'])
+@login_required
+@hf.user_permissions("Mobile Admin")
+def reopen_box(box_id):
+    """
+    Reopen a closed box by setting is_active back to True. Admin-only.
+    """
+    form = MobileReopenBoxForm()
+    box = Mobile_Boxes.query.filter_by(autoID=box_id).first()
+
+    if not box:
+        flash('Box not found.', category='error')
+        return redirect(url_for('mobileviews.mobile_home'))
+
+    if form.validate_on_submit() and not box.is_active:
+        box.is_active = True
+        db.session.commit()
+        flash(f'Box {box.box_number} reopened.', category='success')
+
+    return redirect(url_for('mobileviews.mobile_pallet', pallet_id=box.palletID))
 
 
 @mobileviews.route('/box/<int:box_id>', methods=['GET', 'POST'])

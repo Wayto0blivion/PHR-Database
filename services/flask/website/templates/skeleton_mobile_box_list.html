@@ -31,6 +31,12 @@
                         Box {{ box.box_number }} <br />
                         <span style="font-size: 12px">Weight: {{ weights[box.box_number][0] }} G: {{ weights[box.box_number][1] }} B: {{ weights[box.box_number][2] }}</span>
                     </button>
+                    {% if not box.is_active and box.autoID and (user.mobile_admin_status or user.admin_status) %}
+                        <form method="POST" action="{{ url_for('mobileviews.reopen_box', box_id=box.autoID) }}">
+                            {{ reopen_form.hidden_tag() }}
+                            {{ reopen_form.reopen_button (class="btn btn-warning btn-sm", style="width: 100%; margin-bottom: 10px") }}
+                        </form>
+                    {% endif %}
                 </div>
                 {% if loop.index % 6 == 0 and not loop.last %}
                     </div><div class="row">

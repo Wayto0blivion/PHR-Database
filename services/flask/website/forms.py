@@ -314,6 +314,13 @@ class MobileClosingForm(FlaskForm):
     close_pallet_button = SubmitField('Close Pallet')
 
 
+class MobileReopenBoxForm(FlaskForm):
+    """
+    Handles reopening a closed box. Admin-only action.
+    """
+    reopen_button = SubmitField('Reopen')
+
+
 class MobileNewWeightForm(FlaskForm):
     """
     Handles adding new weights to the Mobile_Weights table
