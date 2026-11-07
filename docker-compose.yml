@@ -4,7 +4,7 @@ services:
   web:
     build: ./services/flask
     restart: always
-    command: gunicorn --bind 0.0.0.0:5000 -w 4 --log-level=debug flask_site:app
+    command: gunicorn --bind 0.0.0.0:5000 -w 4 --max-requests 500 --max-requests-jitter 50 --log-level=debug flask_site:app
 #    command: flask --app flask_site run --host 0.0.0.0
     expose:
       - 5000
