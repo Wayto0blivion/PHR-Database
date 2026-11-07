@@ -1,27 +1,34 @@
 #!/usr/bin/env bash
-# Deploy the PHR Database stack on the web server.
+# Deploy a tagged release of this repository's Docker Compose stack.
 #
-#   ./deploy.sh
+#   ./deploy.sh                 deploy the newest release tag
+#   ./deploy.sh v2026.11.07     deploy that tag (this is also how you roll back)
 #
-# Steps: back up the local credential files, fast-forward the checkout to
-# origin, put the credential files back exactly as they were, rebuild the
-# images, then restart the stack with Docker Compose v2 ("docker compose").
+# Releases are git tags named vYYYY.MM.DD or vYYYY.MM.DD.N, cut with
+# ./release.sh on a dev machine. Production never tracks a branch: the
+# checkout is left detached at the deployed tag, so "git describe --tags"
+# always says what is running.
 #
-# .env and .env.db are NOT tracked in git. They exist only on this machine, so
-# this script treats them as precious: they are copied aside before anything
-# else happens, restored on every exit path (including failures), and the
-# deploy refuses to start if either is missing.
+# Credential files (ENV_FILES below) are NOT tracked in git and exist only on
+# this machine. They are copied aside before anything else happens, restored
+# on every exit path (including failures), and the deploy refuses to start if
+# one is missing.
 #
 # The script normally lives in the checkout it deploys. To run a copy from
-# somewhere else (e.g. the very first deploy, before the checkout has this
-# file), point it at the checkout: PHR_DIR=~/flask/PHR-Database bash deploy.sh
+# somewhere else, point it at the checkout: DEPLOY_DIR=~/flask/PHR-Database bash deploy.sh
 set -euo pipefail
 
-cd "${PHR_DIR:-$(dirname "$(readlink -f "$0")")}"
+# ---- per-repository settings -------------------------------------------------
+ENV_FILES=(.env .env.db)        # untracked credential files to protect
+# ------------------------------------------------------------------------------
 
-ENV_FILES=(.env .env.db)
-BACKUP_DIR="${HOME}/phr-env-backups"
+cd "${DEPLOY_DIR:-$(dirname "$(readlink -f "$0")")}"
+
+BACKUP_DIR="${HOME}/env-backups/$(basename "$PWD")"
 STAMP="$(date +%Y%m%d-%H%M%S)"
+REQUESTED_TAG="${1:-}"
+
+die() { echo "ERROR: $*" >&2; exit 1; }
 
 restore_env_files() {
     local f backup
@@ -34,21 +41,38 @@ restore_env_files() {
         fi
     done
 }
-trap restore_env_files EXIT
+
+echo "==> Pre-flight checks"
+docker info >/dev/null 2>&1 || die "Docker daemon is not reachable. Try: sudo systemctl enable --now docker"
+docker compose version >/dev/null 2>&1 || die "Docker Compose v2 plugin is not installed (docker-compose-plugin)."
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || die "$PWD is not a git checkout."
+for f in "${ENV_FILES[@]}"; do
+    [[ -f "$f" ]] || die "$f is missing. Create it from ${f}.example before deploying."
+done
+
+echo "==> Fetching release tags"
+git fetch --quiet --tags --force origin
+
+if [[ -z "$REQUESTED_TAG" ]]; then
+    REQUESTED_TAG="$(git tag --list 'v*' --sort=-v:refname | head -n 1)"
+    [[ -n "$REQUESTED_TAG" ]] || die "No release tags found. Cut one with ./release.sh first."
+fi
+git rev-parse -q --verify "refs/tags/${REQUESTED_TAG}^{commit}" >/dev/null \
+    || die "Tag ${REQUESTED_TAG} does not exist. Available: $(git tag --list 'v*' --sort=-v:refname | head -n 5 | tr '\n' ' ')"
+
+CURRENT="$(git describe --tags --always 2>/dev/null || echo unknown)"
+echo "==> Deploying ${REQUESTED_TAG} (currently ${CURRENT})"
 
 echo "==> Backing up credential files to ${BACKUP_DIR}"
 mkdir -p "$BACKUP_DIR"
 chmod 700 "$BACKUP_DIR"
 for f in "${ENV_FILES[@]}"; do
-    if [[ ! -f "$f" ]]; then
-        echo "ERROR: $f is missing. Create it from ${f}.example before deploying." >&2
-        exit 1
-    fi
     cp -p "$f" "${BACKUP_DIR}/${f}.${STAMP}"
 done
+trap restore_env_files EXIT
 
 # Older checkouts still have the credential files under version control. Any
-# local edits to them would make git refuse the pull, so reset them to the
+# local edits to them would make git refuse the checkout, so reset them to the
 # committed version first; the trap above puts the real files back afterwards.
 for f in "${ENV_FILES[@]}"; do
     if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
@@ -56,8 +80,8 @@ for f in "${ENV_FILES[@]}"; do
     fi
 done
 
-echo "==> Updating git repository"
-git pull --ff-only
+echo "==> Checking out ${REQUESTED_TAG}"
+git checkout --quiet --detach "refs/tags/${REQUESTED_TAG}"
 
 restore_env_files
 
@@ -76,4 +100,4 @@ for f in "${ENV_FILES[@]}"; do
     ls -1t "${BACKUP_DIR}/${f}."* 2>/dev/null | tail -n +11 | xargs -r rm -f
 done
 
-echo "Docker is back online!"
+echo "Deployed ${REQUESTED_TAG} ($(git rev-parse --short HEAD))."

@@ -1,5 +1,14 @@
-Deploying on the web server (pulls the latest code, keeps .env and .env.db intact):
-./deploy.sh
+Releasing (on a dev machine, from a clean, up-to-date master):
+./release.sh
+  Tags master as vYYYY.MM.DD (or .2, .3 ... for a second release the same day)
+  and publishes a GitHub Release with notes generated from the merged PRs.
+
+Deploying on the web server (keeps .env and .env.db intact):
+./deploy.sh              newest release tag
+./deploy.sh v2026.11.07  that tag; this is also how you roll back
+
+What is running right now:
+git describe --tags
 
 Manual Docker Compose v2 commands (note the space: "docker compose", not "docker-compose"):
 
