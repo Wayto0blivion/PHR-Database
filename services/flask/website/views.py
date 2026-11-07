@@ -390,9 +390,10 @@ def generate_qr_code(customer_name):
 
 
 def aiken_query(form):
-    AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
-    session = AikenSession()
-
+    """
+    Build the daily-production query. Runs on db.session: the Aiken models carry
+    __bind_key__ = 'aiken_db', so Flask-SQLAlchemy routes it to the Aiken engine.
+    """
     filters = []
 
     if form.start_date.data and form.end_date.data:
