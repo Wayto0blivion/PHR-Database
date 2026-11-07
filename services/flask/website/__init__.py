@@ -148,6 +148,10 @@ def create_app(test_config=None):
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'Secret!')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    # Let browsers cache files under /static for a day. Flask 2.2 sends no
+    # max-age by default, so every page load revalidated the 710 KB background
+    # image before painting it, which showed as a gray flash on each navigation.
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
     # app.config['SERVER_NAME'] = '0.0.0.0:5510'
 
     # Database configuration must be set before db.init_app(app) so the engines
