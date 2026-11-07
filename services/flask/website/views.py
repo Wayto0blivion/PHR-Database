@@ -390,9 +390,10 @@ def generate_qr_code(customer_name):
 
 
 def aiken_query(form):
-    AikenSession = sessionmaker(bind=db.get_engine('aiken_db'))
-    session = AikenSession()
-
+    """
+    Build the daily-production query. Runs on db.session: the Aiken models carry
+    __bind_key__ = 'aiken_db', so Flask-SQLAlchemy routes it to the Aiken engine.
+    """
     filters = []
 
     if form.start_date.data and form.end_date.data:
@@ -438,19 +439,33 @@ def aiken_daily_production():
     if form.validate_on_submit():
         query = aiken_query(form)
 
+        # Run the query up front so a failed connection (Aiken server down, login reset by an
+        # Aiken update, schema change) shows a message on the page instead of a bare 500.
+        try:
+            if form.table.data:
+                results = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
+            else:
+                results = query.all()
+        except exc.SQLAlchemyError as error:
+            aiken_db_error(error)
+            return render_template('aiken_daily_production.html', form=form, user=current_user)
+
         if form.graph.data:
-            img_stream = production_graph(query.all())
+            if not results:
+                flash(aiken_no_results_message(form), category='error')
+                return render_template('aiken_daily_production.html', form=form, user=current_user)
+
+            img_stream = production_graph(results)
             return Response(img_stream.getvalue(), content_type='image/png')
 
         if form.table.data:
-            results = query.paginate(page=page, per_page=ROWS_PER_PAGE, error_out=False)
+            if not results.items:
+                flash(aiken_no_results_message(form), category='error')
 
             return render_template('aiken_daily_production.html', query=results.items, form=form, user=current_user,
                                    pagination=results)
 
         if form.download.data:
-            results = query.all()
-
             df = pandas.DataFrame(results, columns=['User', 'Audited Date', 'Units Count'])
 
             # print(df.head())
@@ -473,6 +488,13 @@ def aiken_bol_query(form):
     search_string = form.search.data.strip()
     # print(search_string)
 
+    try:
+        return _aiken_bol_results(session, form, search_string)
+    finally:
+        session.close()
+
+
+def _aiken_bol_results(session, form, search_string):
     # Set the @search_string variable needed by the p2() function in MySQL
     session.execute(text('SET @search_string = :search'), {'search': search_string})
     session.commit()
@@ -497,11 +519,7 @@ def aiken_bol_query(form):
         e_dt_next = datetime.combine(form.end_date.data + timedelta(days=1), datetime.min.time())
         query = query.filter(RazorPCExport.Audited < e_dt_next)
 
-    results = query.all()
-
-    session.close()
-
-    return results
+    return query.all()
 
 
 @views.route('/aiken-unit-search', methods=['GET', 'POST'])
@@ -516,7 +534,11 @@ def aiken_unit_search():
 
     if form.validate_on_submit():
 
-        results = aiken_bol_query(form)
+        try:
+            results = aiken_bol_query(form)
+        except exc.SQLAlchemyError as error:
+            aiken_db_error(error)
+            return render_template('aiken_device_search.html', form=form, user=current_user)
 
         if form.download.data:
 
@@ -550,7 +572,11 @@ def aiken_unfiltered_search():
         if form.lot_id.data is not None:
             query = query.filter(RazorUnfiltered.LotID == form.lot_id.data)
 
-        results = query.all()
+        try:
+            results = query.all()
+        except exc.SQLAlchemyError as error:
+            aiken_db_error(error)
+            return render_template('aiken_unfiltered_search.html', form=form, user=current_user)
 
         if form.download.data:
             return download_results_for(RazorUnfiltered, results, 'Aiken Unfiltered Report')
@@ -850,6 +876,36 @@ def network_price_search():
 # === End of Views ===
 
 # === Functions ===
+
+
+def aiken_db_error(error):
+    """
+    Handle a failed query against the Aiken database (awbc_db): roll back, log the full
+    traceback to the gunicorn log, and flash a readable message so the page renders instead
+    of dying with a bare Internal Server Error.
+
+    Seen in practice after the Aiken Workbench 2.2.8 update, which reset access for the
+    'manager' MySQL account (its release notes say to reboot the Aiken server twice and
+    reconfirm the password with Aiken Support if access is still denied).
+    """
+    db.session.rollback()
+    app.logger.exception('Aiken database (awbc_db) query failed')
+    detail = getattr(error, 'orig', None) or error
+    flash(f'Aiken database query failed: {detail}. The Aiken server may be down, or an Aiken update may have '
+          f'reset the database login. Check the Aiken server, then the web container logs.', category='error')
+
+
+def aiken_no_results_message(form):
+    """
+    Message for an Aiken production search that matched nothing, naming the filters in play.
+    """
+    parts = []
+    if form.start_date.data or form.end_date.data:
+        parts.append(f"between {form.start_date.data or 'the beginning'} and {form.end_date.data or 'today'}")
+    if form.active_lots.data:
+        parts.append('in active lots')
+    scope = ' '.join(parts) if parts else 'at all'
+    return f'No audited units found {scope}. Nothing to show.'
 
 
 def production_graph(query):
