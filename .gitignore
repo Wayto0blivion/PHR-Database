@@ -1,3 +1,7 @@
 /.idea/*
 __pycache__/
 *.pyc
+
+# Local credentials. Templates live in .env.example and .env.db.example.
+.env
+.env.db

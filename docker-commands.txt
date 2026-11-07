@@ -1,12 +1,16 @@
-To start docker-compose containers:
-docker-compose up -d --build
+Deploying on the web server (pulls the latest code, keeps .env and .env.db intact):
+./deploy.sh
+
+Manual Docker Compose v2 commands (note the space: "docker compose", not "docker-compose"):
+
+Build and start the stack in the background:
+docker compose up -d --build
 
 -d runs the containers in the background so that you can continue to use the terminal.
---build updates the containers with whatever changes you have made since the last build.
+--build rebuilds the images with whatever changes you have made since the last build.
 
+Stop the stack:
+docker compose down
 
-To stop docker containers:
-docker-compose down -v
-
--v removes any non-persistent containers to free up disk space.
-
+Follow the web container's log (gunicorn tracebacks land here):
+docker compose logs -f web
